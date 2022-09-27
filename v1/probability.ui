@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Probability</class>
+ <widget class="QMainWindow" name="Probability">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>40</y>
+      <width>201</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>单频谱目标识别概率计算</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bu_exit">
+    <property name="geometry">
+     <rect>
+      <x>660</x>
+      <y>20</y>
+      <width>106</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>退出</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bu_browse">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>120</y>
+      <width>106</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>browse</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_log">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>260</y>
+      <width>80</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>软件日志</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bu_extract">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>510</y>
+      <width>106</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>提取特征</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_gtpath">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>170</y>
+      <width>80</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>标签路径</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="le_imgpath">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>120</y>
+      <width>113</width>
+      <height>29</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bu_browse_gt">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>200</y>
+      <width>106</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>browse</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="le_gtpath">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>200</y>
+      <width>113</width>
+      <height>29</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_imgpath">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>90</y>
+      <width>80</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>图像路径</string>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="text_log">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>290</y>
+      <width>461</width>
+      <height>191</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_mapCase">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>340</y>
+      <width>151</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>识别概率映射方法</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bu_similarity">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>510</y>
+      <width>141</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>计算特征相似度</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bu_probability">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>510</y>
+      <width>141</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>计算识别概率</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bu_save">
+    <property name="geometry">
+     <rect>
+      <x>630</x>
+      <y>510</y>
+      <width>141</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>保存</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="CB_map">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>390</y>
+      <width>151</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>函数映射法</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>心理学决策原理法</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label_feCase">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>120</y>
+      <width>80</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>特征选择</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_weightsCase">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>110</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>相似度加权权值</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="CB_fe">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>160</y>
+      <width>141</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>深度学习特征</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>灰度特征</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>纹理特征</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="CB_weights">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>160</y>
+      <width>141</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>熵权法</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>专家法</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>自定义法</string>
+     </property>
+    </item>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>26</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
