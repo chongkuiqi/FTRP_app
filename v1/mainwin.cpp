@@ -9,7 +9,10 @@ MainWin::MainWin(QWidget *parent)
 
     connect(ui->bu_exit, &QPushButton::clicked, this, &QMainWindow::close);
 
+    // 近远场推演模块
     connect(ui->bu_deduction, &QPushButton::clicked, this, &MainWin::show_deduc);
+    connect(&deduc,SIGNAL(deducexit()),this,SLOT(dealdeduc()));
+
     connect(ui->bu_detection, &QPushButton::clicked, this, &MainWin::show_detec);
     connect(ui->bu_probability, &QPushButton::clicked, this, &MainWin::show_proba);
 
@@ -33,4 +36,10 @@ void MainWin::show_detec()
 void MainWin::show_proba()
 {
     proba.show();
+}
+
+void MainWin::dealdeduc()
+{
+    deduc.hide();
+    show();
 }

@@ -1,4 +1,4 @@
-// #include <ATen/ATen.h>
+ #include <ATen/ATen.h>
 #include <THC/THCAtomics.cuh>
 
 #include <torch/torch.h>

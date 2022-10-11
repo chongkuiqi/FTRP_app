@@ -22,6 +22,8 @@ public:
     void show_detec();
     void show_proba();
 
+private slots:
+    void dealdeduc();
 
 private:
     Ui::MainWin *ui;

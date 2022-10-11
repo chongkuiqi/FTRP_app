@@ -2,6 +2,7 @@
 #define DETECTION_H
 
 #include <QMainWindow>
+#include <opencv2/opencv.hpp>
 
 namespace Ui {
 class Detection;
@@ -20,8 +21,17 @@ public:
 
     void detect();
 
+    void save_results();
+
 private:
     Ui::Detection *ui;
+
+    // 保存图像
+    cv::Mat img;
+    std::vector<std::vector<cv::Point>> contours;
+
+    cv::Mat img_result;
+
 };
 
 #endif // DETECTION_H

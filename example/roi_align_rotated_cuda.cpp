@@ -1,4 +1,4 @@
-// #include "roi_align_rotated_cuda.h"
+#include "roi_align_rotated_cuda.h"
 // #include <torch/extension.h>
 #include <torch/torch.h>
 #include <cmath>

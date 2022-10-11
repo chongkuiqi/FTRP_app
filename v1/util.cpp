@@ -1,4 +1,6 @@
-#include "detect.h"
+#include "util.h"
+#include <QString>
+#include <QFileDialog>
 
 float img_normalize_mean[3] = {123.675, 116.28, 103.53};
 float img_normalize_std[3] = {58.395, 57.12, 57.375};
@@ -54,3 +56,37 @@ bool postprocess(const torch::Tensor &boxes, vector<vector<Point>> &contours)
     contours.push_back(contour);
 
 }
+
+
+bool LoadBoxes(QString &gt_path, std::vector<std::vector<cv::Point>> &contours)
+{
+    QFile f(gt_path);
+    if(!f.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        cout <<"Can't open the file!"<<endl;
+    }
+
+    while(!f.atEnd())
+    {
+        vector<Point> contour;
+
+        QByteArray line = f.readLine();
+        QString line_str(line);
+
+        QStringList str_list = line_str.split(",");
+        for(int i=0; i<8; i=i+2)
+        {
+            int x = str_list[i].toInt();
+            int y = str_list[i+1].toInt();
+            contour.emplace_back(cv::Point(x,y));
+        }
+
+        contours.push_back(contour);
+    }
+
+}
+
+
+
+
+

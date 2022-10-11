@@ -589,21 +589,21 @@ class RetinaNet_extract(nn.Module):
         
         # roi_feats = get_roi_feat(outs[0], rois, out_h=7, out_w=7, num_channels=256, spatial_scale=1/8, sample_num=2)
         
-        # features = outs[0]
-        # out_h=7
-        # out_w=7
-        # num_channels=256
-        # spatial_scale=1/8
-        # sample_num=2
-        # num_rois = rois.size(0)
-        # output = features.new_zeros(num_rois, num_channels, out_h, out_w)
+        features = outs[0]
+        out_h=7
+        out_w=7
+        num_channels=256
+        spatial_scale=1/8
+        sample_num=2
+        num_rois = rois.size(0)
+        output = features.new_zeros(num_rois, num_channels, out_h, out_w)
         
-        # roi_align_rotated_cuda.forward(features, rois, out_h, out_w, spatial_scale,
-        #                             sample_num, output)
+        roi_align_rotated_cuda.forward(features, rois, out_h, out_w, spatial_scale,
+                                    sample_num, output)
         
         # roi_feats = self.roi_layers[0](outs[0], rois)
         # for level_id in range(self.nl):
         #     roi_feats = self.roi_layers[level_id](outs[level_id], rois)
         
-        return outs
+        return output
 

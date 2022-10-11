@@ -1,4 +1,4 @@
-#include "detect.h"
+#include "util.h"
 #include "probability.h"
 #include "ui_probability.h"
 #include <QFileDialog>
@@ -6,6 +6,9 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
+
+#include <util.h>
+#include <fstream>
 
 #include <string>
 using namespace std;
@@ -25,8 +28,14 @@ Probability::Probability(QWidget *parent) :
 
     connect(ui->bu_extract, &QPushButton::clicked, this, &Probability::extract_fe);
 
+
+    connect(ui->bu_similarity, &QPushButton::clicked, this, &Probability::cal_similarity);
+
+    connect(ui->bu_probability, &QPushButton::clicked, this, &Probability::cal_probability);
+
+    connect(ui->bu_save, &QPushButton::clicked, this, &Probability::save_results);
     // 显示软件日志
-    ui->text_log->setText("请输入图像路径和模型路径...");
+    ui->text_log->setText("请输入图像路径和标注文件路径...");
 
 }
 
@@ -61,18 +70,37 @@ void Probability::browse_gt()
 }
 
 
+
 void Probability::extract_fe()
 {
-    std::string img_path = ui->le_imgpath->text().toStdString();
-    std::string gt_path = ui->le_gtpath->text().toStdString();
-    std::string model_path = "/home/ckq/MyDocuments/QtCode/ftrp_software/example/FTRP_software/exp361_no_align_extract_fe_script.pt";
-
-
-    torch::Device device(torch::kCPU);
+    QString img_path = ui->le_imgpath->text();
 
     cv::Mat img;
-    LoadImage(img_path, img); // CV_8UC3
+    LoadImage(img_path.toStdString(), img); // CV_8UC3
 
+
+    // 读取标签文件
+    QString gt_path = ui->le_gtpath->text();
+    std::vector<std::vector<cv::Point>> contours;
+    LoadBoxes(gt_path, contours);
+
+
+    // 选择特征
+    QString fe_type = ui->CB_fe->currentText();
+
+    if (fe_type == QString("深度学习特征")) extract_fe_deep(img, contours);
+    else if (fe_type == QString("灰度特征")) extract_fe_gray(img, contours);
+    else if (fe_type == QString("纹理特征")) extract__fe_texture(img, contours);
+    else cout << "必须选择特征！！！" << endl;
+
+}
+
+
+void Probability::extract_fe_deep(cv::Mat &img, std::vector<std::vector<cv::Point>> &contours)
+{
+    std::string model_path = "/home/ckq/MyDocuments/QtCode/ftrp_software/example/FTRP_software/exp361_no_align_extract_fe_script.pt";
+
+    torch::Device device(torch::kCPU);
     cv::Mat img2;
     cv::cvtColor(img, img2, cv::COLOR_BGR2RGB);
     // // scale image to fit
@@ -103,8 +131,179 @@ void Probability::extract_fe()
         cout << "特征层级" << i << "尺寸:" << ele[i].toTensor().sizes() << endl;
     }
 
+    ui->text_log->append("获得深度学习特征！");
+}
+
+void Probability::extract_fe_gray(cv::Mat &img, std::vector<std::vector<cv::Point>> &contours)
+{
+    // 根据4个点，找最小旋转矩形
+    cv::RotatedRect box = cv::minAreaRect(contours[0]);
+    cv::Point2f center = box.center;
+    float angle = box.angle;
+
+    cv::Mat M = cv::getRotationMatrix2D(center, angle, 1.0);
+    cv::Mat img_rotate;
+    cv::warpAffine(img, img_rotate, M, cv::Size(img.cols, img.rows), INTER_LINEAR, 0);
 
 
+//    QFileInfo imginfo = QFileInfo(img_path);
+//    QString fileSuffix = imginfo.suffix();
+
+//    QString save_path = img_path.replace(QRegExp("."+fileSuffix), "_rotate."+fileSuffix);
+//    cv::imwrite(save_path.toStdString(), img_rotate);
+
+    int x = (int)(center.x);
+    int y = (int)(center.y);
+    int w = (int)(box.size.width);
+    int h = (int)(box.size.height);
+    int x1 = x - w/2;
+    int y1 = y - h/2;
+    // 左上角点坐标，w,h
+    cv::Rect rect(x1,y1,w,h);
+    cv::Mat roi = img_rotate(rect);
+
+//    QString crop_path = save_path.replace(QRegExp("."+fileSuffix), "_crop."+fileSuffix);
+//    cv::imwrite((crop_path).toStdString(), roi);
+
+    // 转化为灰度图
+//    cv::cvtColor(roi, roi, cv::COLOR_BGR2HSV);
+//    std::vector<Mat>bgr_plane;
+//    cv::split(roi, bgr_plane);
+    cv::Mat roi_hist;
+    get_hist(roi, roi_hist);
+
+    int padding = (ui->le_bg_ratio->text().toFloat()) * w / 2;
+    int x2 = x - w/2 - padding;
+    int y2 = y - h/2 - padding;
+    // 左上角点坐标，w,h
+    cv::Rect rect2(x2,y2,w+2*padding,h+2*padding);
+    cv::Mat bg = img_rotate(rect2);
+    cv::Mat bg_hist;
+    get_hist(bg, bg_hist);
+
+    double roimaxVal=0, bgmaxVal=0;
+    bg_hist = bg_hist - roi_hist;
+    minMaxLoc(roi_hist, 0, &roimaxVal, 0, 0);
+    minMaxLoc(bg_hist, 0, &bgmaxVal, 0, 0);
+
+    roi_hist = roi_hist / roimaxVal;
+    bg_hist = bg_hist / bgmaxVal;
+
+    this->roi_fe = roi_hist.clone();
+    this->bg_fe = bg_hist.clone();
+
+    ui->text_log->append("获得灰度特征！");
+
+
+    // 把两个框都画出来
+
+    int contoursIds = -1;
+    Scalar color = Scalar(0,0,255);
+    int thickness = 3;
+    cv::Mat img_show = img.clone();
+    // 画前景区域的框
+    drawContours(img_show, contours, contoursIds, color, thickness);
+
+    std::vector<std::vector<cv::Point>> bg_contours;
+    RotatedRect rRect = RotatedRect(Point2f(x,y), Size2f(w+2*padding, h+2*padding), angle);
+    Point2f vertices[4];      //定义4个点的数组
+    rRect.points(vertices);   //将四个点存储到vertices数组中
+    // drawContours函数需要的点是Point类型而不是Point2f类型
+    vector<Point> contour;
+    for (int i=0; i<4; i++)
+    {
+      contour.emplace_back(Point(vertices[i]));
+    }
+    bg_contours.push_back(contour);
+
+    // 画北背景区域的框
+    color = Scalar(255,0,0);
+    drawContours(img_show, bg_contours, contoursIds, color, thickness);
+
+    imshow( "image", img_show );
+    waitKey(0);
+
+
+}
+
+void Probability::extract__fe_texture(cv::Mat &img, std::vector<std::vector<cv::Point>> &contours)
+{
+
+    ui->text_log->append("获得纹理特征！");
+}
+
+
+void Probability::get_hist(cv::Mat & img, cv::Mat & hist)
+{
+    //    //定义参数变量
+        int bins = 8;
+        int histSize[] = {bins, bins};
+        float bin_range[] = { 0, 255 };
+        const float* ranges[] = { bin_range, bin_range };
+        int channels[] = {0, 1};
+
+        // 计算得到直方图数据
+        calcHist( &img, 1, channels, Mat(), // do not use mask
+                 hist, 2, histSize, ranges,
+                 true, // the histogram is uniform
+                 false );
+        /*
+        参数解析：
+        all_channel[i]:传入要计算直方图的通道，根据函数原函数可以得出，要以引用的方式传入
+        1：传入图像的个数，就一个
+        0：表示传入一个通道
+        Mat():没有定义掩膜，所以默认计算区域是全图像
+        b/g/r_hist:用来存储计算得到的直方图数据
+        1：对于当前通道需要统计的直方图个数，我们统计一个
+        bin:直方图的横坐标有多少个，我们将其赋值为256，即统计每一个像素值的数量。要求用引用方式传入。
+        ranges：每个像素点的灰度等级，要求以引用方式传入。
+        false：进行归一化，
+        false：计算多个图像的直方图时，不累加上一张图像的像素点数据。
+        */
+}
+
+
+void Probability::cal_similarity()
+{
+    cv::Mat diff = cv::abs(this->roi_fe - this->bg_fe);
+
+    // cv::mean的返回结果有4个通道
+    this->similarity = 1 - cv::mean(diff).val[0];
+
+    QString log = QString("\n计算得到的特征相似度为:") + QString::number(this->similarity, 'f', 3);
+    ui->text_log->append(log);
+
+}
+
+void Probability::cal_probability()
+{
+    this->probability = 1 - this->similarity;
+    QString log = QString("\n计算得到的识别概率为:") + QString::number(this->probability, 'f', 3);
+    ui->text_log->append(log);
+}
+
+void Probability::save_results()
+{
+    QString img_path = ui->le_imgpath->text();
+
+    QFileInfo imginfo = QFileInfo(img_path);
+    QString img_name = imginfo.fileName();
+    QString fileSuffix = imginfo.suffix();
+
+    QString txt_save_path = img_path.replace(QRegExp("."+fileSuffix), "_probability.txt");
+
+    ofstream fout;
+    fout.open(txt_save_path.toStdString());
+
+    std::string s = "特征相似度:" + std::to_string(this->similarity) + "\n";
+    fout << s;
+
+    s = "目标识别概率:" + std::to_string(this->probability) + "\n";
+    fout << s;
+
+    fout.close();
+
+    ui->text_log->append("已完成保存！！！");
 
 
 }

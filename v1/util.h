@@ -1,7 +1,7 @@
-#ifndef DETECT_H
-#define DETECT_H
+#ifndef UTIL_H
+#define UTIL_H
 
-#endif // DETECT_H
+#endif // UTIL_H
 
 //#include <torch/torch.h>
 #undef slots
@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <QString>
 
 using namespace std;
 using namespace cv;
@@ -28,3 +29,6 @@ bool preprocess(const cv::Mat &img, torch::Tensor &input_tensor);
 bool LoadImage(std::string file_name, cv::Mat &img);
 
 bool postprocess(const torch::Tensor &boxes, vector<vector<Point>> &contours);
+
+
+bool LoadBoxes(QString &gt_path, std::vector<std::vector<cv::Point>> &contours);

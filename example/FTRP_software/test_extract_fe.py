@@ -50,7 +50,8 @@ model.float()
 model.eval()
 
 # print(model(img).shape)
-# print(model(img))
+print(model(img)[1,255])
+exit()
 # print(model(img)[1].max())
 with torch.no_grad():
     # Use torch.jit.trace to generate a torch.jit.ScriptModule via tracing.
