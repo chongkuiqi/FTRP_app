@@ -21,8 +21,10 @@ include_directories( /usr/include/python3.8 )
 # include_directories( /home/ckq/miniconda3/envs/ckq/lib/python3.8/site-packages/torch/include/ )
 
 
-add_executable(example-app example-app.cpp roi_align_rotated_cuda.h roi_align_rotated_cuda.cpp roi_align_rotated_kernel.cu)
+add_executable(example-app example-app-MS.cpp)
 # add_executable(example-app example-app.cpp)
+# add_executable(example-app example-app.cpp roi_align_rotated_cuda.h roi_align_rotated_cuda.cpp roi_align_rotated_kernel.cu)
+
 
 target_link_libraries(example-app ${TORCH_LIBRARIES} ${OpenCV_LIBS})
 

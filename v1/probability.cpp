@@ -14,6 +14,8 @@
 using namespace std;
 using namespace cv;
 
+#include <QDebug>
+
 Probability::Probability(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Probability)
@@ -26,6 +28,7 @@ Probability::Probability(QWidget *parent) :
     // 读取模型文件路径
     connect(ui->bu_browse_gt, &QPushButton::clicked, this, &Probability::browse_gt);
 
+    // 提取特征
     connect(ui->bu_extract, &QPushButton::clicked, this, &Probability::extract_fe);
 
 
@@ -36,6 +39,22 @@ Probability::Probability(QWidget *parent) :
     connect(ui->bu_save, &QPushButton::clicked, this, &Probability::save_results);
     // 显示软件日志
     ui->text_log->setText("请输入图像路径和标注文件路径...");
+
+
+
+    // 三种图像特征选择按钮，放进一个按钮组
+    bu_fe_group.setParent(this);
+    // 按钮组中不互斥
+    bu_fe_group.setExclusive(false);
+    bu_fe_group.addButton(ui->bu_deep_fe, 0);
+    bu_fe_group.addButton(ui->bu_gray_fe, 1);
+    bu_fe_group.addButton(ui->bu_text_fe, 2);
+
+    // 按钮组每改变一次状态，都会调用一次
+    connect(&bu_fe_group, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &Probability::on_bu_fe_group);
+
+    fe_status = {false, false, false};
+
 
 }
 
@@ -85,13 +104,21 @@ void Probability::extract_fe()
     LoadBoxes(gt_path, contours);
 
 
-    // 选择特征
-    QString fe_type = ui->CB_fe->currentText();
 
-    if (fe_type == QString("深度学习特征")) extract_fe_deep(img, contours);
-    else if (fe_type == QString("灰度特征")) extract_fe_gray(img, contours);
-    else if (fe_type == QString("纹理特征")) extract__fe_texture(img, contours);
-    else cout << "必须选择特征！！！" << endl;
+    // 选择特征
+    if (this->fe_status.deep) extract_fe_deep(img, contours);
+    if (this->fe_status.gray) extract_fe_gray(img, contours);
+    if (this->fe_status.text) extract_fe_texture(img, contours);
+
+
+////    ui->CB
+//    QString fe_type = ui->CB_fe->currentText();
+
+
+//    if (fe_type == QString("深度学习特征")) extract_fe_deep(img, contours);
+//    else if (fe_type == QString("灰度特征")) extract_fe_gray(img, contours);
+//    else if (fe_type == QString("纹理特征")) extract_fe_texture(img, contours);
+//    else cout << "必须选择特征！！！" << endl;
 
 }
 
@@ -132,6 +159,8 @@ void Probability::extract_fe_deep(cv::Mat &img, std::vector<std::vector<cv::Poin
     }
 
     ui->text_log->append("获得深度学习特征！");
+
+
 }
 
 void Probability::extract_fe_gray(cv::Mat &img, std::vector<std::vector<cv::Point>> &contours)
@@ -189,8 +218,8 @@ void Probability::extract_fe_gray(cv::Mat &img, std::vector<std::vector<cv::Poin
     roi_hist = roi_hist / roimaxVal;
     bg_hist = bg_hist / bgmaxVal;
 
-    this->roi_fe = roi_hist.clone();
-    this->bg_fe = bg_hist.clone();
+    this->roi_fe.gray = roi_hist.clone();
+    this->bg_fe.gray = bg_hist.clone();
 
     ui->text_log->append("获得灰度特征！");
 
@@ -226,7 +255,7 @@ void Probability::extract_fe_gray(cv::Mat &img, std::vector<std::vector<cv::Poin
 
 }
 
-void Probability::extract__fe_texture(cv::Mat &img, std::vector<std::vector<cv::Point>> &contours)
+void Probability::extract_fe_texture(cv::Mat &img, std::vector<std::vector<cv::Point>> &contours)
 {
 
     ui->text_log->append("获得纹理特征！");
@@ -265,13 +294,42 @@ void Probability::get_hist(cv::Mat & img, cv::Mat & hist)
 
 void Probability::cal_similarity()
 {
-    cv::Mat diff = cv::abs(this->roi_fe - this->bg_fe);
+    // 首先把所有特征相似度归0
+    this->fe_similarity = {0.0, 0.0, 0.0};
+
+    if (this->fe_status.deep) cal_similarity_deep();
+    if (this->fe_status.gray) cal_similarity_gray();
+    if (this->fe_status.text) cal_similarity_text();
+
+    // 根据特征相似度计算综合相似度
+    this->similarity = this->fe_similarity.deep +
+            this->fe_similarity.gray +
+            this->fe_similarity.text;
+
+
+}
+
+
+void Probability::cal_similarity_deep()
+{
+
+}
+
+
+void Probability::cal_similarity_gray()
+{
+    cv::Mat diff = cv::abs(this->roi_fe.gray - this->bg_fe.gray);
 
     // cv::mean的返回结果有4个通道
     this->similarity = 1 - cv::mean(diff).val[0];
 
     QString log = QString("\n计算得到的特征相似度为:") + QString::number(this->similarity, 'f', 3);
     ui->text_log->append(log);
+}
+
+
+void Probability::cal_similarity_text()
+{
 
 }
 
@@ -304,6 +362,29 @@ void Probability::save_results()
     fout.close();
 
     ui->text_log->append("已完成保存！！！");
+
+
+}
+
+
+void Probability::on_bu_fe_group(QAbstractButton *button)
+{
+
+    bool status = button->isChecked() ? true : false;
+    if (button->text() == QString("深度学习特征")) this->fe_status.deep = status;
+    if (button->text() == QString("灰度特征")) this->fe_status.gray = status;
+    if (button->text() == QString("纹理特征")) this->fe_status.text = status;
+
+        // 当前点击的按钮
+    //    qDebug() << QString("Clicked Button : %1").arg(button->text());
+
+        // 遍历按钮，获取选中状态
+//    QList<QAbstractButton*> list = bu_fe_group.buttons();
+//    foreach (QAbstractButton *pCheckBox, list)
+//    {
+//       QString strStatus = pCheckBox->isChecked() ? "Checked" : "Unchecked";
+//       qDebug() << QString("Button : %1 is %2").arg(pCheckBox->text()).arg(strStatus);
+//    }
 
 
 }

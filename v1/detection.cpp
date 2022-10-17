@@ -15,6 +15,8 @@
 
 #include <fstream>
 
+#include <nms_rotated.h>
+
 Detection::Detection(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Detection)
@@ -28,6 +30,7 @@ Detection::Detection(QWidget *parent) :
     // 读取模型文件路径
     connect(ui->bu_browse_model, &QPushButton::clicked, this, &Detection::browse_model);
 
+    // 检测功能
     connect(ui->bu_detect, &QPushButton::clicked, this, &Detection::detect);
 
     connect(ui->bu_save, &QPushButton::clicked, this, &Detection::save_results);
@@ -75,66 +78,86 @@ void Detection::detect()
 
     ui->text_log->append("正在获取图像和模型...");
 
-    std::string img_path = ui->le_imgpath->text().toStdString();
-//    cv::Mat img;
-    LoadImage(img_path, this->img); // CV_8UC3
-    namedWindow( "image", 1 );
+    QString img_path_ = ui->le_imgpath->text();
+    std::string img_path = img_path_.toStdString();
+    LoadImage(img_path, this->img_MS.Opt); // CV_8UC3
 
-
-
-    cv::Mat img2;
-    cv::cvtColor(this->img, img2, cv::COLOR_BGR2RGB);
+    cv::Mat img2 = this->img_MS.Opt.clone();
+    // cout << img.at<float>(0,0,0) << endl;
+    torch::Tensor input_tensor;
+    cv::cvtColor(img2, img2, cv::COLOR_BGR2RGB);
     // // scale image to fit
     // cv::Size scale(IMG_SIZE, IMG_SIZE);
     // cv::resize(img2, img2, scale);
     // convert [unsigned int] to [float]
     img2.convertTo(img2, CV_32FC3);
-
-    // cout << img.at<float>(0,0,0) << endl;
-    //read image tensor
-    torch::Tensor input_tensor;
     preprocess(img2, input_tensor);
-    // to GPU
-//    try {
-//        void *h = dlopen("/home/ckq/software/libtorch/lib/libtorch_cuda.so",RTLD_LAZY);
-//        std::cout << torch::cuda::is_available() << std::endl;
-//        torch::Tensor tensor = at::tensor({ -1, 1 }, at::kCUDA);
-//    }catch (exception& ex) {
-//        std::cout << ex.what() << std::endl;
-//    }
-
     cout << "cuda is_available:" << torch::cuda::is_available() << endl;
-//    cout << "导入device中" << endl;
     input_tensor = input_tensor.to(device);
+
+
     // cout << img.itemsize() << endl;
 //    cout << "input img size:" << input_tensor.sizes() << endl;
-
 
     std::string model_path = ui->le_modelpath->text().toStdString();
 
     torch::NoGradGuard no_grad;
-    torch::jit::script::Module module;
-    module = torch::jit::load(model_path, device);
+    torch::jit::script::Module model;
+    model = torch::jit::load(model_path, device);
     // 获取模型配置参数
     float score_thr = (ui->line_score->text()).toFloat();
     float iou_thr = (ui->line_iou_thr->text()).toFloat();
     int max_per_img = (ui->line_maxnum->text()).toInt();
 
-//    cout << score_thr << iou_thr << max_per_img <<endl;
     ui->text_log->append("开始推理...");
-    auto output = module.forward({input_tensor}).toTuple();
+
+
+    c10::intrusive_ptr<at::ivalue::Tuple> output;
+//    output = model.forward(inputs).toTuple();
+    if (ui->bu_MS_detection->isChecked())
+    {
+        QFileInfo imginfo = QFileInfo(img_path_);
+        QString fileSuffix = imginfo.suffix();
+
+        std::string img_IR_path = img_path_.replace(QRegExp("."+fileSuffix), "_IR."+fileSuffix).toStdString();
+        cv::Mat img_IR;
+        LoadImage(img_IR_path, img_IR); // CV_8UC3
+        torch::Tensor input_tensor_IR;
+        cv::cvtColor(img_IR, img_IR, cv::COLOR_BGR2RGB);
+        img_IR.convertTo(img_IR, CV_32FC3);
+        preprocess(img_IR, input_tensor_IR);
+        input_tensor_IR = input_tensor_IR.to(device);
+
+        std::string img_SAR_path = img_path_.replace(QRegExp("."+fileSuffix), "_SAR."+fileSuffix).toStdString();
+        cv::Mat img_SAR;
+        LoadImage(img_IR_path, img_SAR); // CV_8UC3
+        torch::Tensor input_tensor_SAR;
+        cv::cvtColor(img_SAR, img_SAR, cv::COLOR_BGR2RGB);
+        img_SAR.convertTo(img_SAR, CV_32FC3);
+        preprocess(img_SAR, input_tensor_SAR);
+        input_tensor_SAR = input_tensor_SAR.to(device);
+
+        output = model.forward({input_tensor, input_tensor_IR, input_tensor_SAR}).toTuple();
+    }
+    else
+    {
+        output = model.forward({input_tensor}).toTuple();
+    }
+
 
     // only one img
-    auto b = output->elements()[0];
+    at::IValue b = output->elements()[0];
     torch::Tensor boxes = b.toTuple()->elements()[0].toTensor();
 
     postprocess(boxes, this->contours);
 
     ui->text_log->append("检测完成！");
+
+    namedWindow( "image", 1 );
     int contoursIds = -1;
     const Scalar color = Scalar(0,0,255);
     int thickness = 3;
-    this->img_result = this->img.clone();
+    this->img_result = this->img_MS.Opt.clone();
     drawContours(this->img_result, this->contours, contoursIds, color, thickness);
     imshow( "image", this->img_result );
     waitKey(0);

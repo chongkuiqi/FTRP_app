@@ -22,14 +22,13 @@ bool LoadImage(std::string file_name, cv::Mat &img)
 bool preprocess(const cv::Mat &img, torch::Tensor &input_tensor)
 {
 
+    input_tensor = torch::from_blob(
+      img.data, {1, IMG_SIZE, IMG_SIZE, IMG_CHN});
+    input_tensor = input_tensor.permute({0, 3, 1, 2});
 
-  input_tensor = torch::from_blob(
-    img.data, {1, IMG_SIZE, IMG_SIZE, IMG_CHN});
-  input_tensor = input_tensor.permute({0, 3, 1, 2});
-
-  input_tensor[0][0] = input_tensor[0][0].sub_(img_normalize_mean[0]).div_(img_normalize_std[0]);
-  input_tensor[0][1] = input_tensor[0][1].sub_(img_normalize_mean[1]).div_(img_normalize_std[1]);
-  input_tensor[0][2] = input_tensor[0][2].sub_(img_normalize_mean[2]).div_(img_normalize_std[2]);
+    input_tensor[0][0] = input_tensor[0][0].sub_(img_normalize_mean[0]).div_(img_normalize_std[0]);
+    input_tensor[0][1] = input_tensor[0][1].sub_(img_normalize_mean[1]).div_(img_normalize_std[1]);
+    input_tensor[0][2] = input_tensor[0][2].sub_(img_normalize_mean[2]).div_(img_normalize_std[2]);
 }
 
 

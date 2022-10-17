@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1003</width>
+    <height>724</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -62,8 +62,8 @@
    <widget class="QTextBrowser" name="text_log">
     <property name="geometry">
      <rect>
-      <x>450</x>
-      <y>210</y>
+      <x>580</x>
+      <y>250</y>
       <width>321</width>
       <height>251</height>
      </rect>
@@ -72,8 +72,8 @@
    <widget class="QLabel" name="label_log">
     <property name="geometry">
      <rect>
-      <x>570</x>
-      <y>170</y>
+      <x>680</x>
+      <y>200</y>
       <width>101</width>
       <height>31</height>
      </rect>
@@ -82,7 +82,7 @@
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;软件日志&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -128,7 +128,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -182,11 +182,11 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>180</x>
-      <y>480</y>
+      <x>300</x>
+      <y>570</y>
       <width>401</width>
       <height>51</height>
      </rect>
@@ -208,13 +208,26 @@
      </item>
     </layout>
    </widget>
+   <widget class="QRadioButton" name="bu_MS_detection">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>500</y>
+      <width>133</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>多频谱检测</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1003</width>
      <height>26</height>
     </rect>
    </property>

@@ -4,6 +4,18 @@
 #include <QMainWindow>
 #include <opencv2/opencv.hpp>
 
+
+// 泛型编程，存储各个特征的状态、特征相似度
+template <typename T>
+struct struct_MS
+{
+    T Opt;
+    T IR;
+    T SAR;
+};
+
+
+
 namespace Ui {
 class Detection;
 }
@@ -27,7 +39,7 @@ private:
     Ui::Detection *ui;
 
     // 保存图像
-    cv::Mat img;
+    struct_MS<cv::Mat> img_MS;
     std::vector<std::vector<cv::Point>> contours;
 
     cv::Mat img_result;

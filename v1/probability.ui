@@ -62,14 +62,14 @@
    <widget class="QTextBrowser" name="text_log">
     <property name="geometry">
      <rect>
-      <x>400</x>
-      <y>160</y>
-      <width>371</width>
-      <height>321</height>
+      <x>560</x>
+      <y>220</y>
+      <width>211</width>
+      <height>261</height>
      </rect>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -115,92 +115,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>250</y>
-      <width>271</width>
-      <height>205</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_feCase">
-       <property name="text">
-        <string>特征选择</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QComboBox" name="CB_fe">
-       <item>
-        <property name="text">
-         <string>深度学习特征</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>灰度特征</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>纹理特征</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_weightsCase">
-       <property name="text">
-        <string>相似度加权权值</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QComboBox" name="CB_weights">
-       <item>
-        <property name="text">
-         <string>熵权法</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>专家法</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>自定义法</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_mapCase">
-       <property name="text">
-        <string>识别概率映射方法</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QComboBox" name="CB_map">
-       <item>
-        <property name="text">
-         <string>函数映射法</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>心理学决策原理法</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>70</x>
@@ -240,7 +155,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>430</x>
@@ -265,6 +180,154 @@
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QLabel" name="label_feCase">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>260</y>
+      <width>81</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>特征选择</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_weightsCase">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>360</y>
+      <width>141</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>相似度加权权值</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="CB_weights">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>400</y>
+      <width>269</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>熵权法</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>专家法</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>自定义法</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label_mapCase">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>420</y>
+      <width>141</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>识别概率映射方法</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="CB_map">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>460</y>
+      <width>269</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>函数映射法</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>心理学决策原理法</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QCheckBox" name="bu_deep_fe">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>300</y>
+      <width>131</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>深度学习特征</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="bu_gray_fe">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>300</y>
+      <width>131</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>灰度特征</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="bu_text_fe">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>300</y>
+      <width>131</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>纹理特征</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="CB_fe">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>350</y>
+      <width>269</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>深度学习特征</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>灰度特征</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>纹理特征</string>
+     </property>
+    </item>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

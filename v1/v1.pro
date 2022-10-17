@@ -13,15 +13,18 @@ SOURCES += \
     detection.cpp \
     main.cpp \
     mainwin.cpp \
+    nms_rotated_cpu.cpp \
     optdeduction.cpp \
     probability.cpp \
     sardeduction.cpp \
     util.cpp
 
 HEADERS += \
+    box_iou_rotated_utils.h \
     deduction.h \
     detection.h \
     mainwin.h \
+    nms_rotated.h \
     optdeduction.h \
     probability.h \
     sardeduction.h \
@@ -40,12 +43,10 @@ FORMS += \
 INCLUDEPATH +=  /usr/local/include \
                 /usr/local/include/opencv4 \
                 /usr/local/include/opencv4/opencv2 \
-                /home/ckq/software/libtorch/include \
-                /home/ckq/software/libtorch/include/torch/csrc/api/include
-
-
-#                /home/ckq/miniconda3/envs/ckq/lib/python3.8/site-packages/torch/include/ \
-#                /home/ckq/miniconda3/envs/ckq/lib/python3.8/site-packages/torch/include/torch/csrc/api/include/ \
+                /home/ckq/Downloads/libtorch1.7.1/include \
+                /home/ckq/Downloads/libtorch1.7.1/include/torch/csrc/api/include
+#                /home/ckq/software/libtorch/include \
+#                /home/ckq/software/libtorch/include/torch/csrc/api/include
 #/home/ckq/Downloads/pre_libtorch/include/ \
 #/home/ckq/Downloads/pre_libtorch/include/torch/csrc/api/include/
 #/home/ckq/software/libtorch/include/torch/csrc/api/include/ \
@@ -62,7 +63,9 @@ QMAKE_LFLAGS += -INCLUDE:?warp_size@cuda@at@@YAHXZ
 #QMAKE_LFLAGS += -INCLUDE:"?ignore_this_library_placeholder@@YAHXZ"
 
 
-QMAKE_LIBDIR += /home/ckq/software/libtorch/lib
+#QMAKE_LIBDIR += /home/ckq/software/libtorch/lib
+QMAKE_LIBDIR += /home/ckq/Downloads/libtorch1.7.1/lib
+
 
 LIBS += /usr/local/lib/libopencv_highgui.so \
         /usr/local/lib/libopencv_highgui.so.4.5 \
@@ -70,25 +73,51 @@ LIBS += /usr/local/lib/libopencv_highgui.so \
         /usr/local/lib/libopencv_imgproc.so \
         /usr/local/lib/libopencv_imgcodecs.so
 
-QMAKE_LFLAGS += -Wl,-rpath=/home/ckq/software/libtorch/lib/
+#QMAKE_LFLAGS += -Wl,-rpath=/home/ckq/software/libtorch/lib/
+QMAKE_LFLAGS += -Wl,-rpath=/home/ckq/Downloads/libtorch1.7.1/lib/
 
 
 INCLUDEPATH +=  /usr/local/cuda/include
-LIBS += /home/ckq/software/libtorch/lib/libtorch.so \
-        /home/ckq/software/libtorch/lib/libtorch_cuda.so \
+#LIBS += /home/ckq/software/libtorch/lib/libtorch.so \
+#        /home/ckq/software/libtorch/lib/libtorch_cuda.so \
+#        /usr/local/cuda/lib64/libcudnn.so
+LIBS += /home/ckq/Downloads/libtorch1.7.1/lib/libtorch.so \
+        /home/ckq/Downloads/libtorch1.7.1/lib/libtorch_cuda.so \
         /usr/local/cuda/lib64/libcudnn.so
 
-LIBS += /home/ckq/software/libtorch/lib/libc10.so \
-        /home/ckq/software/libtorch/lib/libkineto.a \
+#LIBS += /home/ckq/software/libtorch/lib/libc10.so \
+#        /home/ckq/software/libtorch/lib/libkineto.a \
+#        /usr/local/cuda/lib64/stubs/libcuda.so \
+#        /usr/local/cuda/lib64/libnvrtc.so \
+#        /usr/local/cuda/lib64/libnvToolsExt.so \
+#        /usr/local/cuda/lib64/libcudart.so \
+#        /home/ckq/software/libtorch/lib/libc10_cuda.so
+LIBS += /home/ckq/Downloads/libtorch1.7.1/lib/libc10.so \
         /usr/local/cuda/lib64/stubs/libcuda.so \
         /usr/local/cuda/lib64/libnvrtc.so \
         /usr/local/cuda/lib64/libnvToolsExt.so \
         /usr/local/cuda/lib64/libcudart.so \
-        /home/ckq/software/libtorch/lib/libc10_cuda.so
-
+        /home/ckq/Downloads/libtorch1.7.1/lib/libc10_cuda.so
 
 #LIBS += -L"/home/ckq/Downloads/pre_libtorch/lib" \
-LIBS += -L"/home/ckq/software/libtorch/lib" \
+#LIBS += -L"/home/ckq/software/libtorch/lib" \
+##        -lbackend_with_compiler \
+#        -lc10_cuda \
+#        -lc10d_cuda_test \
+#        -lc10 \
+#        -lcaffe2_nvrtc \
+#        -ljitbackend_test \
+##        -lnnapi_backend \
+#        -lnvrtc-builtins \
+#        -lshm \
+#        -ltorchbind_test \
+#        -ltorch_cpu \
+##        -ltorch_cuda_linalg \
+#        -ltorch_cuda \
+#        -ltorch_global_deps \
+#        -ltorch_python \
+#        -ltorch
+LIBS += -L"/home/ckq/Downloads/libtorch1.7.1/lib" \
 #        -lbackend_with_compiler \
         -lc10_cuda \
         -lc10d_cuda_test \
@@ -107,14 +136,46 @@ LIBS += -L"/home/ckq/software/libtorch/lib" \
         -ltorch
 
 
-
 #LIBS += /home/ckq/software/libtorch/lib/libcublas-1e3c0411.so.10 \
 #        /home/ckq/software/libtorch/lib/libcublasLt-a1cbff2e.so.10 \
 #        /home/ckq/software/libtorch/lib/libcudart-80664282.so.10.2 \
 #        /home/ckq/software/libtorch/lib/libnvToolsExt-3965bdd0.so.1
 
 
-LIBS += -L"/home/ckq/software/libtorch/lib" \
+#LIBS += -L"/home/ckq/software/libtorch/lib" \
+#        -lasmjit \
+##        -lkineto \
+#        -lnnpack \
+#        -lnnpack_reference_layers \
+#        -lbenchmark \
+#        -lbenchmark_main \
+#        -lcaffe2_protos \
+#        -lonnx \
+#        -lonnx_proto \
+#        -lclog \
+#        -lprotobuf \
+#        -lcpuinfo   \
+#        -lprotobuf-lite \
+#        -lcpuinfo_internals \
+#        -lprotoc \
+#        -lpthreadpool \
+#        -lpytorch_qnnpack \
+#        -lqnnpack \
+#        -ldnnl \
+##        -ldnnl_graph \
+#        -lfbgemm \
+#        -lfmt \
+#        -lfoxi_loader \
+#        -lgloo \
+#        -lgloo_cuda \
+#        -lgmock \
+#        -lgmock_main \
+#        -lgtest \
+#        -lgtest_main \
+#        -ltensorpipe \
+##        -ltensorpipe_cuda \
+#        -ltensorpipe_uv
+LIBS += -L"/home/ckq/Downloads/libtorch1.7.1/lib" \
         -lasmjit \
 #        -lkineto \
         -lnnpack \
@@ -147,7 +208,6 @@ LIBS += -L"/home/ckq/software/libtorch/lib" \
         -ltensorpipe \
 #        -ltensorpipe_cuda \
         -ltensorpipe_uv
-
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
