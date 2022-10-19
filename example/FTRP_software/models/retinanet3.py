@@ -227,7 +227,8 @@ class RetinaNetHead(nn.Module):
         p = multi_apply(self.forward_single, feats, self.featmap_strides)
 
         # return p
-        imgs_results_ls = self.get_bboxes(p)
+        # imgs_results_ls = self.get_bboxes(p)
+        imgs_results_ls = self.get_bboxes_script(p)
         return imgs_results_ls
 
         
@@ -448,6 +449,65 @@ class RetinaNetHead(nn.Module):
             )
         
         return det_bboxes.contiguous(), det_labels
+    
+
+        # 对网络预测结果进行后处理，包括边界框解码、NMS，获得输入图像尺寸上的边界框坐标
+    def get_bboxes_script(self, p, module_name="fam"):
+        '''
+        module_name : 是使用ODM模块，还是使用FAM模块的预测结果，作为最终的检测结果
+
+        '''
+        assert module_name in ('fam', 'odm'), "must be FAM or ODM"
+
+        batch_size = p[0][0].shape[0]
+        num_level = len(p[0])
+
+        # FAM模块
+        # cls_pred shape : [B, H, W, num_anchors, num_classes]
+        cls_pred = p[0]
+        # bbox_pred_decode  shape : [B, H, W, num_anchors, 5]
+        bbox_pred_decode = p[5]        
+
+        # 使用置信度，作为边界框NMS的分数
+        if self.with_conf:
+            # 使用置信度分支
+            conf_pred = p[4]
+
+        if self.with_alignconv:
+            assert self.num_anchors > 1
+            # 筛选出单个anchors，以及对应的置信度
+            index_all = p[-1]
+            # p[4]为refine_anchors
+            bbox_pred_decode = p[3]
+            conf_choosed_pred = []
+            for conf_pred_single_level, index_single_level in zip(conf_pred, index_all):
+                
+                _, feat_h, feat_w, _, _ = conf_pred_single_level.shape
+
+                conf_choosed_pred.append(conf_pred_single_level[index_single_level].reshape(batch_size, feat_h, feat_w, -1))
+                conf_pred = conf_choosed_pred
+
+
+        # 只有一张图像
+        batch_id = 0            
+        # 获得该张图像上的各个特征层级的预测结果
+        scores_levels = []
+        bbox_pred_decode_levels = []
+        for level_id in range(num_level):
+            if self.with_conf:
+                score_one_img_one_level = cls_pred[level_id][batch_id].detach().reshape(-1, self.num_classes).sigmoid() * \
+                    conf_pred[level_id][batch_id].detach().reshape(-1, 1).sigmoid()
+            else:
+                score_one_img_one_level = cls_pred[level_id][batch_id].detach().reshape(-1, self.num_classes).sigmoid()
+            bbox_pred_deoce_one_img_one_level = bbox_pred_decode[level_id][batch_id].detach().reshape(-1, 5)
+
+            scores_levels.append(score_one_img_one_level)
+            bbox_pred_decode_levels.append(bbox_pred_deoce_one_img_one_level)
+        
+        # return (tuple(scores_levels), tuple(bbox_pred_decode_levels))
+        return (scores_levels, bbox_pred_decode_levels)
+
+
 
 
 def rotated_box_to_poly_torch_single(rrect):
@@ -576,34 +636,34 @@ class RetinaNet_extract(nn.Module):
         outs = self.backbone(imgs)
         outs = self.neck(outs)
         
-        rois = torch.tensor(
-            [
-                [0.0, 427.9353,616.8455, 119.1755,14.5517, -0.3343],
-                [0.0, 60.4593, 156.7023, 186.1304, 22.0563, 1.5757]
-            ],
-            device=torch.device("cuda:0"),
-        )
+        # rois = torch.tensor(
+        #     [
+        #         [0.0, 427.9353,616.8455, 119.1755,14.5517, -0.3343],
+        #         [0.0, 60.4593, 156.7023, 186.1304, 22.0563, 1.5757]
+        #     ],
+        #     device=torch.device("cuda:0"),
+        # )
 
-        # roi_feats = torch.cuda.FloatTensor(rois.size()[0], 256,
-        #                                        7, 7).fill_(0)
+        # # roi_feats = torch.cuda.FloatTensor(rois.size()[0], 256,
+        # #                                        7, 7).fill_(0)
         
-        # roi_feats = get_roi_feat(outs[0], rois, out_h=7, out_w=7, num_channels=256, spatial_scale=1/8, sample_num=2)
+        # # roi_feats = get_roi_feat(outs[0], rois, out_h=7, out_w=7, num_channels=256, spatial_scale=1/8, sample_num=2)
         
-        features = outs[0]
-        out_h=7
-        out_w=7
-        num_channels=256
-        spatial_scale=1/8
-        sample_num=2
-        num_rois = rois.size(0)
-        output = features.new_zeros(num_rois, num_channels, out_h, out_w)
+        # features = outs[0]
+        # out_h=7
+        # out_w=7
+        # num_channels=256
+        # spatial_scale=1/8
+        # sample_num=2
+        # num_rois = rois.size(0)
+        # output = features.new_zeros(num_rois, num_channels, out_h, out_w)
         
-        roi_align_rotated_cuda.forward(features, rois, out_h, out_w, spatial_scale,
-                                    sample_num, output)
+        # roi_align_rotated_cuda.forward(features, rois, out_h, out_w, spatial_scale,
+        #                             sample_num, output)
         
         # roi_feats = self.roi_layers[0](outs[0], rois)
         # for level_id in range(self.nl):
         #     roi_feats = self.roi_layers[level_id](outs[level_id], rois)
         
-        return output
+        return outs
 

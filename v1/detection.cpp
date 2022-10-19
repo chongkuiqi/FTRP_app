@@ -15,8 +15,8 @@
 
 #include <fstream>
 
-#include <nms_rotated.h>
-
+#include "nms_rotated.h"
+#include "nms.h"
 Detection::Detection(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Detection)
@@ -30,6 +30,9 @@ Detection::Detection(QWidget *parent) :
     // 读取模型文件路径
     connect(ui->bu_browse_model, &QPushButton::clicked, this, &Detection::browse_model);
 
+    // 保存路径
+    connect(ui->bu_browse_save, &QPushButton::clicked, this, &Detection::browse_save);
+
     // 检测功能
     connect(ui->bu_detect, &QPushButton::clicked, this, &Detection::detect);
 
@@ -37,6 +40,12 @@ Detection::Detection(QWidget *parent) :
 
     // 显示软件日志
     ui->text_log->setText("请输入图像路径和模型路径...");
+
+
+    // 设置label的大小
+    ui->labelImage->resize(512,512);
+    // 图像自适应label的大小
+    ui->labelImage->setScaledContents(true);
 
 }
 
@@ -47,7 +56,7 @@ Detection::~Detection()
 
 void Detection::browse_img()
 {
-    QString path = QFileDialog::getOpenFileName(
+    QString img_path = QFileDialog::getOpenFileName(
                 this,
                 "open",
                 "../",
@@ -55,7 +64,15 @@ void Detection::browse_img()
                 );
 
     // qDebug() << path;
-    ui->le_imgpath->setText(path);
+    ui->le_imgpath->setText(img_path);
+
+    //显示图像
+    QImage* srcimg = new QImage;
+    srcimg->load(img_path);
+    // 图像缩放到label的大小，并保持长宽比
+    QImage dest = srcimg->scaled(ui->labelImage->size(),Qt::KeepAspectRatio);
+    ui->labelImage->setPixmap(QPixmap::fromImage(dest));
+
 }
 
 void Detection::browse_model()
@@ -71,29 +88,39 @@ void Detection::browse_model()
     ui->le_modelpath->setText(path);
 }
 
+void Detection::browse_save()
+{
+    QString path = QFileDialog::getExistingDirectory(this,"open","../");
+    // qDebug() << path;
+    ui->le_savepath->setText(path);
+}
+
 void Detection::detect()
 {
 //    torch::Device device(torch::kCUDA, 0);
     torch::Device device(torch::kCPU);
+    std::cout << "cuda is_available:" << torch::cuda::is_available() << std::endl;
 
     ui->text_log->append("正在获取图像和模型...");
 
-    QString img_path_ = ui->le_imgpath->text();
-    std::string img_path = img_path_.toStdString();
-    LoadImage(img_path, this->img_MS.Opt); // CV_8UC3
+    QString img_path = ui->le_imgpath->text();
+    //获取图像名称和路径
+    QFileInfo imginfo = QFileInfo(img_path);
+    // 图像名称
+    QString img_name = imginfo.fileName();
+    //文件后缀
+    QString fileSuffix = imginfo.suffix();
+//    //绝对路径
+//    QString filePath = imginfo.absolutePath();
 
-    cv::Mat img2 = this->img_MS.Opt.clone();
+
+    LoadImage(img_path.toStdString(), this->img); // CV_8UC3
+    cv::Mat img_Opt = this->img.clone();
     // cout << img.at<float>(0,0,0) << endl;
-    torch::Tensor input_tensor;
-    cv::cvtColor(img2, img2, cv::COLOR_BGR2RGB);
-    // // scale image to fit
-    // cv::Size scale(IMG_SIZE, IMG_SIZE);
-    // cv::resize(img2, img2, scale);
-    // convert [unsigned int] to [float]
-    img2.convertTo(img2, CV_32FC3);
-    preprocess(img2, input_tensor);
-    cout << "cuda is_available:" << torch::cuda::is_available() << endl;
+    at::Tensor input_tensor;
+    preprocess(img_Opt, input_tensor);
     input_tensor = input_tensor.to(device);
+
 
 
     // cout << img.itemsize() << endl;
@@ -104,10 +131,7 @@ void Detection::detect()
     torch::NoGradGuard no_grad;
     torch::jit::script::Module model;
     model = torch::jit::load(model_path, device);
-    // 获取模型配置参数
-    float score_thr = (ui->line_score->text()).toFloat();
-    float iou_thr = (ui->line_iou_thr->text()).toFloat();
-    int max_per_img = (ui->line_maxnum->text()).toInt();
+
 
     ui->text_log->append("开始推理...");
 
@@ -116,24 +140,20 @@ void Detection::detect()
 //    output = model.forward(inputs).toTuple();
     if (ui->bu_MS_detection->isChecked())
     {
-        QFileInfo imginfo = QFileInfo(img_path_);
-        QString fileSuffix = imginfo.suffix();
 
-        std::string img_IR_path = img_path_.replace(QRegExp("."+fileSuffix), "_IR."+fileSuffix).toStdString();
+        QString img_IR_path = img_path;
+        img_IR_path.replace(QRegExp("."+fileSuffix), "_IR."+fileSuffix).toStdString();
         cv::Mat img_IR;
-        LoadImage(img_IR_path, img_IR); // CV_8UC3
-        torch::Tensor input_tensor_IR;
-        cv::cvtColor(img_IR, img_IR, cv::COLOR_BGR2RGB);
-        img_IR.convertTo(img_IR, CV_32FC3);
+        LoadImage(img_IR_path.toStdString(), img_IR); // CV_8UC3
+        at::Tensor input_tensor_IR;
         preprocess(img_IR, input_tensor_IR);
         input_tensor_IR = input_tensor_IR.to(device);
 
-        std::string img_SAR_path = img_path_.replace(QRegExp("."+fileSuffix), "_SAR."+fileSuffix).toStdString();
+        QString img_SAR_path = img_path;
+        img_SAR_path.replace(QRegExp("."+fileSuffix), "_SAR."+fileSuffix).toStdString();
         cv::Mat img_SAR;
-        LoadImage(img_IR_path, img_SAR); // CV_8UC3
-        torch::Tensor input_tensor_SAR;
-        cv::cvtColor(img_SAR, img_SAR, cv::COLOR_BGR2RGB);
-        img_SAR.convertTo(img_SAR, CV_32FC3);
+        LoadImage(img_SAR_path.toStdString(), img_SAR); // CV_8UC3
+        at::Tensor input_tensor_SAR;
         preprocess(img_SAR, input_tensor_SAR);
         input_tensor_SAR = input_tensor_SAR.to(device);
 
@@ -144,52 +164,71 @@ void Detection::detect()
         output = model.forward({input_tensor}).toTuple();
     }
 
+    c10::List<at::Tensor> scores_levels = output->elements()[0].toTensorList();
+    c10::List<at::Tensor> bboxes_levels = output->elements()[1].toTensorList();
 
-    // only one img
-    at::IValue b = output->elements()[0];
-    torch::Tensor boxes = b.toTuple()->elements()[0].toTensor();
+    // 获取模型配置参数
+    float score_thr = (ui->line_score->text()).toFloat();
+    float iou_thr = (ui->line_iou_thr->text()).toFloat();
+    int max_per_img = (ui->line_maxnum->text()).toInt();
+    int max_before_nms = (ui->line_max_before_nms->text()).toInt();
 
-    postprocess(boxes, this->contours);
+    det_results results;
+    results = NMS(scores_levels, bboxes_levels,
+                  max_before_nms=max_before_nms, score_thr=score_thr,
+                  iou_thr=iou_thr, max_per_img=max_per_img);
+    std::cout << "结束" << std::endl;
+
+    xywhtheta2xywh4points(results.boxes, this->contours);
 
     ui->text_log->append("检测完成！");
 
-    namedWindow( "image", 1 );
+
     int contoursIds = -1;
-    const Scalar color = Scalar(0,0,255);
+    const cv::Scalar color = cv::Scalar(0,0,255);
     int thickness = 3;
-    this->img_result = this->img_MS.Opt.clone();
+    this->img_result = this->img.clone();
     drawContours(this->img_result, this->contours, contoursIds, color, thickness);
-    imshow( "image", this->img_result );
-    waitKey(0);
+
+    // 保存图像
+    QString save_path = ui->le_savepath->text() +"/"+ img_name;
+    imwrite(save_path.toStdString(), this->img_result);
+
+
+    //显示图像
+    QImage* srcimg = new QImage;
+    srcimg->load(save_path);
+    // 图像缩放到label的大小，并保持长宽比
+    QImage dest = srcimg->scaled(ui->labelImage->size(),Qt::KeepAspectRatio);
+    ui->labelImage->setPixmap(QPixmap::fromImage(dest));
 
 }
 
 void Detection::save_results()
 {
+    QString path = ui->le_savepath->text();
     QString img_path = ui->le_imgpath->text();
     //获取图像名称和路径
     QFileInfo imginfo = QFileInfo(img_path);
-//    // 图像名称
-//    QString img_name = imginfo.fileName();
+    // 图像名称
+    QString img_name = imginfo.fileName();
     //文件后缀
     QString fileSuffix = imginfo.suffix();
-//    //绝对路径
-//    QString filePath = imginfo.absolutePath();
-
-    QString save_path = img_path.replace(QRegExp("."+fileSuffix), "_result."+fileSuffix);
-    imwrite(save_path.toStdString(), this->img_result);
-
 
     // 保存检测结果
-    QString txt_save_path = img_path.replace(QRegExp("."+fileSuffix), QString("_result.txt"));
+    QString txt_name = img_name;
+    txt_name.replace(QRegExp("."+fileSuffix), QString(".txt"));
+    QString txt_save_path = path +"/"+ txt_name;
 
-    ofstream fout;
+    std::ofstream fout;
     fout.open(txt_save_path.toStdString());
-    int num_points = this->contours.size();
+    int num_boxes = this->contours.size();
 
     std::string s, line;
-    for (int i=0; i<num_points; i++)
+    for (int i=0; i<num_boxes; i++)
     {
+        s.clear();
+        line.clear();
         for (int j=0; j<4; j++)
         {
             int x = this->contours[i][j].x;

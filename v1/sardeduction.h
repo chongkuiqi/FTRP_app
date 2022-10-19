@@ -7,7 +7,7 @@
 #include <opencv4/opencv2/highgui/highgui.hpp>
 #include <opencv4/opencv2/imgproc/imgproc.hpp>
 #include <opencv4/opencv2/core/core.hpp>
-using namespace cv;
+//using namespace cv;
 namespace Ui {
 class SARdeduction;
 }

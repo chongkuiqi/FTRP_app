@@ -9,7 +9,7 @@
 
 #include <cmath>
 
-#include "roi_align_rotated_cuda.h"
+#include "roi_align_rotated_cpu.h"
 
 using namespace std;
 using namespace cv;
@@ -47,8 +47,8 @@ bool preprocess(const cv::Mat &img, torch::Tensor &input_tensor)
 int main(int argc, const char *argv[]) 
 {
 
-  torch::Device device(torch::kCUDA, 0);
-  // torch::Device device(torch::kCPU);
+  // torch::Device device(torch::kCUDA, 0);
+  torch::Device device(torch::kCPU);
 
 
   if (argc != 3)
@@ -106,17 +106,15 @@ int main(int argc, const char *argv[])
   int out_h=7, out_w=7, sample_num=2;
   float spatial_scale = 1/8;
 
+  // shape [N,6(batch_id, x,y,w,h,theta)]
   torch::Tensor rois = torch::tensor({
                 {0.0, 427.9353,616.8455, 119.1755,14.5517, -0.3343},
                 {0.0, 60.4593, 156.7023, 186.1304, 22.0563, 1.5757}}
             ).to(device);
   
   torch::Tensor outs = torch::zeros({2,256,7,7}).to(device);
-  int roi_align_rotated_forward_cuda(at::Tensor features, at::Tensor rois,
-                           int pooled_height, int pooled_width,
-                           float spatial_scale, int sample_num,
-                           at::Tensor output);
-  int a = roi_align_rotated_forward_cuda(feat, rois, out_h, out_w, spatial_scale, sample_num, outs);
+  
+  int a = roi_align_rotated_forward_cpu(feat, rois, out_h, out_w, spatial_scale, sample_num, outs);
 
   cout << outs[1][255] << endl;
   // // only one img

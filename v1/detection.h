@@ -30,6 +30,7 @@ public:
 
     void browse_img();
     void browse_model();
+    void browse_save();
 
     void detect();
 
@@ -39,9 +40,10 @@ private:
     Ui::Detection *ui;
 
     // 保存图像
-    struct_MS<cv::Mat> img_MS;
+    cv::Mat img;
     std::vector<std::vector<cv::Point>> contours;
 
+    // 图像可视化结果
     cv::Mat img_result;
 
 };

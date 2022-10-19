@@ -10,7 +10,7 @@ bool LoadImage(std::string file_name, cv::Mat &img)
   img = cv::imread(file_name); // CV_8UC3
   if (img.empty() || !img.data)
     {
-      cout << "failed to read img " << endl;
+      std::cout << "failed to read img " << std::endl;
       return false;
     }
 
@@ -19,8 +19,14 @@ bool LoadImage(std::string file_name, cv::Mat &img)
 }
 
 //
-bool preprocess(const cv::Mat &img, torch::Tensor &input_tensor)
+bool preprocess(cv::Mat &img, at::Tensor &input_tensor)
 {
+    cv::cvtColor(img, img, cv::COLOR_BGR2RGB);
+    // // scale image to fit
+    // cv::Size scale(IMG_SIZE, IMG_SIZE);
+    // cv::resize(img2, img2, scale);
+    // convert [unsigned int] to [float]
+    img.convertTo(img, CV_32FC3);
 
     input_tensor = torch::from_blob(
       img.data, {1, IMG_SIZE, IMG_SIZE, IMG_CHN});
@@ -32,47 +38,62 @@ bool preprocess(const cv::Mat &img, torch::Tensor &input_tensor)
 }
 
 
-bool postprocess(const torch::Tensor &boxes, vector<vector<Point>> &contours)
+bool xywhtheta2xywh4points(const at::Tensor &boxes, std::vector<std::vector<cv::Point>> &contours)
 {
+    // 先清空所有元素
+    contours.clear();
 
-    float x = (boxes[0][0]).item().toFloat();
-    float y = (boxes[0][1]).item().toFloat();
-    float w = (boxes[0][2]).item().toFloat();
-    float h = (boxes[0][3]).item().toFloat();
-    float theta = (boxes[0][4]).item().toFloat() * 180 / M_PI;
+    int num_boxes = boxes.sizes()[0];
 
-    RotatedRect rRect = RotatedRect(Point2f(x,y), Size2f(w,h), theta);
-    Point2f vertices[4];      //定义4个点的数组
-    rRect.points(vertices);   //将四个点存储到vertices数组中
-
+    cv::RotatedRect rRect;
+    cv::Point2f vertices[4];      //定义4个点的数组
     // drawContours函数需要的点是Point类型而不是Point2f类型
-    vector<Point> contour;
-    for (int i=0; i<4; i++)
+    std::vector<cv::Point> contour;
+    for (int i=0; i<num_boxes; i++)
     {
-      contour.emplace_back(Point(vertices[i]));
-    }
+        float x = (boxes[i][0]).item().toFloat();
+        float y = (boxes[i][1]).item().toFloat();
+        float w = (boxes[i][2]).item().toFloat();
+        float h = (boxes[i][3]).item().toFloat();
+        float theta = (boxes[i][4]).item().toFloat() * 180 / M_PI;
 
-    contours.push_back(contour);
+        rRect = cv::RotatedRect(cv::Point2f(x,y), cv::Size2f(w,h), theta);
+        //将四个点存储到vertices数组中
+        rRect.points(vertices);
+
+
+        contour.clear();
+        for (int i=0; i<4; i++)
+        {
+          contour.emplace_back(cv::Point(vertices[i]));
+        }
+        contours.push_back(contour);
+
+    }
 
 }
 
 
+
 bool LoadBoxes(QString &gt_path, std::vector<std::vector<cv::Point>> &contours)
 {
+    contours.clear();
+
     QFile f(gt_path);
     if(!f.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        cout <<"Can't open the file!"<<endl;
+        std::cout <<"Can't open the file!"<< std::endl;
     }
 
+    std::vector<cv::Point> contour;
     while(!f.atEnd())
     {
-        vector<Point> contour;
 
         QByteArray line = f.readLine();
         QString line_str(line);
 
         QStringList str_list = line_str.split(",");
+        contour.clear();
         for(int i=0; i<8; i=i+2)
         {
             int x = str_list[i].toInt();
@@ -82,7 +103,6 @@ bool LoadBoxes(QString &gt_path, std::vector<std::vector<cv::Point>> &contours)
 
         contours.push_back(contour);
     }
-
 }
 
 

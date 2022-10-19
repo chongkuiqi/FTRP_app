@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QFileDialog>
+
 namespace Ui {
 class optdeduction;
 }
@@ -27,8 +28,24 @@ private slots:
 
     void on_save_clicked();
 
+    void on_concentration_currentIndexChanged(int index);
+
+    void on_add_ref_clicked();
+
+
+//    void on_type_o_aerosol_currentIndexChanged(const QString &arg1);
+
 private:
+    void gen_input_txt(QString solar_zenith_angle,QString solar_azimuth,QString satellite_zenith_angle,QString satellite_aximuth,QString month\
+                       ,QString date,int atmospheric_model,int type_o_aerosol,int concentration,QString v_value\
+                       ,QString altitude_of_target,int spectral_conditions);
+    float select_appar(int label);
+    QStringList phase;
+    QStringList ref;
+    QStringList appar;
+
     Ui::optdeduction *ui;
+
 };
 
 #endif // OPTDEDUCTION_H

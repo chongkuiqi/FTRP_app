@@ -7,14 +7,16 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 
-#include <util.h>
 #include <fstream>
 
 #include <string>
-using namespace std;
-using namespace cv;
 
 #include <QDebug>
+#include <cmath>
+#include "roi_align_rotated_cpu.h"
+
+using std::cout;
+using std::endl;
 
 Probability::Probability(QWidget *parent) :
     QMainWindow(parent),
@@ -39,6 +41,14 @@ Probability::Probability(QWidget *parent) :
     connect(ui->bu_save, &QPushButton::clicked, this, &Probability::save_results);
     // 显示软件日志
     ui->text_log->setText("请输入图像路径和标注文件路径...");
+
+    // 保存路径
+    connect(ui->bu_browse_save, &QPushButton::clicked, this, &Probability::browse_save);
+
+    // 设置label的大小
+    ui->labelImage->resize(512,512);
+    // 图像自适应label的大小
+    ui->labelImage->setScaledContents(true);
 
 
 
@@ -66,14 +76,22 @@ Probability::~Probability()
 
 void Probability::browse_img()
 {
-    QString path = QFileDialog::getOpenFileName(
+    QString img_path = QFileDialog::getOpenFileName(
                 this,
                 "open",
                 "../",
                 "Images(*.png *.jpg)"
                 );
 
-    ui->le_imgpath->setText(path);
+    ui->le_imgpath->setText(img_path);
+
+    //显示图像
+    QImage* srcimg = new QImage;
+    srcimg->load(img_path);
+    // 图像缩放到label的大小，并保持长宽比
+    QImage dest = srcimg->scaled(ui->labelImage->size(),Qt::KeepAspectRatio);
+    ui->labelImage->setPixmap(QPixmap::fromImage(dest));
+
 }
 
 void Probability::browse_gt()
@@ -90,12 +108,19 @@ void Probability::browse_gt()
 
 
 
+void Probability::browse_save()
+{
+    QString path = QFileDialog::getExistingDirectory(this,"open","../");
+    // qDebug() << path;
+    ui->le_savepath->setText(path);
+}
+
+
 void Probability::extract_fe()
 {
     QString img_path = ui->le_imgpath->text();
 
-    cv::Mat img;
-    LoadImage(img_path.toStdString(), img); // CV_8UC3
+    LoadImage(img_path.toStdString(), this->img); // CV_8UC3
 
 
     // 读取标签文件
@@ -104,59 +129,166 @@ void Probability::extract_fe()
     LoadBoxes(gt_path, contours);
 
 
+    // 根据4个点，找最小旋转矩形
+    cv::RotatedRect box = cv::minAreaRect(contours[0]);
+    cv::Point2f center = box.center;
+    // 单位是角度
+    float angle = box.angle;
+    // 前景区域
+    int x = (int)(center.x);
+    int y = (int)(center.y);
+    int w = (int)(box.size.width);
+    int h = (int)(box.size.height);
+    int x1 = x - w/2;
+    int y1 = y - h/2;
+    // 左上角点坐标，w,h
+    cv::Rect rect_roi(x1,y1,w,h);
+    this->rect_roi = rect_roi;
+    this->rrect_roi = box;
 
+    // 背景区域
+    int padding = (ui->le_bg_ratio->text().toFloat()) * w / 2;
+    int x2 = x - w/2 - padding;
+    int y2 = y - h/2 - padding;
+    int bg_w = w+2*padding;
+    int bg_h = h+2*padding;
+    // 左上角点坐标，w,h
+    cv::Rect rect_bg(x2, y2, bg_w, bg_h);
+    this->rect_bg = rect_bg;
+    this->rrect_bg = cv::RotatedRect(center, cv::Size2f(box.size.width+2*padding,box.size.height+2*padding), angle);
+
+
+    // 把两个框都画出来
+    int contoursIds = -1;
+    cv::Scalar color = cv::Scalar(0,0,255);
+    int thickness = 3;
+    this->img_result = img.clone();
+    // 画前景区域的框
+    drawContours(this->img_result, contours, contoursIds, color, thickness);
+
+    std::vector<std::vector<cv::Point>> bg_contours;
+    cv::RotatedRect rRect = cv::RotatedRect(cv::Point2f(x,y), cv::Size2f(bg_w, bg_h), angle);
+    cv::Point2f vertices[4];      //定义4个点的数组
+    rRect.points(vertices);   //将四个点存储到vertices数组中
+    // drawContours函数需要的点是Point类型而不是Point2f类型
+    std::vector<cv::Point> contour;
+    for (int i=0; i<4; i++)
+    {
+      contour.emplace_back(cv::Point(vertices[i]));
+    }
+    bg_contours.push_back(contour);
+
+    // 画背景区域的框
+    color = cv::Scalar(255,0,0);
+    drawContours(this->img_result, bg_contours, contoursIds, color, thickness);
+
+
+    //获取图像名称和路径
+    QFileInfo imginfo = QFileInfo(img_path);
+    // 图像名称
+    QString img_name = imginfo.fileName();
+    //文件后缀
+    QString fileSuffix = imginfo.suffix();
+    QString save_name = img_name;
+    save_name.replace(QRegExp("."+fileSuffix), QString("_roi_bg."+fileSuffix));
+    // 保存图像
+    QString save_path = ui->le_savepath->text() +"/"+ save_name;
+    imwrite(save_path.toStdString(), this->img_result);
+    //显示图像
+    QImage* srcimg = new QImage;
+    srcimg->load(save_path);
+    // 图像缩放到label的大小，并保持长宽比
+    QImage dest = srcimg->scaled(ui->labelImage->size(),Qt::KeepAspectRatio);
+    ui->labelImage->setPixmap(QPixmap::fromImage(dest));
+
+
+    // 旋转图像
+    cv::Mat M = cv::getRotationMatrix2D(center, angle, 1.0);
+    cv::warpAffine(img, this->img_rotate, M, cv::Size(img.cols, img.rows), cv::INTER_LINEAR, 0);
+
+
+
+    cv::Mat img = this->img.clone();
     // 选择特征
     if (this->fe_status.deep) extract_fe_deep(img, contours);
     if (this->fe_status.gray) extract_fe_gray(img, contours);
     if (this->fe_status.text) extract_fe_texture(img, contours);
-
-
-////    ui->CB
-//    QString fe_type = ui->CB_fe->currentText();
-
-
-//    if (fe_type == QString("深度学习特征")) extract_fe_deep(img, contours);
-//    else if (fe_type == QString("灰度特征")) extract_fe_gray(img, contours);
-//    else if (fe_type == QString("纹理特征")) extract_fe_texture(img, contours);
-//    else cout << "必须选择特征！！！" << endl;
 
 }
 
 
 void Probability::extract_fe_deep(cv::Mat &img, std::vector<std::vector<cv::Point>> &contours)
 {
-    std::string model_path = "/home/ckq/MyDocuments/QtCode/ftrp_software/example/FTRP_software/exp361_no_align_extract_fe_script.pt";
+    std::string model_path = "/home/ckq/MyDocuments/QtCode/ftrp_software/sources/model/exp361_no_align_extract_fe_script.pt";
 
     torch::Device device(torch::kCPU);
-    cv::Mat img2;
-    cv::cvtColor(img, img2, cv::COLOR_BGR2RGB);
-    // // scale image to fit
-    // cv::Size scale(IMG_SIZE, IMG_SIZE);
-    // cv::resize(img2, img2, scale);
-    // convert [unsigned int] to [float]
-    img2.convertTo(img2, CV_32FC3);
 
-    // cout << img.at<float>(0,0,0) << endl;
-    //read image tensor
-    torch::Tensor input_tensor;
+    at::Tensor input_tensor;
+    cv::Mat img2 = img.clone();
     preprocess(img2, input_tensor);
 
     input_tensor = input_tensor.to(device);
-    // cout << "input img size:" << input_tensor.sizes() << endl;
+//     cout << "input img size:" << input_tensor.sizes() << endl;
 
 
     torch::NoGradGuard no_grad;
-    torch::jit::script::Module module;
-    module = torch::jit::load(model_path, device);
+    torch::jit::script::Module model;
+    model = torch::jit::load(model_path, device);
 
+//    cout << "导入模型完成"<<endl;
     ui->text_log->append("开始推理...");
-    auto output = module.forward({input_tensor}).toTuple();
+    c10::intrusive_ptr<at::ivalue::Tuple> output;
+    output = model.forward({input_tensor}).toTuple();
 
-    auto ele = output->elements();
-    for (int i=0; i<3; i++)
-    {
-        cout << "特征层级" << i << "尺寸:" << ele[i].toTensor().sizes() << endl;
-    }
+    // 先使用第一个特征图，以后再根据边界框的不同使用不同层级的特征图
+    at::Tensor feat = output->elements()[0].toTensor();
+
+    float roi_x = this->rrect_roi.center.x;
+    float roi_y = this->rrect_roi.center.y;
+    float roi_w = this->rrect_roi.size.width;
+    float roi_h = this->rrect_roi.size.height;
+    // 弧度
+    float roi_theta = (this->rrect_roi.angle / 180) * M_PI;
+    // 只有一张图像
+    float batch_id =0.0;
+    at::Tensor rois = torch::tensor(
+                {
+                    {0.0, 427.9353,616.8455, 119.1755,14.5517, 1.5757},
+//                    {batch_id, roi_x, roi_y, roi_w, roi_h, roi_theta},
+                }).to(device);
+//    at::Tensor rois = torch::tensor(
+//                {
+//                    {0.0, 427.9353,616.8455, 119.1755,14.5517, -0.3343},
+//                    {0.0, 60.4593, 156.7023, 186.1304, 22.0563, 1.5757}
+//                }
+//                ).to(device);
+
+    int out_h=7, out_w=7, sample_num=2;
+    float spatial_scale = 1/8;
+    int chn = feat.sizes()[1];
+    int num_rois = rois.sizes()[0];
+    at::Tensor outs_rois = torch::zeros({num_rois, chn, out_h, out_w}).to(device);
+    roi_align_rotated_forward_cpu(feat, rois, out_h, out_w, spatial_scale, sample_num, outs_rois);
+    this->roi_fe.deep = outs_rois;
+
+
+    float bg_x = this->rrect_bg.center.x;
+    float bg_y = this->rrect_bg.center.y;
+    float bg_w = this->rrect_bg.size.width;
+    float bg_h = this->rrect_bg.size.height;
+    // 弧度
+    float bg_theta = (this->rrect_bg.angle / 180) * M_PI;
+    at::Tensor bgs = torch::tensor(
+                {
+                    {0.0, 60.4593, 156.7023, 186.1304, 22.0563, 1.5757}
+//                    {batch_id, bg_x-400, bg_y+300, bg_w, bg_h, bg_theta},
+                }).to(device);
+
+
+    int num_bgs = bgs.sizes()[0];
+    at::Tensor outs_bgs = torch::zeros({num_bgs, chn, out_h, out_w}).to(device);
+    roi_align_rotated_forward_cpu(feat, bgs, out_h, out_w, spatial_scale, sample_num, outs_bgs);
+    this->bg_fe.deep = outs_bgs;
 
     ui->text_log->append("获得深度学习特征！");
 
@@ -165,31 +297,9 @@ void Probability::extract_fe_deep(cv::Mat &img, std::vector<std::vector<cv::Poin
 
 void Probability::extract_fe_gray(cv::Mat &img, std::vector<std::vector<cv::Point>> &contours)
 {
-    // 根据4个点，找最小旋转矩形
-    cv::RotatedRect box = cv::minAreaRect(contours[0]);
-    cv::Point2f center = box.center;
-    float angle = box.angle;
-
-    cv::Mat M = cv::getRotationMatrix2D(center, angle, 1.0);
-    cv::Mat img_rotate;
-    cv::warpAffine(img, img_rotate, M, cv::Size(img.cols, img.rows), INTER_LINEAR, 0);
 
 
-//    QFileInfo imginfo = QFileInfo(img_path);
-//    QString fileSuffix = imginfo.suffix();
-
-//    QString save_path = img_path.replace(QRegExp("."+fileSuffix), "_rotate."+fileSuffix);
-//    cv::imwrite(save_path.toStdString(), img_rotate);
-
-    int x = (int)(center.x);
-    int y = (int)(center.y);
-    int w = (int)(box.size.width);
-    int h = (int)(box.size.height);
-    int x1 = x - w/2;
-    int y1 = y - h/2;
-    // 左上角点坐标，w,h
-    cv::Rect rect(x1,y1,w,h);
-    cv::Mat roi = img_rotate(rect);
+    cv::Mat roi = this->img_rotate(this->rect_roi);
 
 //    QString crop_path = save_path.replace(QRegExp("."+fileSuffix), "_crop."+fileSuffix);
 //    cv::imwrite((crop_path).toStdString(), roi);
@@ -201,62 +311,92 @@ void Probability::extract_fe_gray(cv::Mat &img, std::vector<std::vector<cv::Poin
     cv::Mat roi_hist;
     get_hist(roi, roi_hist);
 
-    int padding = (ui->le_bg_ratio->text().toFloat()) * w / 2;
-    int x2 = x - w/2 - padding;
-    int y2 = y - h/2 - padding;
-    // 左上角点坐标，w,h
-    cv::Rect rect2(x2,y2,w+2*padding,h+2*padding);
-    cv::Mat bg = img_rotate(rect2);
+
+    cv::Mat bg = this->img_rotate(this->rect_bg);
     cv::Mat bg_hist;
     get_hist(bg, bg_hist);
 
-    double roimaxVal=0, bgmaxVal=0;
     bg_hist = bg_hist - roi_hist;
-    minMaxLoc(roi_hist, 0, &roimaxVal, 0, 0);
-    minMaxLoc(bg_hist, 0, &bgmaxVal, 0, 0);
 
-    roi_hist = roi_hist / roimaxVal;
-    bg_hist = bg_hist / bgmaxVal;
+//    double roimaxVal=0, bgmaxVal=0;
+//    minMaxLoc(roi_hist, 0, &roimaxVal, 0, 0);
+//    minMaxLoc(bg_hist, 0, &bgmaxVal, 0, 0);
 
-    this->roi_fe.gray = roi_hist.clone();
-    this->bg_fe.gray = bg_hist.clone();
+//    roi_hist = roi_hist / roimaxVal;
+//    bg_hist = bg_hist / bgmaxVal;
+    at::Tensor roi_hist_tensor = torch::from_blob(roi_hist.data, {roi_hist.rows, roi_hist.cols, roi_hist.channels()});
+    at::Tensor bg_hist_tensor = torch::from_blob(bg_hist.data, {bg_hist.rows, bg_hist.cols, bg_hist.channels()});
+
+    float max_roi = roi_hist_tensor.max().item().toFloat();
+    float min_roi = roi_hist_tensor.min().item().toFloat();
+    float max_bg = bg_hist_tensor.max().item().toFloat();
+    float min_bg = bg_hist_tensor.min().item().toFloat();
+
+
+
+    roi_hist_tensor = (roi_hist_tensor-max_roi) / (max_roi-min_roi);
+    bg_hist_tensor = (bg_hist_tensor-max_bg) / (max_bg-min_bg);
+
+
+    this->roi_fe.gray = roi_hist_tensor;
+    this->bg_fe.gray = bg_hist_tensor;
 
     ui->text_log->append("获得灰度特征！");
-
-
-    // 把两个框都画出来
-
-    int contoursIds = -1;
-    Scalar color = Scalar(0,0,255);
-    int thickness = 3;
-    cv::Mat img_show = img.clone();
-    // 画前景区域的框
-    drawContours(img_show, contours, contoursIds, color, thickness);
-
-    std::vector<std::vector<cv::Point>> bg_contours;
-    RotatedRect rRect = RotatedRect(Point2f(x,y), Size2f(w+2*padding, h+2*padding), angle);
-    Point2f vertices[4];      //定义4个点的数组
-    rRect.points(vertices);   //将四个点存储到vertices数组中
-    // drawContours函数需要的点是Point类型而不是Point2f类型
-    vector<Point> contour;
-    for (int i=0; i<4; i++)
-    {
-      contour.emplace_back(Point(vertices[i]));
-    }
-    bg_contours.push_back(contour);
-
-    // 画北背景区域的框
-    color = Scalar(255,0,0);
-    drawContours(img_show, bg_contours, contoursIds, color, thickness);
-
-    imshow( "image", img_show );
-    waitKey(0);
-
 
 }
 
 void Probability::extract_fe_texture(cv::Mat &img, std::vector<std::vector<cv::Point>> &contours)
 {
+
+    cv::Mat img_rotate2 = this->img_rotate.clone();
+    cv::cvtColor(img_rotate2, img_rotate2, cv::COLOR_BGR2GRAY);
+
+    // Gabor滤波器参数初始化
+    int kernel_size = 3;
+    double sigma = 1.0, lambd = CV_PI/8, gamma = 0.5, psi = 0;
+
+    // theta 法线方向
+    double theta[8];
+    int num_theta = 8;
+    for (int i=0; i<num_theta; i++)
+    {
+        theta[i] = (CV_PI/num_theta) * i;
+    }
+    // gabor 纹理检测器，可以更多，
+    std::vector<cv::Mat> imgs_filtered;
+    for(int i = 0; i<num_theta; i++)
+    {
+        cv::Mat kernel1;
+        cv::Mat dest;
+        kernel1 = cv::getGaborKernel(cv::Size(kernel_size, kernel_size), sigma, theta[i], lambd, gamma, psi, CV_32F);
+        filter2D(img_rotate2, dest, CV_32F, kernel1);
+        imgs_filtered.push_back(dest);
+
+    }
+    // 合并为一个多通道图像
+    cv::Mat mc_img;
+    cv::merge(imgs_filtered, mc_img);
+
+
+    cv::Mat roi_fe_text = mc_img(this->rect_roi);
+    at::Tensor roi_tensor = torch::from_blob(
+                roi_fe_text.data, {roi_fe_text.rows, roi_fe_text.cols, roi_fe_text.channels()});
+    at::Tensor roi_tensor_mean = roi_tensor.mean(0).mean(0);
+
+
+    cv::Mat bg_fe_text = mc_img(this->rect_bg);
+    at::Tensor bg_tensor = torch::from_blob(
+                bg_fe_text.data, {bg_fe_text.rows, bg_fe_text.cols, bg_fe_text.channels()});
+    at::Tensor bg_tensor_mean = bg_tensor.mean(0).mean(0);
+    bg_tensor_mean = bg_tensor_mean - roi_tensor_mean;
+
+    // 归一化
+    roi_tensor_mean /= roi_tensor_mean.norm(2);
+    bg_tensor_mean /= bg_tensor_mean.norm(2);
+
+    this->roi_fe.text = roi_tensor_mean;
+    this->bg_fe.text = bg_tensor_mean;
+
 
     ui->text_log->append("获得纹理特征！");
 }
@@ -272,7 +412,7 @@ void Probability::get_hist(cv::Mat & img, cv::Mat & hist)
         int channels[] = {0, 1};
 
         // 计算得到直方图数据
-        calcHist( &img, 1, channels, Mat(), // do not use mask
+        calcHist( &img, 1, channels, cv::Mat(), // do not use mask
                  hist, 2, histSize, ranges,
                  true, // the histogram is uniform
                  false );
@@ -302,9 +442,18 @@ void Probability::cal_similarity()
     if (this->fe_status.text) cal_similarity_text();
 
     // 根据特征相似度计算综合相似度
-    this->similarity = this->fe_similarity.deep +
-            this->fe_similarity.gray +
-            this->fe_similarity.text;
+    // 使用softmax计算
+    float exp_deep = exp(this->fe_similarity.deep);
+    float exp_gray = exp(this->fe_similarity.gray);
+    float exp_text = exp(this->fe_similarity.text);
+    float exp_sum = exp_deep + exp_gray + exp_text;
+
+    float si = 0;
+    if (this->fe_status.deep) si = si + exp_deep/exp_sum;
+    if (this->fe_status.gray) si = si + exp_gray/exp_sum;
+    if (this->fe_status.text) si = si + exp_text/exp_sum;
+
+    this->similarity = si;
 
 
 }
@@ -312,45 +461,67 @@ void Probability::cal_similarity()
 
 void Probability::cal_similarity_deep()
 {
+    cout << "rois:" <<this->rrect_roi.size << endl;
+    cout << "bgs:" <<this->rrect_bg.size << endl;
+//    cout << "roi_fe:" <<this->roi_fe.deep << endl;
+    at::Tensor diff = torch::abs(this->roi_fe.deep - this->bg_fe.deep);
+    cout << "sum diff:" << diff.sum() << endl;
+    float similarity= 1 - diff.mean().item().toFloat();
+    this->fe_similarity.gray = similarity;
 
+    QString log = QString("\n深度学习特征相似度为:") + QString::number(similarity, 'f', 3);
+    ui->text_log->append(log);
 }
 
 
 void Probability::cal_similarity_gray()
 {
-    cv::Mat diff = cv::abs(this->roi_fe.gray - this->bg_fe.gray);
+    at::Tensor diff = torch::abs(this->roi_fe.gray - this->bg_fe.gray);
+//    cout << "diff_value:" << diff << endl;
+    float similarity= 1 - diff.mean().item().toFloat();
+    this->fe_similarity.gray = similarity;
 
-    // cv::mean的返回结果有4个通道
-    this->similarity = 1 - cv::mean(diff).val[0];
-
-    QString log = QString("\n计算得到的特征相似度为:") + QString::number(this->similarity, 'f', 3);
+    QString log = QString("\n灰度特征相似度为:") + QString::number(similarity, 'f', 3);
     ui->text_log->append(log);
 }
 
 
 void Probability::cal_similarity_text()
 {
+    at::Tensor diff = torch::abs(this->roi_fe.text - this->bg_fe.text);
+
+    float similarity= 1 - diff.mean().item().toFloat();
+    this->fe_similarity.text = similarity;
+    QString log = QString("\n纹理特征相似度为:") + QString::number(similarity, 'f', 3);
+    ui->text_log->append(log);
 
 }
 
 void Probability::cal_probability()
 {
+
     this->probability = 1 - this->similarity;
+    ui->le_probability->setText(QString::number(this->probability));
+
     QString log = QString("\n计算得到的识别概率为:") + QString::number(this->probability, 'f', 3);
     ui->text_log->append(log);
 }
 
 void Probability::save_results()
 {
-    QString img_path = ui->le_imgpath->text();
+    QString path = ui->le_savepath->text();
 
+    QString img_path = ui->le_imgpath->text();
     QFileInfo imginfo = QFileInfo(img_path);
     QString img_name = imginfo.fileName();
     QString fileSuffix = imginfo.suffix();
 
-    QString txt_save_path = img_path.replace(QRegExp("."+fileSuffix), "_probability.txt");
+    // 保存检测结果
+    QString txt_name = img_name;
+    txt_name.replace(QRegExp("."+fileSuffix), QString(".txt"));
+    QString txt_save_path = path +"/"+ txt_name;
 
-    ofstream fout;
+    std::ofstream fout;
     fout.open(txt_save_path.toStdString());
 
     std::string s = "特征相似度:" + std::to_string(this->similarity) + "\n";

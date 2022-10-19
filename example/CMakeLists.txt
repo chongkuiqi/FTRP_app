@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project(example-app)
 
-set(Torch_DIR /home/ckq/software/libtorch/share/cmake/Torch)
-# set(Torch_DIR /home/ckq/Downloads/libtorch1.7.1/share/cmake/Torch)
+# set(Torch_DIR /home/ckq/software/libtorch/share/cmake/Torch)
+set(Torch_DIR /home/ckq/Downloads/libtorch1.7.1/share/cmake/Torch)
 find_package(Torch REQUIRED)
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
@@ -21,9 +21,10 @@ include_directories( /usr/include/python3.8 )
 # include_directories( /home/ckq/miniconda3/envs/ckq/lib/python3.8/site-packages/torch/include/ )
 
 
-add_executable(example-app example-app-MS.cpp)
+# add_executable(example-app example-app-MS.cpp)
 # add_executable(example-app example-app.cpp)
 # add_executable(example-app example-app.cpp roi_align_rotated_cuda.h roi_align_rotated_cuda.cpp roi_align_rotated_kernel.cu)
+add_executable(example-app example-app.cpp roi_align_rotated_cpu.h roi_align_rotated_cpu.cpp )
 
 
 target_link_libraries(example-app ${TORCH_LIBRARIES} ${OpenCV_LIBS})

@@ -50,8 +50,8 @@ model.float()
 model.eval()
 
 # print(model(img).shape)
-print(model(img)[1,255])
-exit()
+# print(model(img)[1,255])
+# exit()
 # print(model(img)[1].max())
 with torch.no_grad():
     # Use torch.jit.trace to generate a torch.jit.ScriptModule via tracing.
@@ -63,8 +63,8 @@ save_name = weight_path.replace(".pt", "_extract_fe_script.pt")
 traced_script_module.save(save_name)
 
 
-model_script = torch.load(save_name, map_location=device)
-print(model_script(img).shape)
+# model_script = torch.load(save_name, map_location=device)
+# print(model_script(img).shape)
 
 # model = Model().to(device)
 # print(model)

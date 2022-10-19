@@ -18,17 +18,14 @@
 #include <cmath>
 #include <QString>
 
-using namespace std;
-using namespace cv;
-
 #define IMG_SIZE 1024
 #define IMG_CHN 3
 
 
-bool preprocess(const cv::Mat &img, torch::Tensor &input_tensor);
+bool preprocess(cv::Mat &img, at::Tensor &input_tensor);
 bool LoadImage(std::string file_name, cv::Mat &img);
 
-bool postprocess(const torch::Tensor &boxes, vector<vector<Point>> &contours);
+bool xywhtheta2xywh4points(const at::Tensor &boxes, std::vector<std::vector<cv::Point>> &contours);
 
 
 bool LoadBoxes(QString &gt_path, std::vector<std::vector<cv::Point>> &contours);

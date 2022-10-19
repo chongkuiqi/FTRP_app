@@ -8,14 +8,17 @@ CONFIG += c++14
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+
 SOURCES += \
     deduction.cpp \
     detection.cpp \
     main.cpp \
     mainwin.cpp \
+    nms.cpp \
     nms_rotated_cpu.cpp \
     optdeduction.cpp \
     probability.cpp \
+    roi_align_rotated_cpu.cpp \
     sardeduction.cpp \
     util.cpp
 
@@ -24,9 +27,11 @@ HEADERS += \
     deduction.h \
     detection.h \
     mainwin.h \
+    nms.h \
     nms_rotated.h \
     optdeduction.h \
     probability.h \
+    roi_align_rotated_cpu.h \
     sardeduction.h \
     util.h
 
@@ -209,9 +214,13 @@ LIBS += -L"/home/ckq/Downloads/libtorch1.7.1/lib" \
 #        -ltensorpipe_cuda \
         -ltensorpipe_uv
 
+
+
+
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-DISTFILES +=
+#DISTFILES +=
