@@ -32,8 +32,15 @@ bool LoadImage(std::string file_name, cv::Mat &img)
 }
 
 // 
-bool preprocess(const cv::Mat &img, torch::Tensor &input_tensor)
+void preprocess(cv::Mat &img, torch::Tensor &input_tensor)
 {
+
+  cv::cvtColor(img, img, cv::COLOR_BGR2RGB);
+  // // // scale image to fit
+  // cv::Size scale(IMG_SIZE, IMG_SIZE);
+  // cv::resize(img, img, scale);
+  // convert [unsigned int] to [float]
+  img.convertTo(img, CV_32FC3);
 
   input_tensor = torch::from_blob(
     img.data, {1, IMG_SIZE, IMG_SIZE, IMG_CHN});
@@ -42,6 +49,8 @@ bool preprocess(const cv::Mat &img, torch::Tensor &input_tensor)
   input_tensor[0][0] = input_tensor[0][0].sub_(img_normalize_mean[0]).div_(img_normalize_std[0]);
   input_tensor[0][1] = input_tensor[0][1].sub_(img_normalize_mean[1]).div_(img_normalize_std[1]);
   input_tensor[0][2] = input_tensor[0][2].sub_(img_normalize_mean[2]).div_(img_normalize_std[2]);
+
+  input_tensor = input_tensor.contiguous();
 }
 
 int main(int argc, const char *argv[]) 
@@ -61,23 +70,17 @@ int main(int argc, const char *argv[])
   std::string img_path = argv[2];
 
   cv::Mat img = cv::imread(img_path); // CV_8UC3
-  cv:Mat img2;
-  cv::cvtColor(img, img2, cv::COLOR_BGR2RGB);
-  // // scale image to fit
-  cv::Size scale(IMG_SIZE, IMG_SIZE);
-  cv::resize(img2, img2, scale);
+  cv:Mat img2=img.clone();
   
-  // convert [unsigned int] to [float]
-  img2.convertTo(img2, CV_32FC3);
-
-
   // cout << img.at<float>(0,0,0) << endl;
   //read image tensor
   torch::Tensor input_tensor;
+
   preprocess(img2, input_tensor);
   // to GPU
   input_tensor = input_tensor.to(device);
-
+  std::cout << "内存连续:" <<  input_tensor.is_contiguous() << std::endl;
+  
   // cout << img.itemsize() << endl;
   cout << "input img size:" << input_tensor.sizes() << endl;
 
@@ -91,6 +94,8 @@ int main(int argc, const char *argv[])
   torch::NoGradGuard no_grad;
 
   cout << "开始推理..." << endl;
+  std::cout << "例子" << std::endl;
+    std::cout << input_tensor.sizes() << std::endl;
   auto output = model.forward({input_tensor}).toTuple();
   // auto output = model.forward({input_tensor});
   // cout << output << endl;
@@ -103,20 +108,20 @@ int main(int argc, const char *argv[])
   feat = feat.contiguous();
   cout << feat.is_contiguous() << endl;
 
-  int out_h=7, out_w=7, sample_num=2;
-  float spatial_scale = 1/8;
+  // int out_h=7, out_w=7, sample_num=2;
+  // float spatial_scale = 1/8;
 
-  // shape [N,6(batch_id, x,y,w,h,theta)]
-  torch::Tensor rois = torch::tensor({
-                {0.0, 427.9353,616.8455, 119.1755,14.5517, -0.3343},
-                {0.0, 60.4593, 156.7023, 186.1304, 22.0563, 1.5757}}
-            ).to(device);
+  // // shape [N,6(batch_id, x,y,w,h,theta)]
+  // torch::Tensor rois = torch::tensor({
+  //               {0.0, 427.9353,616.8455, 119.1755,14.5517, -0.3343},
+  //               {0.0, 60.4593, 156.7023, 186.1304, 22.0563, 1.5757}}
+  //           ).to(device);
   
-  torch::Tensor outs = torch::zeros({2,256,7,7}).to(device);
+  // torch::Tensor outs = torch::zeros({2,256,7,7}).to(device);
   
-  int a = roi_align_rotated_forward_cpu(feat, rois, out_h, out_w, spatial_scale, sample_num, outs);
+  // int a = roi_align_rotated_forward_cpu(feat, rois, out_h, out_w, spatial_scale, sample_num, outs);
 
-  cout << outs[1][255] << endl;
+  // cout << outs[1][255] << endl;
   // // only one img
   // auto b = output->elements()[0];
   

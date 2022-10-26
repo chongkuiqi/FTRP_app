@@ -72,7 +72,9 @@ using namespace at;
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < (n); \
        i += blockDim.x * gridDim.x)
 
+// 一个线程块的最多线程个数
 const int CUDA_NUM_THREADS = 1024;
+// 网格的结构，表示该网格的线程块的空间结构，即最大线程块个数，注意：每个线程块有多个线程
 const int kMaxGridNum = 65535;
 
 inline int GET_BLOCKS(const int N)

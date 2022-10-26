@@ -12,6 +12,8 @@
 #include <torch/script.h>
 #define slots Q_SLOTS
 
+#include "util.h"
+
 // 泛型编程，存储各个特征的状态、特征相似度
 template <typename T>
 struct struct_fe
@@ -34,8 +36,24 @@ public:
     explicit Probability(QWidget *parent = nullptr);
     ~Probability();
 
-    void browse_img();
-    void browse_gt();
+    void browse_img(QString type);
+    void browse_img_1();
+    void browse_img_2();
+    void browse_img_3();
+    void browse_img_4();
+
+    void browse_gt_1();
+    void browse_gt_2();
+    void browse_gt_3();
+    void browse_gt_4();
+
+    // roi区域选择
+    void choose_roi(const QString &text);
+    void choose_roi_1(const QString &text);
+    void choose_roi_2(const QString &text);
+    void choose_roi_3(const QString &text);
+    void choose_roi_4(const QString &text);
+    void choose_roi_5(const QString &text);
 
     void browse_save();
 
@@ -59,28 +77,49 @@ public:
 
     void on_bu_fe_group(QAbstractButton *button);
 
+
+    // 特征提取区域选择
+    void on_bu_rois_group(QAbstractButton *button);
+
+    // 显示复位，各个按钮、图像显示全部清零
+    void reset_show();
+
+
 private:
     Ui::Probability *ui;
 
-    cv::Mat img;
+    cv::Mat img_1;
+    cv::Mat img_2;
 
     float similarity;
     float probability;
 
+    // 待提取特征区域选择按钮组
+    QButtonGroup bu_rois_group;
+    // 待提取特征区域类型，包括3种，“目标-背景”，“目标-目标”，“目标-目标2”
+    QString rois_type = QString("目标-背景");
+
+
     // 特征选择按钮组
     QButtonGroup bu_fe_group;
 
-    // 前景和背景区域的旋转框
-    cv::RotatedRect rrect_roi;
-    cv::RotatedRect rrect_bg;
-    // 前景和背景区域的旋转后的水平框
-    cv::Rect rect_roi;
-    cv::Rect rect_bg;
+    // 两个contours
+    std::vector<std::vector<cv::Point>> contours_1;
+    std::vector<std::vector<cv::Point>> contours_2;
+
+    std::vector<cv::Point> contour_1;
+    std::vector<cv::Point> contour_2;
+
+    // 两个待提取特征区域的旋转框
+    cv::RotatedRect rrect_box_1;
+    cv::RotatedRect rrect_box_2;
+    // 旋转框旋转到水平框
+    cv::Rect rect_box_1;
+    cv::Rect rect_box_2;
 
     // 旋转后的图像
     cv::Mat img_rotate;
-    // 显示前景背景区域的图像
-    cv::Mat img_result;
+
 
     // 存储各个特征的状态，即是否提取该特征
     struct_fe<bool> fe_status = {false,false, false};
@@ -91,6 +130,8 @@ private:
 
     // 存储各个特征的相似度
     struct_fe<float> fe_similarity = {0.0, 0.0, 0.0};
+
+
 
 };
 

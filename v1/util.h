@@ -17,15 +17,30 @@
 #include <iostream>
 #include <cmath>
 #include <QString>
+#include <QImage>
 
 #define IMG_SIZE 1024
 #define IMG_CHN 3
 
 
-bool preprocess(cv::Mat &img, at::Tensor &input_tensor);
+void preprocess(cv::Mat &img, at::Tensor &input_tensor);
+
 bool LoadImage(std::string file_name, cv::Mat &img);
 
-bool xywhtheta2xywh4points(const at::Tensor &boxes, std::vector<std::vector<cv::Point>> &contours);
+void points2rbox(const std::vector<cv::Point> & contour, cv::RotatedRect &rbox);
+void rbox2points(std::vector<cv::Point> & contour, const cv::RotatedRect &rbox);
+
+void points2xywhtheta(const std::vector<cv::Point> & contour, at::Tensor &rbox);
+void xywhtheta2points(std::vector<cv::Point> & contour, const at::Tensor &rbox);
+bool xywhtheta2points(const at::Tensor &boxes, std::vector<std::vector<cv::Point>> &contours);
 
 
 bool LoadBoxes(QString &gt_path, std::vector<std::vector<cv::Point>> &contours);
+
+
+// cv::Mat与QImage之间的转换
+QImage MatToImage(const cv::Mat &m);  //Mat转Image
+QPixmap MatToPixmap(const cv::Mat &m);
+cv::Mat ImageToMat(const QImage &img,bool inCloneImageData);  //Image转Mat
+
+

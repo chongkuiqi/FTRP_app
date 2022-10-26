@@ -3,7 +3,7 @@
 
 #include <cassert>
 #include <cmath>
-
+#include <iostream>
 #ifdef __CUDACC__
 // Designates functions callable from the host (CPU) and the device (GPU)
 #define HOST_DEVICE __host__ __device__

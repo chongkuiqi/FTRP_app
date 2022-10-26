@@ -28,13 +28,22 @@ def make_cuda_ext(name, module, sources):
 setup(
     ext_modules=[
         # 可变形卷积和可变形池化
+        # make_cuda_ext(
+        #         name='deform_conv_cuda',
+        #         module='models.dcn',
+        #         sources=[
+        #             'src/deform_conv_cuda.cpp',
+        #             'src/deform_conv_cuda_kernel.cu'
+        #         ]),
+
         make_cuda_ext(
                 name='deform_conv_cuda',
                 module='models.dcn',
                 sources=[
-                    'src/deform_conv_cuda.cpp',
-                    'src/deform_conv_cuda_kernel.cu'
+                    'src/deform_conv_cpu.cpp',
+                    'src/deform_conv_cpu_kernel.cpp'
                 ]),
+
         # make_cuda_ext(
         #     name='deform_pool_cuda',
         #     module='models.dcn',
