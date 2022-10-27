@@ -40,7 +40,7 @@ img = img.to(device)
 
 
 # print(model)
-weight_path = 'exp369.pt'
+weight_path = 'exp383.pt'
 # weight_path = 'exp361_no_align.pt'
 model = torch.load(weight_path, map_location=device)['model']
 # model = Model()

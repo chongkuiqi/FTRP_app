@@ -108,6 +108,10 @@ Probability::Probability(QWidget *parent) :
     // 背景区域
     connect(ui->le_bg_ratio, &QLineEdit::textChanged, this, &Probability::change_bg_ratio);
 
+
+    // 特征相似度加权权值的手动输入
+    connect(ui->CB_weights, &QComboBox::currentTextChanged, this, &Probability::show_CB_weights);
+
     // 设置label的大小
     int h=512,w=512;
     ui->labelImage_1->resize(w,h);
@@ -521,6 +525,13 @@ void Probability::choose_roi_5(const QString &text)
     ui->labelImage_2->setPixmap(QPixmap::fromImage(dest));
 }
 
+void Probability::show_CB_weights(const QString &text)
+{
+    if (text == QString("自定义法")) ui->GB_weights_inputs->show();
+    else ui->GB_weights_inputs->hide();
+
+}
+
 
 void Probability::browse_save()
 {
@@ -655,7 +666,7 @@ void Probability::extract_fe_deep(cv::Mat &img, std::vector<std::vector<cv::Poin
     at::Tensor outs_rois_2 = torch::zeros({num_rois_2, chn, out_h, out_w}).to(device);
     roi_align_rotated_forward_cpu(feat, rois_2, out_h, out_w, spatial_scale, sample_num, outs_rois_2);
     outs_rois_2 = outs_rois_2.reshape(-1);
-    outs_rois_2 = outs_rois_2 - outs_rois_1;
+//    outs_rois_2 = outs_rois_2 - outs_rois_1;
 
     outs_rois_1 /= outs_rois_1.norm(2);
     outs_rois_2 /= outs_rois_2.norm(2);
@@ -725,7 +736,7 @@ void Probability::extract_fe_gray(cv::Mat &img, std::vector<std::vector<cv::Poin
     cv::Mat img_roi_2 = img_rotate(rect_roi_2);
     cv::Mat roi_hist_2;
     get_hist(img_roi_2, roi_hist_2);
-    roi_hist_2 = roi_hist_2 - roi_hist_1;
+//    roi_hist_2 = roi_hist_2 - roi_hist_1;
 
 //    double roimaxVal=0, bgmaxVal=0;
 //    minMaxLoc(roi_hist, 0, &roimaxVal, 0, 0);
@@ -743,8 +754,8 @@ void Probability::extract_fe_gray(cv::Mat &img, std::vector<std::vector<cv::Poin
     roi_1_hist_tensor /= roi_1_hist_tensor.sum();
     roi_2_hist_tensor /= roi_2_hist_tensor.sum();
 
-    std::cout << roi_1_hist_tensor.min() << ":" << roi_1_hist_tensor.max() << std::endl;
-    std::cout << roi_2_hist_tensor.min() << ":" << roi_2_hist_tensor.max() << std::endl;
+//    std::cout << roi_1_hist_tensor.min() << ":" << roi_1_hist_tensor.max() << std::endl;
+//    std::cout << roi_2_hist_tensor.min() << ":" << roi_2_hist_tensor.max() << std::endl;
 
     this->roi_fe_1.gray = roi_1_hist_tensor;
     this->roi_fe_2.gray = roi_2_hist_tensor;
@@ -855,7 +866,7 @@ void Probability::extract_fe_texture(cv::Mat &img, std::vector<std::vector<cv::P
     at::Tensor roi_2_tensor = torch::from_blob(
                 roi_2_fe_text.data, {roi_2_fe_text.rows, roi_2_fe_text.cols, roi_2_fe_text.channels()});
     at::Tensor roi_2_tensor_mean = roi_2_tensor.mean(0).mean(0);
-    roi_2_tensor_mean = roi_2_tensor_mean - roi_1_tensor_mean;
+//    roi_2_tensor_mean = roi_2_tensor_mean - roi_1_tensor_mean;
 
 
     // 归一化
@@ -909,20 +920,26 @@ void Probability::cal_similarity()
     if (this->fe_status.gray) cal_similarity_gray();
     if (this->fe_status.text) cal_similarity_text();
 
-    // 根据特征相似度计算综合相似度
-    // 使用softmax计算
-    float exp_deep = exp(this->fe_similarity.deep);
-    float exp_gray = exp(this->fe_similarity.gray);
-    float exp_text = exp(this->fe_similarity.text);
-    float exp_sum = exp_deep + exp_gray + exp_text;
+    if (ui->CB_weights->currentText() == QString("自定义法"))
+    {
+        this->fe_similarity_weights = {1.0/3.0, 1.0/3.0, 1.0/3.0};
+        this->fe_similarity_weights.deep = ui->le_deep_weight->text().toFloat();
+        this->fe_similarity_weights.gray = ui->le_gray_weight->text().toFloat();
+        this->fe_similarity_weights.text = ui->le_text_weight->text().toFloat();
+    }
+    else if (ui->CB_weights->currentText() == QString("熵权法"))
+    {
+        this->fe_similarity_weights.deep = 0.5;
+        this->fe_similarity_weights.gray = 0.3;
+        this->fe_similarity_weights.text = 0.2;
+    }
 
     float si = 0;
-    if (this->fe_status.deep) si = si + exp_deep/exp_sum;
-    if (this->fe_status.gray) si = si + exp_gray/exp_sum;
-    if (this->fe_status.text) si = si + exp_text/exp_sum;
+    if (this->fe_status.deep) si = si + this->fe_similarity.deep * this->fe_similarity_weights.deep;
+    if (this->fe_status.gray) si = si + this->fe_similarity.gray * this->fe_similarity_weights.gray;
+    if (this->fe_status.text) si = si + this->fe_similarity.text * this->fe_similarity_weights.text;
 
     this->similarity = si;
-
 
 }
 
@@ -982,8 +999,25 @@ float sim_map_pro_func_map(float similarity)
 // 心理学决策原理法
 float sim_map_pro_psychology(float similarity)
 {
+    // 以下几组参数，来自论文《基于图像特征与心理感知量的伪装效果评价方法》
+    // 灰度特征
+    float k = 3.965;
+    float p = -0.024;
+    float q = 1.333;
+
+//    // 色度特征
+//    float k = 1.731;
+//    float p = -0.030;
+//    float q = 1.048;
+
+//    // 纹理特征
+//    float k = 0.464;
+//    float p = -0.002;
+//    float q = 0.667;
+
     float probability;
-    probability= 1 - similarity;
+    float temp = -k * pow((similarity-p), q);
+    probability= 1 - exp(temp);
 
     return probability;
 }

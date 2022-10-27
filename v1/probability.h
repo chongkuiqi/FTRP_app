@@ -55,6 +55,9 @@ public:
     void choose_roi_4(const QString &text);
     void choose_roi_5(const QString &text);
 
+    // 是否显示特征相似度加权权值输入界面
+    void show_CB_weights(const QString &text);
+
     void browse_save();
 
     void extract_fe();
@@ -131,6 +134,9 @@ private:
 
     // 存储各个特征的相似度
     struct_fe<float> fe_similarity = {0.0, 0.0, 0.0};
+
+    // 存储各个特征的相似度加权权值
+    struct_fe<float> fe_similarity_weights = {1.0/3.0, 1.0/3.0, 1.0/3.0};
 
 
 
