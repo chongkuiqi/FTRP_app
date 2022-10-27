@@ -90,6 +90,9 @@ Detection::~Detection()
 
 void Detection::get_bu_group_status(QButtonGroup *bu_group)
 {
+
+    this->reset_show();
+
     // 状态归零
     this->img_status = {false, false, false};
 
@@ -107,10 +110,10 @@ void Detection::get_bu_group_status(QButtonGroup *bu_group)
 
     }
 
-    std::cout << "模式：" << std::endl;
-    std::cout << "可见光:" << img_status.opt << std::endl;
-    std::cout << "红外:" << img_status.IR << std::endl;
-    std::cout << "SAR:" << img_status.SAR << std::endl;
+//    std::cout << "模式：" << std::endl;
+//    std::cout << "可见光:" << img_status.opt << std::endl;
+//    std::cout << "红外:" << img_status.IR << std::endl;
+//    std::cout << "SAR:" << img_status.SAR << std::endl;
 
         // 当前点击的按钮
     //    qDebug() << QString("Clicked Button : %1").arg(button->text());
@@ -137,6 +140,7 @@ void Detection::on_bu_group_MS(QAbstractButton *button)
 
 void Detection::switch_mode(const QString &text)
 {
+    this->reset_show();
     if (text == QString("单频谱图像目标检测"))
     {
         ui->stackedWidget_detect->setCurrentWidget(ui->page_single);
@@ -293,35 +297,34 @@ void Detection::detect()
     {
         // 可见光
         case 100:
-            model_path = "/home/ckq/MyDocuments/QtCode/ftrp_software/sources/model/detection/exp361_no_align_script.pt";
-//            model_path = "/home/ckq/MyDocuments/QtCode/ftrp_software/example/FTRP_software/exp369_script.pt";
+            model_path = "./model/detection/可见光_exp361.pt";
             break;
-//        // 红外
-//        case 10:
-//            model_path = "/home/ckq/MyDocuments/QtCode/ftrp_software/sources/model/detection/exp361_no_align_script.pt";
-//            break;
-//        // SAR
-//        case 1:
-//            model_path = "/home/ckq/MyDocuments/QtCode/ftrp_software/sources/model/detection/exp361_no_align_script.pt";
-//            break;
+        // 红外
+        case 10:
+            model_path = "./model/detection/红外_exp382.pt";
+            break;
+        // SAR
+        case 1:
+            model_path = "./model/detection/SAR_exp383.pt";
+            break;
 
 
-//        // 可见光+红外
-//        case 110:
-//            model_path = "/home/ckq/MyDocuments/QtCode/ftrp_software/sources/model/detection/exp361_no_align_script.pt";
-//            break;
-//        // 可见光+SAR
-//        case 101:
-//            model_path = "/home/ckq/MyDocuments/QtCode/ftrp_software/sources/model/detection/exp361_no_align_script.pt";
-//            break;
-//        // 红外+SAR
-//        case 11:
-//            model_path = "/home/ckq/MyDocuments/QtCode/ftrp_software/sources/model/detection/exp361_no_align_script.pt";
-//            break;
+        // 可见光+红外
+        case 110:
+            model_path = "./model/detection/可见光_红外_exp17.pt";
+            break;
+        // 可见光+SAR
+        case 101:
+            model_path = "./model/detection/可见光_SAR_exp18.pt";
+            break;
+        // 红外+SAR
+        case 11:
+            model_path = "./model/detection/红外_SAR_exp19.pt";
+            break;
 
         // 可见光+红外+SAR
         case 111:
-            model_path = "/home/ckq/MyDocuments/QtCode/ftrp_software/sources/model/detection/exp15_MS_script.pt";
+            model_path = "./model/detection/可见光_红外_SAR_exp16.pt";
             break;
 
         default:
@@ -526,3 +529,22 @@ void Detection::save_results()
 
 }
 
+
+void Detection::reset_show()
+{
+    ui->le_imgpath_opt->clear();
+    ui->le_imgpath_IR->clear();
+    ui->le_imgpath_SAR->clear();
+
+    ui->le_imgpath_opt->clear();
+    ui->le_imgpath_IR->clear();
+    ui->le_imgpath_SAR->clear();
+
+    ui->labelImage_opt->clear();
+    ui->labelImage_IR->clear();
+    ui->labelImage_SAR->clear();
+    ui->labelImage_opt_results->clear();
+    ui->labelImage_IR_results->clear();
+    ui->labelImage_SAR_results->clear();
+
+}

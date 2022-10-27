@@ -51,6 +51,10 @@ public:
     void save_img_IR();
     void save_img_SAR();
 
+
+
+    void reset_show();
+
 private:
     Ui::Detection *ui;
 

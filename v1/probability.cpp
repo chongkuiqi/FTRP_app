@@ -599,7 +599,7 @@ at::Tensor map_roi_levels(at::Tensor rois, int num_levels, int finest_scale=56)
 }
 void Probability::extract_fe_deep(cv::Mat &img, std::vector<std::vector<cv::Point>> &contours)
 {
-    std::string model_path = "/home/ckq/MyDocuments/QtCode/ftrp_software/sources/model/extract_fe/exp361_no_align_extract_fe_script.pt";
+    std::string model_path = "./model/extract_fe/exp361_no_align_extract_fe_script.pt";
 
     torch::Device device(torch::kCPU);
 
