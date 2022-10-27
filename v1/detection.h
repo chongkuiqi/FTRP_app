@@ -46,6 +46,11 @@ public:
 
     void get_bu_group_status(QButtonGroup *bu_group);
 
+    void show_img_results(QString img_type);
+    void show_img_opt_results();
+    void show_img_IR_results();
+    void show_img_SAR_results();
+
     void save_img(QString img_type);
     void save_img_opt();
     void save_img_IR();

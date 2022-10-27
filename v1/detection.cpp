@@ -360,9 +360,88 @@ void Detection::detect()
     ui->text_log->append("检测完成！");
 
 
-    if (this->img_status.opt) this->save_img_opt();
-    if (this->img_status.IR) this->save_img_IR();
-    if (this->img_status.SAR) this->save_img_SAR();
+    if (this->img_status.opt) this->show_img_opt_results();
+    if (this->img_status.IR) this->show_img_IR_results();
+    if (this->img_status.SAR) this->show_img_SAR_results();
+
+}
+
+
+void Detection::show_img_results(QString img_type)
+{
+
+    int contoursIds = -1;
+    const cv::Scalar color = cv::Scalar(0,0,255);
+    int thickness = 3;
+
+    QString img_path;
+    cv::Mat img;
+    //获取图像名称和路径
+    QFileInfo imginfo;
+    // 图像名称
+    QString img_name;
+    //文件后缀
+    QString fileSuffix;
+    if (img_type==QString("可见光"))
+    {
+        img_path = ui->le_imgpath_opt->text();
+        LoadImage(img_path.toStdString(), img); // CV_8UC3
+
+        drawContours(img, this->contours, contoursIds, color, thickness);
+
+        //显示图像
+        QImage srcimg = MatToImage(img);
+        // 图像缩放到label的大小，并保持长宽比
+        QImage dest = srcimg.scaled(ui->labelImage_opt_results->size(),Qt::KeepAspectRatio);
+        ui->labelImage_opt_results->setPixmap(QPixmap::fromImage(dest));
+
+    }
+
+    if (img_type==QString("红外"))
+    {
+        img_path = ui->le_imgpath_IR->text();
+        LoadImage(img_path.toStdString(), img); // CV_8UC3
+
+        drawContours(img, this->contours, contoursIds, color, thickness);
+
+        //显示图像
+        QImage srcimg = MatToImage(img);
+        // 图像缩放到label的大小，并保持长宽比
+        QImage dest = srcimg.scaled(ui->labelImage_IR_results->size(),Qt::KeepAspectRatio);
+        ui->labelImage_IR_results->setPixmap(QPixmap::fromImage(dest));
+
+    }
+
+    if (img_type==QString("SAR"))
+    {
+        img_path = ui->le_imgpath_SAR->text();
+        LoadImage(img_path.toStdString(), img); // CV_8UC3
+
+        drawContours(img, this->contours, contoursIds, color, thickness);
+
+        //显示图像
+        QImage srcimg = MatToImage(img);
+        // 图像缩放到label的大小，并保持长宽比
+        QImage dest = srcimg.scaled(ui->labelImage_SAR_results->size(),Qt::KeepAspectRatio);
+        ui->labelImage_SAR_results->setPixmap(QPixmap::fromImage(dest));
+    }
+
+
+}
+
+void Detection::show_img_opt_results()
+{
+    show_img_results(QString("可见光"));
+
+}
+void Detection::show_img_IR_results()
+{
+    show_img_results(QString("红外"));
+
+}
+void Detection::show_img_SAR_results()
+{
+    show_img_results(QString("SAR"));
 
 }
 
@@ -485,6 +564,11 @@ void Detection::save_img_SAR()
 
 void Detection::save_results()
 {
+    // 保存图像
+    if (this->img_status.opt) this->save_img_opt();
+    if (this->img_status.IR) this->save_img_IR();
+    if (this->img_status.SAR) this->save_img_SAR();
+
     QString path = ui->le_savepath->text();
     QString img_path;
     if (this->img_status.opt) img_path = ui->le_imgpath_opt->text();
