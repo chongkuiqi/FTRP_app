@@ -42,7 +42,7 @@ void SARdeduction::on_browse_clicked()
     //显示图像
     QImage* srcimg = new QImage;
     srcimg -> load(path);
-    ui->src_image->setPixmap(QPixmap::fromImage(*srcimg));
+    ui->src_image->setPixmap(QPixmap::fromImage(*srcimg).scaled(400,400));
 }
 
 
@@ -113,7 +113,7 @@ void SARdeduction::on_run_clicked()
     //显示输出图像
     QImage* outimg = new QImage;
     outimg -> load(QString::fromStdString(finalpath));
-    ui->output_img->setPixmap(QPixmap::fromImage(*outimg));
+    ui->output_img->setPixmap(QPixmap::fromImage(*outimg).scaled(400,400));
     ui->log->append("推演完成，图像保存至：");
     ui->log->append(QString::fromStdString(finalpath));
 

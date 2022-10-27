@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>894</width>
-    <height>931</height>
+    <width>998</width>
+    <height>795</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -484,59 +484,6 @@
               <string>沙漠型气溶胶</string>
              </property>
             </item>
-            <item>
-             <property name="text">
-              <string>生物质燃烧型</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>平流层模式</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_16">
-          <item>
-           <widget class="QLabel" name="label_28">
-            <property name="text">
-             <string>气溶胶含量：</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="concentration">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <item>
-             <property name="text">
-              <string>输入550nm气溶胶光学厚度（nm)</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>输入能见度（大于5km）(km)</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="v_value">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="editable">
-             <bool>true</bool>
-            </property>
-            <item>
-             <property name="text">
-              <string>1.95</string>
-             </property>
-            </item>
            </widget>
           </item>
          </layout>
@@ -594,81 +541,334 @@
             </property>
             <item>
              <property name="text">
-              <string>vis band of meteosat (0.350-1.110)</string>
+              <string>meteosat的可见光波段 (0.350-1.110)</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>vis band of goes east (0.490-0.900)</string>
+              <string>goes east的可见光波段 (0.490-0.900)</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>vis band of goes west (0.490-0.900)</string>
+              <string>goes west的可见光波段 (0.490-0.900)</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>1st band of avhrr(noaa6) (0.550-0.750)</string>
+              <string>avhrr(noaa6)的第一波段 (0.550-0.750)</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>2nd band of avhrr(noaa6) (0.690-1.120)</string>
+              <string>avhrr(noaa6)的第二波段 (0.690-1.120)</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>1st band of avhrr(noaa7) (0.500-0.800)</string>
+              <string>avhrr(noaa7)的第一波段 (0.500-0.800)</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>2nd band of avhrr(noaa7) (0.640-1.170)</string>
+              <string>avhrr(noaa7)的第二波段 (0.640-1.170)</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>1st band of avhrr(noaa8) (0.540-1.010)</string>
+              <string>avhrr(noaa8)的第一波段 (0.540-1.010)</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>2nd band of avhrr(noaa8) (0.680-1.120)</string>
+              <string>avhrr(noaa8)的第二波段 (0.680-1.120)</string>
              </property>
             </item>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_9">
-          <item>
-           <widget class="QLabel" name="label_8">
-            <property name="text">
-             <string>新增地面反射率类型：</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="new_type_ref">
-            <property name="editable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="new_value_ref">
-            <property name="editable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="add_ref">
-            <property name="text">
-             <string>新增</string>
-            </property>
+            <item>
+             <property name="text">
+              <string>avhrr(noaa9)的第一波段 (0.530-0.810)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>avhrr(noaa9)的第二波段 (0.680-1.170)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>avhrr(noaa10)的第一波段 (0.530-0.780)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>avhrr(noaa10)的第二波段 (0.600-1.190)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>avhrr(noaa11)的第一波段 (0.540-0.820)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>avhrr(noaa11)的第二波段 (0.600-1.120)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>hrv1(spot1)的第一波段(0.470-0.650)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>hrv1(spot1)的第二波段(0.600-0.720)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>hrv1(spot1)的第三波段(0.730-0.930)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>hrv1(spot1)的微米全色波段(0.470-0.790)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>hrv2(spot1)的第一波段(0.470-0.650)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>hrv2(spot1)的第二波段(0.590-0.730)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>hrv2(spot1)的第三波段(0.740-0.940)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>hrv2(spot1)的微米全色波段(0.470-0.790)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>tm(landsat5)的第一波段(0.430-0.560)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>tm(landsat5)的第二波段(0.500-0.650)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>tm(landsat5)的第三波段(0.580-0.740)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>tm(landsat5)的第四波段(0.730-0.950)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>tm(landsat5)的第五波段(1.5025-1.890)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>tm(landsat5)的第七波段(1.950-2.410)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>mss(landsat5)的第一波段(0.475-0.640)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>mss(landsat5)的第二波段(0.580-0.750)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>mss(landsat5)的第三波段(0.655-0.855)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>mss(landsat5)的第四波段(0.785-1.100)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MAS(ER2)的第一波段(0.5025-0.5875)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MAS(ER2)的第二波段(0.6075-0.7000)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MAS(ER2)的第三波段(0.8300-0.9125)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MAS(ER2)的第四波段(0.9000-0.9975)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MAS(ER2)的第五波段(1.8200-1.9575)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MAS(ER2)的第六波段(2.0950-2.1925)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MAS(ER2)的第七波段(3.5800-3.8700)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MODIS的第一波段 (0.6100-0.6850)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MODIS的第二波段 (0.8200-0.9025)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MODIS的第三波段 (0.4500-0.4825)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MODIS的第四波段 (0.5400-0.5700)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MODIS的第五波段 (1.2150-1.2700)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MODIS的第六波段 (1.6000-1.6650)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MODIS的第七波段 (2.0575-2.1825)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>avhrr(noaa12)的第一波段(0.500-1.000)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>avhrr(noaa12)的第二波段(0.650-1.120)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>avhrr(noaa14)的第一波段(0.500-1.110)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>avhrr(noaa14)的第二波段(0.680-1.100)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>POLDER的第一波段(0.4125-0.4775)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>POLDER的第二波段(非极性(0.4100-0.5225)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>POLDER的第三波段(非极性(0.5325-0.5950)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>POLDER的第四波段P1(0.6300-0.7025)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>POLDER的第五波段(非极性(0.7450-0.7800)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>POLDER的第六波段(非极性(0.7000-0.8300)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>POLDER的第七波段P1(0.8100-0.9200)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>POLDER的第八波段(非极性(0.8650-0.9400)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>etm+(landsat7)的第一波段(0.435-0.520)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>etm+(landsat7)的第二波段(0.506-0.621)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>etm+(landsat7)的第三波段(0.622-0.702)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>etm+(landsat7)的第四波段(0.751-0.911)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>etm+(landsat7)的第五波段(1.512-1.792)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>etm+(landsat7)的第七波段(2.020-2.380)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>etm+(landsat7)的第八波段(0.504-0.909)</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>
@@ -676,16 +876,101 @@
         <item>
          <widget class="QLabel" name="label_9">
           <property name="text">
-           <string>已包含的地面反射率类型有：</string>
+           <string>地面反射率：</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label_24">
-          <property name="text">
-           <string>植被、公路、土地、净水、干旱沙地、湖水、火山岩屑</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_20">
+          <item>
+           <widget class="QLabel" name="label_30">
+            <property name="text">
+             <string>公路：</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="road">
+            <property name="text">
+             <string>0.09</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_31">
+            <property name="text">
+             <string>林地：</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="forrest">
+            <property name="text">
+             <string>0.32</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_32">
+            <property name="text">
+             <string>草地：</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="grass">
+            <property name="text">
+             <string>0.25</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_21">
+          <item>
+           <widget class="QLabel" name="label_33">
+            <property name="text">
+             <string>雪地：</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="snow">
+            <property name="text">
+             <string>0.83</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_34">
+            <property name="text">
+             <string>水：</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="water">
+            <property name="text">
+             <string>0.05</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_35">
+            <property name="text">
+             <string>荒地：</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="sand">
+            <property name="text">
+             <string>0.21</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <widget class="QLabel" name="label_10">
@@ -805,7 +1090,7 @@
              </font>
             </property>
             <property name="text">
-             <string>机载光学图像空间分辨率/m:</string>
+             <string>机载光学图像空间分辨率(m):</string>
             </property>
            </widget>
           </item>
@@ -934,21 +1219,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label_20">
-          <property name="font">
-           <font>
-            <pointsize>14</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>运行日志：</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QTextBrowser" name="log"/>
-        </item>
-        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_7">
           <item>
            <spacer name="horizontalSpacer_6">
@@ -986,14 +1256,41 @@
         <item>
          <widget class="QLabel" name="label_17">
           <property name="text">
-           <string>机载光学图像</string>
+           <string>机载光学图像（预览）</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="srcimg">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>30</horstretch>
+            <verstretch>30</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>250</width>
+            <height>250</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>250</width>
+            <height>250</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
            <string/>
+          </property>
+          <property name="scaledContents">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -1010,6 +1307,124 @@
           </property>
          </spacer>
         </item>
+        <item>
+         <widget class="QLabel" name="label_29">
+          <property name="text">
+           <string>语义分割结果（预览）</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="tempimg">
+          <property name="minimumSize">
+           <size>
+            <width>250</width>
+            <height>250</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>250</width>
+            <height>250</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_18">
+          <item>
+           <widget class="QLabel" name="label_road">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="text">
+             <string>公路</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_forrest">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="text">
+             <string>林地</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_grass">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="text">
+             <string>草地</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_19">
+          <item>
+           <widget class="QLabel" name="label_snow">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="text">
+             <string>雪地</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_water">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="text">
+             <string>水</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_sand">
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="text">
+             <string>荒地</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
        </layout>
       </item>
       <item>
@@ -1017,19 +1432,37 @@
         <item>
          <widget class="QLabel" name="label_19">
           <property name="text">
-           <string>星载光学图像</string>
+           <string>星载光学图像（预览）</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="outputimg">
+          <property name="minimumSize">
+           <size>
+            <width>250</width>
+            <height>250</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>250</width>
+            <height>250</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
            <string/>
           </property>
          </widget>
         </item>
         <item>
-         <spacer name="verticalSpacer_9">
+         <spacer name="verticalSpacer_3">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -1040,6 +1473,34 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_20">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>运行日志：</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextBrowser" name="log">
+          <property name="minimumSize">
+           <size>
+            <width>250</width>
+            <height>320</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>250</width>
+            <height>320</height>
+           </size>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -1052,7 +1513,7 @@
       </property>
       <property name="sizeHint" stdset="0">
        <size>
-        <width>161</width>
+        <width>1</width>
         <height>20</height>
        </size>
       </property>
@@ -1078,7 +1539,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>894</width>
+     <width>998</width>
      <height>22</height>
     </rect>
    </property>

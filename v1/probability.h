@@ -85,6 +85,9 @@ public:
     void reset_show();
 
 
+    void change_bg_ratio(const QString text);
+
+
 private:
     Ui::Probability *ui;
 
@@ -110,12 +113,10 @@ private:
     std::vector<cv::Point> contour_1;
     std::vector<cv::Point> contour_2;
 
-    // 两个待提取特征区域的旋转框
-    cv::RotatedRect rrect_box_1;
-    cv::RotatedRect rrect_box_2;
-    // 旋转框旋转到水平框
-    cv::Rect rect_box_1;
-    cv::Rect rect_box_2;
+//    // 两个待提取特征区域的旋转框
+//    cv::RotatedRect rrect_box_1;
+//    cv::RotatedRect rrect_box_2;
+
 
     // 旋转后的图像
     cv::Mat img_rotate;
@@ -125,8 +126,8 @@ private:
     struct_fe<bool> fe_status = {false,false, false};
 
     // 前景/背景区域的特征
-    struct_fe<at::Tensor> roi_fe;
-    struct_fe<at::Tensor> bg_fe;
+    struct_fe<at::Tensor> roi_fe_1;
+    struct_fe<at::Tensor> roi_fe_2;
 
     // 存储各个特征的相似度
     struct_fe<float> fe_similarity = {0.0, 0.0, 0.0};

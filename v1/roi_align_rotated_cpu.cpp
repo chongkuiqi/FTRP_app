@@ -19,7 +19,8 @@
 bool roi_align_rotated_forward_cpu(torch::Tensor features, torch::Tensor rois,
                            int pooled_height, int pooled_width,
                            float spatial_scale, int sample_num,
-                           torch::Tensor output) {
+                           torch::Tensor output)
+{
   CHECK_INPUT(features);
   CHECK_INPUT(rois);
   CHECK_INPUT(output);
@@ -28,7 +29,8 @@ bool roi_align_rotated_forward_cpu(torch::Tensor features, torch::Tensor rois,
   int num_rois = rois.size(0);
   int size_rois = rois.size(1);
 
-  if (size_rois != 6) {
+  if (size_rois != 6)
+  {
     printf("wrong roi size\n");
     return false;
   }
