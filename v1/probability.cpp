@@ -664,12 +664,24 @@ void Probability::extract_fe_deep(cv::Mat &img, std::vector<std::vector<cv::Poin
     rois_2 = rois_2.unsqueeze(0);
     int num_rois_2 = rois_2.sizes()[0];
     at::Tensor outs_rois_2 = torch::zeros({num_rois_2, chn, out_h, out_w}).to(device);
-    roi_align_rotated_forward_cpu(feat, rois_2, out_h, out_w, spatial_scale, sample_num, outs_rois_2);
+    roi_align_rotated_forward_cpu(output->elements()[1].toTensor(), rois_2, out_h, out_w, 1/16, sample_num, outs_rois_2);
     outs_rois_2 = outs_rois_2.reshape(-1);
 //    outs_rois_2 = outs_rois_2 - outs_rois_1;
 
-    outs_rois_1 /= outs_rois_1.norm(2);
-    outs_rois_2 /= outs_rois_2.norm(2);
+
+    float roi_1_min = outs_rois_1.min().item().toFloat();
+    float roi_1_max = outs_rois_1.max().item().toFloat();
+    float roi_2_min = outs_rois_2.min().item().toFloat();
+    float roi_2_max = outs_rois_2.max().item().toFloat();
+
+    outs_rois_1 = (outs_rois_1- roi_1_min) / (roi_1_max-roi_1_min);
+    outs_rois_2 = (outs_rois_2- roi_2_min) / (roi_2_max-roi_2_min);
+
+    outs_rois_1 /= outs_rois_1.sum();
+    outs_rois_2 /= outs_rois_2.sum();
+
+//    outs_rois_1 /= outs_rois_1.norm(2);
+//    outs_rois_2 /= outs_rois_2.norm(2);
     this->roi_fe_1.deep = outs_rois_1.clone();
     this->roi_fe_2.deep = outs_rois_2.clone();
 
@@ -723,8 +735,8 @@ void Probability::extract_fe_gray(cv::Mat &img, std::vector<std::vector<cv::Poin
     angle = rbox_2.angle;
     x = (int)(center.x);
     y = (int)(center.y);
-    w = (int)(rbox_1.size.width);
-    h = (int)(rbox_1.size.height);
+    w = (int)(rbox_2.size.width);
+    h = (int)(rbox_2.size.height);
     x1 = x - w/2;
     y1 = y - h/2;
     // 左上角点坐标，w,h
@@ -735,6 +747,8 @@ void Probability::extract_fe_gray(cv::Mat &img, std::vector<std::vector<cv::Poin
     cv::warpAffine(img, img_rotate, M, cv::Size(img.cols, img.rows), cv::INTER_LINEAR, 0);
     cv::Mat img_roi_2 = img_rotate(rect_roi_2);
     cv::Mat roi_hist_2;
+
+
     get_hist(img_roi_2, roi_hist_2);
 //    roi_hist_2 = roi_hist_2 - roi_hist_1;
 
@@ -833,8 +847,8 @@ void Probability::extract_fe_texture(cv::Mat &img, std::vector<std::vector<cv::P
     angle = rbox_2.angle;
     x = (int)(center.x);
     y = (int)(center.y);
-    w = (int)(rbox_1.size.width);
-    h = (int)(rbox_1.size.height);
+    w = (int)(rbox_2.size.width);
+    h = (int)(rbox_2.size.height);
     x1 = x - w/2;
     y1 = y - h/2;
     // 左上角点坐标，w,h
@@ -862,16 +876,28 @@ void Probability::extract_fe_texture(cv::Mat &img, std::vector<std::vector<cv::P
     cv::merge(imgs_filtered_2, mc_img_2);
 
 
-    cv::Mat roi_2_fe_text = mc_img_2(rect_roi_1);
+    cv::Mat roi_2_fe_text = mc_img_2(rect_roi_2);
     at::Tensor roi_2_tensor = torch::from_blob(
                 roi_2_fe_text.data, {roi_2_fe_text.rows, roi_2_fe_text.cols, roi_2_fe_text.channels()});
     at::Tensor roi_2_tensor_mean = roi_2_tensor.mean(0).mean(0);
 //    roi_2_tensor_mean = roi_2_tensor_mean - roi_1_tensor_mean;
 
 
-    // 归一化
-    roi_1_tensor_mean /= roi_1_tensor_mean.norm(2);
-    roi_2_tensor_mean /= roi_2_tensor_mean.norm(2);
+//    float roi_1_min = roi_1_tensor_mean.min().item().toFloat();
+//    float roi_1_max = roi_1_tensor_mean.max().item().toFloat();
+//    float roi_2_min = roi_2_tensor_mean.min().item().toFloat();
+//    float roi_2_max = roi_2_tensor_mean.max().item().toFloat();
+
+//    roi_1_tensor_mean = (roi_1_tensor_mean- roi_1_min) / (roi_1_max-roi_1_min);
+//    roi_2_tensor_mean = (roi_2_tensor_mean- roi_2_min) / (roi_2_max-roi_2_min);
+
+//    roi_1_tensor_mean /= roi_1_tensor_mean.sum();
+//    roi_2_tensor_mean /= roi_2_tensor_mean.sum();
+
+
+//    // 归一化
+//    roi_1_tensor_mean /= roi_1_tensor_mean.norm(2);
+//    roi_2_tensor_mean /= roi_2_tensor_mean.norm(2);
 
     this->roi_fe_1.text = roi_1_tensor_mean;
     this->roi_fe_2.text = roi_2_tensor_mean;
@@ -954,11 +980,18 @@ float distance_B(at::Tensor p, at::Tensor q)
 }
 void Probability::cal_similarity_deep()
 {
-
+    float similarity = 0.0;
 //    cout << "roi_fe:" <<this->roi_fe.deep << endl;
-    at::Tensor diff = torch::abs(this->roi_fe_1.deep - this->roi_fe_2.deep);
-    float similarity= 1 - diff.mean().item().toFloat();
-    this->fe_similarity.gray = similarity;
+//    float diff = torch::abs(this->roi_fe_1.deep - this->roi_fe_2.deep).sum().item().toFloat();
+
+//    float norm_1 = torch::abs(this->roi_fe_1.deep).sum().item().toFloat();
+//    float norm_2 = torch::abs(this->roi_fe_2.deep).sum().item().toFloat();
+
+//    similarity = diff / (norm_1 + norm_2 - diff);
+
+    similarity = torch::sqrt(this->roi_fe_1.deep*this->roi_fe_2.deep).sum().item().toFloat();
+
+    this->fe_similarity.deep = similarity;
 
     QString log = QString("\n深度学习特征相似度为:") + QString::number(similarity, 'f', 3);
     ui->text_log->append(log);
@@ -979,9 +1012,20 @@ void Probability::cal_similarity_gray()
 
 void Probability::cal_similarity_text()
 {
-    at::Tensor diff = torch::abs(this->roi_fe_1.text - this->roi_fe_2.text);
+    float similarity=0.0;
+    float diff = torch::abs(this->roi_fe_1.text - this->roi_fe_2.text).sum().item().toFloat();
 
-    float similarity= 1 - diff.mean().item().toFloat();
+    float norm_1 = torch::abs(this->roi_fe_1.text).sum().item().toFloat();
+    float norm_2 = torch::abs(this->roi_fe_2.text).sum().item().toFloat();
+
+
+    similarity = diff / (norm_1 + norm_2 - diff);
+//    std::cout << " text diff sum:" << diff.sum().item().toFloat() << " text diff mean:" << diff.mean().item().toFloat() << std::endl;
+    similarity = 1 - similarity;
+
+//    // 灰度直方图，使用巴氏系数作为特征相似度
+//    float similarity = torch::sqrt(this->roi_fe_1.text*this->roi_fe_2.text).sum().item().toFloat();
+
     this->fe_similarity.text = similarity;
     QString log = QString("\n纹理特征相似度为:") + QString::number(similarity, 'f', 3);
     ui->text_log->append(log);
