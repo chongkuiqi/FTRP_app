@@ -109,8 +109,7 @@ Probability::Probability(QWidget *parent) :
     connect(ui->le_bg_ratio, &QLineEdit::textChanged, this, &Probability::change_bg_ratio);
 
 
-    // 特征相似度加权权值的手动输入
-    connect(ui->CB_weights, &QComboBox::currentTextChanged, this, &Probability::show_CB_weights);
+
 
     // 设置label的大小
     int h=512,w=512;
@@ -122,29 +121,41 @@ Probability::Probability(QWidget *parent) :
 
 
     // 三种图像特征选择按钮，放进一个按钮组
-    bu_fe_group.setParent(this);
+    bu_group_fe.setParent(this);
     // 按钮组中不互斥
-    bu_fe_group.setExclusive(false);
-    bu_fe_group.addButton(ui->bu_deep_fe, 0);
-    bu_fe_group.addButton(ui->bu_gray_fe, 1);
-    bu_fe_group.addButton(ui->bu_text_fe, 2);
+    bu_group_fe.setExclusive(false);
+    bu_group_fe.addButton(ui->bu_deep_fe, 0);
+    bu_group_fe.addButton(ui->bu_gray_fe, 1);
+    bu_group_fe.addButton(ui->bu_text_fe, 2);
 
     // 按钮组每改变一次状态，都会调用一次
-    connect(&bu_fe_group, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &Probability::on_bu_fe_group);
+    connect(&bu_group_fe, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &Probability::on_bu_group_fe);
 
     fe_status = {false, false, false};
 
 
     // 特征提取区域选择按钮组
-    bu_rois_group.setParent(this);
+    bu_group_rois.setParent(this);
     // 按钮组互斥
-    bu_rois_group.setExclusive(true);
-    bu_rois_group.addButton(ui->RB_fg_bg, 0);
-    bu_rois_group.addButton(ui->RB_fg_fg, 1);
-    bu_rois_group.addButton(ui->RB_fg_fg2, 2);
+    bu_group_rois.setExclusive(true);
+    bu_group_rois.addButton(ui->RB_fg_bg, 0);
+    bu_group_rois.addButton(ui->RB_fg_fg, 1);
+    bu_group_rois.addButton(ui->RB_fg_fg2, 2);
 
     // 按钮组每改变一次状态，都会调用一次
-    connect(&bu_rois_group, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &Probability::on_bu_rois_group);
+    connect(&bu_group_rois, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &Probability::on_bu_group_rois);
+
+
+    // 相似度加权方式选择按钮组
+    bu_group_weights.setParent(this);
+    bu_group_weights.setExclusive(true);
+    bu_group_weights.addButton(ui->RB_weights_custom, 0);
+    bu_group_weights.addButton(ui->RB_weights_entropy, 1);
+    // 按钮组每改变一次状态，都会调用一次
+    connect(&bu_group_weights, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &Probability::on_bu_group_weights);
+
+    // 特征相似度加权权值的手动输入
+    connect(ui->CB_weights, &QComboBox::currentTextChanged, this, &Probability::show_CB_weights);
 
 
 }
@@ -179,18 +190,9 @@ void Probability::browse_img(QString type)
     ui->labelImage_1->setPixmap(QPixmap::fromImage(dest));
 
 }
-void Probability::browse_img_1()
-{
-    browse_img(QString("目标-背景"));
-}
-void Probability::browse_img_2()
-{
-    browse_img(QString("目标-目标"));
-}
-void Probability::browse_img_3()
-{
-    browse_img(QString("目标-目标2"));
-}
+void Probability::browse_img_1() {browse_img(QString("目标-背景"));}
+void Probability::browse_img_2() {browse_img(QString("目标-目标"));}
+void Probability::browse_img_3() {browse_img(QString("目标-目标2"));}
 void Probability::browse_img_4()
 {
     QString img_path = QFileDialog::getOpenFileName(
@@ -448,10 +450,7 @@ void Probability::choose_roi_1(const QString &text)
 
 }
 
-void Probability::choose_roi_2(const QString &text)
-{
-    this->choose_roi(text);
-}
+void Probability::choose_roi_2(const QString &text) {this->choose_roi(text);}
 void Probability::choose_roi_3(const QString &text)
 {
     cv::Mat img_result;
@@ -490,10 +489,7 @@ void Probability::choose_roi_3(const QString &text)
 
 }
 
-void Probability::choose_roi_4(const QString &text)
-{
-    this->choose_roi(text);
-}
+void Probability::choose_roi_4(const QString &text) {this->choose_roi(text);}
 void Probability::choose_roi_5(const QString &text)
 {
     cv::Mat img_result;
@@ -529,7 +525,6 @@ void Probability::show_CB_weights(const QString &text)
 {
     if (text == QString("自定义法")) ui->GB_weights_inputs->show();
     else ui->GB_weights_inputs->hide();
-
 }
 
 
@@ -543,13 +538,11 @@ void Probability::browse_save()
 
 void Probability::extract_fe()
 {
-
     cv::Mat img = this->img_1.clone();
     // 选择特征
     if (this->fe_status.deep) extract_fe_deep(img, this->contours_1);
     if (this->fe_status.gray) extract_fe_gray(img, this->contours_1);
     if (this->fe_status.text) extract_fe_texture(img, this->contours_1);
-
 }
 
 // 根据旋转框的尺寸，映射到对应的特征层级
@@ -631,7 +624,8 @@ void Probability::extract_fe_deep(cv::Mat &img, std::vector<std::vector<cv::Poin
     // shape [N, 6(batch_id, x(像素单位), y, w, h, theta(弧度))]
     rois_1 = rois_1.unsqueeze(0);
 
-//    at::Tensor rois = torch::tensor(
+//    at::Tensor roi
+//      rois = torch::tensor(
 //                {
 //                    {0.0, 427.9353,616.8455, 119.1755,14.5517, -0.3343},
 //                    {0.0, 60.4593, 156.7023, 186.1304, 22.0563, 1.5757}
@@ -946,14 +940,13 @@ void Probability::cal_similarity()
     if (this->fe_status.gray) cal_similarity_gray();
     if (this->fe_status.text) cal_similarity_text();
 
-    if (ui->CB_weights->currentText() == QString("自定义法"))
+    if (this->weights_type == QString("自定义法"))
     {
-        this->fe_similarity_weights = {1.0/3.0, 1.0/3.0, 1.0/3.0};
         this->fe_similarity_weights.deep = ui->le_deep_weight->text().toFloat();
         this->fe_similarity_weights.gray = ui->le_gray_weight->text().toFloat();
         this->fe_similarity_weights.text = ui->le_text_weight->text().toFloat();
     }
-    else if (ui->CB_weights->currentText() == QString("熵权法"))
+    else if (this->weights_type == QString("熵权法"))
     {
         this->fe_similarity_weights.deep = 0.5;
         this->fe_similarity_weights.gray = 0.3;
@@ -1070,7 +1063,7 @@ void Probability::cal_probability()
 {
 
     // 由综合特征相似度计算识别概率，有函数映射法和心理学决策原理法，共2种方法
-    QString map_type = ui->CB_map->currentText();
+    QString map_type = this->map_type;
 
     if (map_type == QString("函数映射法"))
     {
@@ -1086,7 +1079,7 @@ void Probability::cal_probability()
         this->probability = -1.0;
     }
 
-    ui->le_probability->setText(QString::number(this->probability));
+    ui->label_show_proba->setText(QString::number(this->probability));
     QString log = QString("\n计算得到的识别概率为:") + QString::number(this->probability, 'f', 3);
     ui->text_log->append(log);
 }
@@ -1132,7 +1125,7 @@ void Probability::save_results()
 }
 
 
-void Probability::on_bu_fe_group(QAbstractButton *button)
+void Probability::on_bu_group_fe(QAbstractButton *button)
 {
 
 
@@ -1140,27 +1133,16 @@ void Probability::on_bu_fe_group(QAbstractButton *button)
     if (button->text() == QString("深度学习特征")) this->fe_status.deep = status;
     if (button->text() == QString("灰度特征")) this->fe_status.gray = status;
     if (button->text() == QString("纹理特征")) this->fe_status.text = status;
-
-        // 当前点击的按钮
-    //    qDebug() << QString("Clicked Button : %1").arg(button->text());
-
-        // 遍历按钮，获取选中状态
-//    QList<QAbstractButton*> list = bu_fe_group.buttons();
-//    foreach (QAbstractButton *pCheckBox, list)
-//    {
-//       QString strStatus = pCheckBox->isChecked() ? "Checked" : "Unchecked";
-//       qDebug() << QString("Button : %1 is %2").arg(pCheckBox->text()).arg(strStatus);
-//    }
-
-
 }
 
-void Probability::on_bu_rois_group(QAbstractButton *button)
+void Probability::on_bu_group_rois(QAbstractButton *button)
 {
     this->rois_type = button->text();
     this->reset_show();
-
 }
+
+void Probability::on_bu_group_weights(QAbstractButton *button) {this->weights_type = button->text();}
+void Probability::on_bu_group_map(QAbstractButton *button) {this->map_type = button->text();}
 
 void reset_QCB(QComboBox *CB_box)
 {
@@ -1191,5 +1173,41 @@ void Probability::reset_show()
 
     ui->labelImage_1->clear();
     ui->labelImage_2->clear();
+
+}
+
+void Probability::reset_bu_group_fe()
+{
+    // 按钮组中不互斥
+    this->bu_group_fe.setExclusive(false);
+    // 遍历按钮，全部设置为未选中状态
+    QList<QAbstractButton*> list;
+    list = this->bu_group_fe.buttons();
+    foreach (QAbstractButton *button, list) button->setChecked(false);
+
+}
+
+void Probability::reset_bu_group_weights()
+{
+    // 按钮组中不互斥
+    this->bu_group_weights.setExclusive(false);
+    // 遍历按钮，全部设置为未选中状态
+    QList<QAbstractButton*> list;
+    list = this->bu_group_weights.buttons();
+    foreach (QAbstractButton *button, list) button->setChecked(false);
+    // 按钮组互斥
+    this->bu_group_weights.setExclusive(true);
+}
+
+void Probability::reset_bu_group_map()
+{
+    // 按钮组中不互斥
+    this->bu_group_map.setExclusive(false);
+    // 遍历按钮，全部设置为未选中状态
+    QList<QAbstractButton*> list;
+    list = this->bu_group_map.buttons();
+    foreach (QAbstractButton *button, list) button->setChecked(false);
+    // 按钮组互斥
+    this->bu_group_map.setExclusive(true);
 
 }

@@ -78,17 +78,24 @@ public:
 
     void save_results();
 
-    void on_bu_fe_group(QAbstractButton *button);
-
-
+    void on_bu_group_fe(QAbstractButton *button);
     // 特征提取区域选择
-    void on_bu_rois_group(QAbstractButton *button);
+    void on_bu_group_rois(QAbstractButton *button);
+    void on_bu_group_weights(QAbstractButton *button);
+    void on_bu_group_map(QAbstractButton *button);
+
+
 
     // 显示复位，各个按钮、图像显示全部清零
     void reset_show();
 
 
     void change_bg_ratio(const QString text);
+
+
+    void reset_bu_group_fe();
+    void reset_bu_group_weights();
+    void reset_bu_group_map();
 
 
 private:
@@ -101,18 +108,12 @@ private:
     float probability;
 
     // 待提取特征区域选择按钮组
-    QButtonGroup bu_rois_group;
+    QButtonGroup bu_group_rois;
     // 待提取特征区域类型，包括3种，“目标-背景”，“目标-目标”，“目标-目标2”
-    QString rois_type = QString("目标-背景");
-
-
-    // 特征选择按钮组
-    QButtonGroup bu_fe_group;
-
+    QString rois_type = QString("");
     // 两个contours
     std::vector<std::vector<cv::Point>> contours_1;
     std::vector<std::vector<cv::Point>> contours_2;
-
     std::vector<cv::Point> contour_1;
     std::vector<cv::Point> contour_2;
 
@@ -121,24 +122,31 @@ private:
 //    cv::RotatedRect rrect_box_2;
 
 
-    // 旋转后的图像
-    cv::Mat img_rotate;
-
-
+    // 特征选择按钮组
+    QButtonGroup bu_group_fe;
     // 存储各个特征的状态，即是否提取该特征
     struct_fe<bool> fe_status = {false,false, false};
-
     // 前景/背景区域的特征
     struct_fe<at::Tensor> roi_fe_1;
     struct_fe<at::Tensor> roi_fe_2;
 
+
+    // 相似度加权方式选择按钮组
+    QButtonGroup bu_group_weights;
+    QString weights_type = QString("");
     // 存储各个特征的相似度
     struct_fe<float> fe_similarity = {0.0, 0.0, 0.0};
-
     // 存储各个特征的相似度加权权值
-    struct_fe<float> fe_similarity_weights = {1.0/3.0, 1.0/3.0, 1.0/3.0};
+    struct_fe<float> fe_similarity_weights = {0.0, 0.0, 0.0};
 
 
+    // 映射方法选择按钮组
+    QButtonGroup bu_group_map;
+    QString map_type = QString("");
+
+
+//    // 旋转后的图像
+//    cv::Mat img_rotate;
 
 };
 

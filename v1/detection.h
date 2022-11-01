@@ -28,10 +28,13 @@ public:
     explicit Detection(QWidget *parent = nullptr);
     ~Detection();
 
-    void browse_img(QString img_type);
-    void browse_img_opt();
-    void browse_img_IR();
-    void browse_img_SAR();
+    void browse_img(QString img_type, bool is_SS);
+    void browse_img_opt_SS();
+    void browse_img_IR_SS();
+    void browse_img_SAR_SS();
+    void browse_img_opt_MS();
+    void browse_img_IR_MS();
+    void browse_img_SAR_MS();
 
     void browse_save();
     void detect();
@@ -44,7 +47,7 @@ public:
 
     void on_bu_group_MS(QAbstractButton *button);
 
-    void get_bu_group_status(QButtonGroup *bu_group);
+    void get_bu_group_status(QButtonGroup *bu_group, bool is_SS);
 
     void show_img_results(QString img_type);
     void show_img_opt_results();
@@ -57,18 +60,20 @@ public:
     void save_img_SAR();
 
 
-
+    void init_ui();
+    void reset_imgpath_show();
+    void reset_img_show();
     void reset_show();
+    void reset_bu_groups();
+    void reset_config_params();
+
 
 private:
     Ui::Detection *ui;
 
-    // 保存图像
-    cv::Mat img;
+    // 检测结果
     std::vector<std::vector<cv::Point>> contours;
 
-    // 图像可视化结果
-    cv::Mat img_result;
 
     // 单频谱选择按钮组
     QButtonGroup bu_group_SS;
@@ -77,6 +82,9 @@ private:
 
     // 存储各个特征的状态，即是否提取该特征
     struct_MS<bool> img_status = {false,false, false};
+
+    // 存储各个频谱图像的路径
+    struct_MS<QString> img_paths = {QString(""), QString(""), QString("")};
 
 };
 

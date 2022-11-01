@@ -33,24 +33,14 @@ Detection::Detection(QWidget *parent) :
 
     connect(ui->bu_save, &QPushButton::clicked, this, &Detection::save_results);
 
-    // 显示软件日志
-    ui->text_log->setText("请输入图像路径和模型路径...");
 
     // 读取图像文件路径按钮
-    connect(ui->bu_browse_opt, &QPushButton::clicked, this, &Detection::browse_img_opt);
-    connect(ui->bu_browse_IR, &QPushButton::clicked, this, &Detection::browse_img_IR);
-    connect(ui->bu_browse_SAR, &QPushButton::clicked, this, &Detection::browse_img_SAR);
-
-    // 设置label的大小
-    int h=512,w=512;
-    ui->labelImage_opt->resize(w,h);
-    ui->labelImage_IR->resize(w,h);
-    ui->labelImage_SAR->resize(w,h);
-    ui->labelImage_opt_results->resize(w,h);
-    ui->labelImage_IR_results->resize(w,h);
-    ui->labelImage_SAR_results->resize(w,h);
-//    // 图像自适应label的大小
-//    ui->labelImage->setScaledContents(true);
+    connect(ui->bu_browse_opt_SS, &QPushButton::clicked, this, &Detection::browse_img_opt_SS);
+    connect(ui->bu_browse_IR_SS, &QPushButton::clicked, this, &Detection::browse_img_IR_SS);
+    connect(ui->bu_browse_SAR_SS, &QPushButton::clicked, this, &Detection::browse_img_SAR_SS);
+    connect(ui->bu_browse_opt_MS, &QPushButton::clicked, this, &Detection::browse_img_opt_MS);
+    connect(ui->bu_browse_IR_MS, &QPushButton::clicked, this, &Detection::browse_img_IR_MS);
+    connect(ui->bu_browse_SAR_MS, &QPushButton::clicked, this, &Detection::browse_img_SAR_MS);
 
 
     // 切换单频谱/多频谱目标检测模式
@@ -58,8 +48,6 @@ Detection::Detection(QWidget *parent) :
 
     // 单频谱图像选择按钮，放进一个按钮组
     bu_group_SS.setParent(this);
-    // 按钮组中互斥
-    bu_group_SS.setExclusive(true);
     bu_group_SS.addButton(ui->RB_opt, 0);
     bu_group_SS.addButton(ui->RB_IR, 1);
     bu_group_SS.addButton(ui->RB_SAR, 2);
@@ -68,8 +56,6 @@ Detection::Detection(QWidget *parent) :
 
     // 多频谱图像选择按钮，放进一个按钮组
     bu_group_MS.setParent(this);
-    // 按钮组中不互斥
-    bu_group_MS.setExclusive(false);
     bu_group_MS.addButton(ui->CB_opt, 0);
     bu_group_MS.addButton(ui->CB_IR, 1);
     bu_group_MS.addButton(ui->CB_SAR, 2);
@@ -77,9 +63,11 @@ Detection::Detection(QWidget *parent) :
     connect(&bu_group_MS, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &Detection::on_bu_group_MS);
 
 
-    connect(ui->CB_mode_show, &QComboBox::currentTextChanged, this, &Detection::switch_mode_show);
-
 //    ui->tabWidget_software->setCurrentWidget(ui->software1);
+
+
+    // 初始化各个模块、界面的参数
+    this->init_ui();
 
 }
 
@@ -88,7 +76,7 @@ Detection::~Detection()
     delete ui;
 }
 
-void Detection::get_bu_group_status(QButtonGroup *bu_group)
+void Detection::get_bu_group_status(QButtonGroup *bu_group, bool is_SS)
 {
 
     this->reset_show();
@@ -110,64 +98,44 @@ void Detection::get_bu_group_status(QButtonGroup *bu_group)
 
     }
 
-//    std::cout << "模式：" << std::endl;
-//    std::cout << "可见光:" << img_status.opt << std::endl;
-//    std::cout << "红外:" << img_status.IR << std::endl;
-//    std::cout << "SAR:" << img_status.SAR << std::endl;
-
-        // 当前点击的按钮
-    //    qDebug() << QString("Clicked Button : %1").arg(button->text());
-
-        // 遍历按钮，获取选中状态
-//    QList<QAbstractButton*> list = bu_fe_group.buttons();
-//    foreach (QAbstractButton *pCheckBox, list)
-//    {
-//       QString strStatus = pCheckBox->isChecked() ? "Checked" : "Unchecked";
-//       qDebug() << QString("Button : %1 is %2").arg(pCheckBox->text()).arg(strStatus);
-//    }
-
+    this->reset_imgpath_show();
+    if (is_SS)
+    {
+        if (this->img_status.opt) ui->widget_opt_SS->show();
+        if (this->img_status.IR)  ui->widget_IR_SS->show();
+        if (this->img_status.SAR) ui->widget_SAR_SS->show();
+    }
+    else
+    {
+        if (this->img_status.opt) ui->widget_opt_MS->show();
+        if (this->img_status.IR)  ui->widget_IR_MS->show();
+        if (this->img_status.SAR) ui->widget_SAR_MS->show();
+    }
 }
 
-void Detection::on_bu_group_SS(QAbstractButton *button)
-{
-    this->get_bu_group_status(&bu_group_SS);
-}
+void Detection::on_bu_group_SS(QAbstractButton *button) {this->get_bu_group_status(&bu_group_SS, true);}
 
-void Detection::on_bu_group_MS(QAbstractButton *button)
-{
-    this->get_bu_group_status(&bu_group_MS);
-}
+void Detection::on_bu_group_MS(QAbstractButton *button) {this->get_bu_group_status(&bu_group_MS, false);}
 
 void Detection::switch_mode(const QString &text)
 {
     this->reset_show();
     if (text == QString("单频谱图像目标检测"))
     {
-        ui->stackedWidget_detect->setCurrentWidget(ui->page_single);
-        this->get_bu_group_status(&bu_group_SS);
+        ui->stackedWidget_detect->setCurrentWidget(ui->page_SS);
+        this->get_bu_group_status(&bu_group_SS, true);
     }
     else
     {
         ui->stackedWidget_detect->setCurrentWidget(ui->page_MS);
-        this->get_bu_group_status(&bu_group_MS);
+        this->get_bu_group_status(&bu_group_MS,false);
     }
 
 }
 
-void Detection::switch_mode_show(const QString &text)
-{
-    if (text == QString("检测前"))
-    {
-        ui->stackedWidget_show->setCurrentWidget(ui->page_before_show);
-    }
-    else
-    {
-        ui->stackedWidget_show->setCurrentWidget(ui->page_after_show);
-    }
 
-}
 
-void Detection::browse_img(QString img_type)
+void Detection::browse_img(QString img_type, bool is_SS)
 {
     QString img_path = QFileDialog::getOpenFileName(
                 this,
@@ -188,7 +156,10 @@ void Detection::browse_img(QString img_type)
 
     if (img_type==QString("可见光"))
     {
-        ui->le_imgpath_opt->setText(img_path);
+        this->img_paths.opt = img_path;
+
+        if (is_SS) ui->le_imgpath_opt_SS->setText(img_path);
+        else ui->le_imgpath_opt_MS->setText(img_path);
         // 图像缩放到label的大小，并保持长宽比
         QImage dest = srcimg->scaled(ui->labelImage_opt->size(),Qt::KeepAspectRatio);
         ui->labelImage_opt->setPixmap(QPixmap::fromImage(dest));
@@ -196,7 +167,10 @@ void Detection::browse_img(QString img_type)
 
     if (img_type==QString("红外"))
     {
-        ui->le_imgpath_IR->setText(img_path);
+        this->img_paths.IR = img_path;
+
+        if (is_SS) ui->le_imgpath_IR_SS->setText(img_path);
+        else ui->le_imgpath_IR_MS->setText(img_path);
         // 图像缩放到label的大小，并保持长宽比
         QImage dest = srcimg->scaled(ui->labelImage_IR->size(),Qt::KeepAspectRatio);
         ui->labelImage_IR->setPixmap(QPixmap::fromImage(dest));
@@ -204,30 +178,23 @@ void Detection::browse_img(QString img_type)
 
     if (img_type==QString("SAR"))
     {
-        ui->le_imgpath_SAR->setText(img_path);
+        this->img_paths.SAR = img_path;
+
+        if (is_SS) ui->le_imgpath_SAR_SS->setText(img_path);
+        else ui->le_imgpath_SAR_MS->setText(img_path);
         // 图像缩放到label的大小，并保持长宽比
         QImage dest = srcimg->scaled(ui->labelImage_SAR->size(),Qt::KeepAspectRatio);
         ui->labelImage_SAR->setPixmap(QPixmap::fromImage(dest));
     }
 
-
 }
 
-void Detection::browse_img_opt()
-{
-    browse_img(QString("可见光"));
-
-}
-void Detection::browse_img_IR()
-{
-    browse_img(QString("红外"));
-
-}
-void Detection::browse_img_SAR()
-{
-    browse_img(QString("SAR"));
-
-}
+void Detection::browse_img_opt_SS() {browse_img(QString("可见光"), true);}
+void Detection::browse_img_IR_SS()  {browse_img(QString("红外"), true);}
+void Detection::browse_img_SAR_SS() {browse_img(QString("SAR"), true);}
+void Detection::browse_img_opt_MS() {browse_img(QString("可见光"), false);}
+void Detection::browse_img_IR_MS()  {browse_img(QString("红外"), false);}
+void Detection::browse_img_SAR_MS() {browse_img(QString("SAR"), false);}
 
 
 void Detection::browse_save()
@@ -250,15 +217,18 @@ void Detection::detect()
     // 以下三个if语句，按顺序分别提取可见光、红外、SAR图像，顺序不能乱，否则输入到网络中的图像顺序也是乱的
     if (this->img_status.opt)
     {
-        QString img_path = ui->le_imgpath_opt->text();
-        LoadImage(img_path.toStdString(), this->img); // CV_8UC3
-        cv::Mat img_Opt = this->img.clone();
-        preprocess(img_Opt, img_tensor);
+        QString img_path = this->img_paths.opt;
+        cv::Mat img_opt;
+        LoadImage(img_path.toStdString(), img_opt); // CV_8UC3
+        preprocess(img_opt, img_tensor);
         imgs.push_back(img_tensor.clone());
     }
     if (this->img_status.IR)
     {
-        QString img_path = ui->le_imgpath_IR->text();
+        QString img_path = this->img_paths.IR;
+        std::cout << "opt图像名称：" << this->img_paths.opt.toStdString() << std::endl;
+        std::cout << "IR图像名称：" << this->img_paths.IR.toStdString() << std::endl;
+        std::cout << "SAR图像名称：" << this->img_paths.SAR.toStdString() << std::endl;
         cv::Mat img_IR;
         LoadImage(img_path.toStdString(), img_IR); // CV_8UC3
         preprocess(img_IR, img_tensor);
@@ -266,24 +236,12 @@ void Detection::detect()
     }
     if (this->img_status.SAR)
     {
-        QString img_path = ui->le_imgpath_SAR->text();
+        QString img_path = this->img_paths.SAR;
         cv::Mat img_SAR;
         LoadImage(img_path.toStdString(), img_SAR); // CV_8UC3
         preprocess(img_SAR, img_tensor);
         imgs.push_back(img_tensor.clone());
     }
-
-
-    QString img_path = ui->le_imgpath_opt->text();
-    //获取图像名称和路径
-    QFileInfo imginfo = QFileInfo(img_path);
-    // 图像名称
-    QString img_name = imginfo.fileName();
-    //文件后缀
-    QString fileSuffix = imginfo.suffix();
-    //绝对路径
-    QString filePath = imginfo.absolutePath();
-
 
 
 
@@ -384,7 +342,7 @@ void Detection::show_img_results(QString img_type)
     QString fileSuffix;
     if (img_type==QString("可见光"))
     {
-        img_path = ui->le_imgpath_opt->text();
+        img_path = this->img_paths.opt;
         LoadImage(img_path.toStdString(), img); // CV_8UC3
 
         drawContours(img, this->contours, contoursIds, color, thickness);
@@ -392,14 +350,14 @@ void Detection::show_img_results(QString img_type)
         //显示图像
         QImage srcimg = MatToImage(img);
         // 图像缩放到label的大小，并保持长宽比
-        QImage dest = srcimg.scaled(ui->labelImage_opt_results->size(),Qt::KeepAspectRatio);
-        ui->labelImage_opt_results->setPixmap(QPixmap::fromImage(dest));
+        QImage dest = srcimg.scaled(ui->labelImage_opt->size(),Qt::KeepAspectRatio);
+        ui->labelImage_opt->setPixmap(QPixmap::fromImage(dest));
 
     }
 
     if (img_type==QString("红外"))
     {
-        img_path = ui->le_imgpath_IR->text();
+        img_path = this->img_paths.IR;
         LoadImage(img_path.toStdString(), img); // CV_8UC3
 
         drawContours(img, this->contours, contoursIds, color, thickness);
@@ -407,14 +365,14 @@ void Detection::show_img_results(QString img_type)
         //显示图像
         QImage srcimg = MatToImage(img);
         // 图像缩放到label的大小，并保持长宽比
-        QImage dest = srcimg.scaled(ui->labelImage_IR_results->size(),Qt::KeepAspectRatio);
-        ui->labelImage_IR_results->setPixmap(QPixmap::fromImage(dest));
+        QImage dest = srcimg.scaled(ui->labelImage_IR->size(),Qt::KeepAspectRatio);
+        ui->labelImage_IR->setPixmap(QPixmap::fromImage(dest));
 
     }
 
     if (img_type==QString("SAR"))
     {
-        img_path = ui->le_imgpath_SAR->text();
+        img_path = this->img_paths.SAR;
         LoadImage(img_path.toStdString(), img); // CV_8UC3
 
         drawContours(img, this->contours, contoursIds, color, thickness);
@@ -422,29 +380,16 @@ void Detection::show_img_results(QString img_type)
         //显示图像
         QImage srcimg = MatToImage(img);
         // 图像缩放到label的大小，并保持长宽比
-        QImage dest = srcimg.scaled(ui->labelImage_SAR_results->size(),Qt::KeepAspectRatio);
-        ui->labelImage_SAR_results->setPixmap(QPixmap::fromImage(dest));
+        QImage dest = srcimg.scaled(ui->labelImage_SAR->size(),Qt::KeepAspectRatio);
+        ui->labelImage_SAR->setPixmap(QPixmap::fromImage(dest));
     }
 
 
 }
 
-void Detection::show_img_opt_results()
-{
-    show_img_results(QString("可见光"));
-
-}
-void Detection::show_img_IR_results()
-{
-    show_img_results(QString("红外"));
-
-}
-void Detection::show_img_SAR_results()
-{
-    show_img_results(QString("SAR"));
-
-}
-
+void Detection::show_img_opt_results() {show_img_results(QString("可见光"));}
+void Detection::show_img_IR_results()  {show_img_results(QString("红外"));}
+void Detection::show_img_SAR_results() {show_img_results(QString("SAR"));}
 
 void Detection::save_img(QString img_type)
 {
@@ -463,7 +408,7 @@ void Detection::save_img(QString img_type)
     QString fileSuffix;
     if (img_type==QString("可见光"))
     {
-        img_path = ui->le_imgpath_opt->text();
+        img_path = this->img_paths.opt;
         LoadImage(img_path.toStdString(), img); // CV_8UC3
         //获取图像名称和路径
         imginfo = QFileInfo(img_path);
@@ -484,13 +429,13 @@ void Detection::save_img(QString img_type)
         QImage* srcimg = new QImage;
         srcimg->load(save_path);
         // 图像缩放到label的大小，并保持长宽比
-        QImage dest = srcimg->scaled(ui->labelImage_opt_results->size(),Qt::KeepAspectRatio);
-        ui->labelImage_opt_results->setPixmap(QPixmap::fromImage(dest));
+        QImage dest = srcimg->scaled(ui->labelImage_opt->size(),Qt::KeepAspectRatio);
+        ui->labelImage_opt->setPixmap(QPixmap::fromImage(dest));
     }
 
     if (img_type==QString("红外"))
     {
-        img_path = ui->le_imgpath_IR->text();
+        img_path = this->img_paths.IR;
         LoadImage(img_path.toStdString(), img); // CV_8UC3
         //获取图像名称和路径
         imginfo = QFileInfo(img_path);
@@ -511,13 +456,13 @@ void Detection::save_img(QString img_type)
         QImage* srcimg = new QImage;
         srcimg->load(save_path);
         // 图像缩放到label的大小，并保持长宽比
-        QImage dest = srcimg->scaled(ui->labelImage_IR_results->size(),Qt::KeepAspectRatio);
-        ui->labelImage_IR_results->setPixmap(QPixmap::fromImage(dest));
+        QImage dest = srcimg->scaled(ui->labelImage_IR->size(),Qt::KeepAspectRatio);
+        ui->labelImage_IR->setPixmap(QPixmap::fromImage(dest));
     }
 
     if (img_type==QString("SAR"))
     {
-        img_path = ui->le_imgpath_SAR->text();
+        img_path = this->img_paths.SAR;
         LoadImage(img_path.toStdString(), img); // CV_8UC3
         //获取图像名称和路径
         imginfo = QFileInfo(img_path);
@@ -538,28 +483,16 @@ void Detection::save_img(QString img_type)
         QImage* srcimg = new QImage;
         srcimg->load(save_path);
         // 图像缩放到label的大小，并保持长宽比
-        QImage dest = srcimg->scaled(ui->labelImage_SAR_results->size(),Qt::KeepAspectRatio);
-        ui->labelImage_SAR_results->setPixmap(QPixmap::fromImage(dest));
+        QImage dest = srcimg->scaled(ui->labelImage_SAR->size(),Qt::KeepAspectRatio);
+        ui->labelImage_SAR->setPixmap(QPixmap::fromImage(dest));
     }
 
 
 }
 
-void Detection::save_img_opt()
-{
-    save_img(QString("可见光"));
-
-}
-void Detection::save_img_IR()
-{
-    save_img(QString("红外"));
-
-}
-void Detection::save_img_SAR()
-{
-    save_img(QString("SAR"));
-
-}
+void Detection::save_img_opt() {save_img(QString("可见光"));}
+void Detection::save_img_IR()  {save_img(QString("红外"));}
+void Detection::save_img_SAR() {save_img(QString("SAR"));}
 
 
 void Detection::save_results()
@@ -569,11 +502,12 @@ void Detection::save_results()
     if (this->img_status.IR) this->save_img_IR();
     if (this->img_status.SAR) this->save_img_SAR();
 
+    // 保存检测结果
     QString path = ui->le_savepath->text();
     QString img_path;
-    if (this->img_status.opt) img_path = ui->le_imgpath_opt->text();
-    else if (this->img_status.IR) img_path = ui->le_imgpath_IR->text();
-    else if (this->img_status.SAR) img_path = ui->le_imgpath_SAR->text();
+    if (this->img_status.opt) img_path = this->img_paths.opt;
+    else if (this->img_status.IR) img_path = this->img_paths.IR;
+    else if (this->img_status.SAR) img_path = this->img_paths.opt;
 
     //获取图像名称和路径
     QFileInfo imginfo = QFileInfo(img_path);
@@ -616,19 +550,85 @@ void Detection::save_results()
 
 void Detection::reset_show()
 {
-    ui->le_imgpath_opt->clear();
-    ui->le_imgpath_IR->clear();
-    ui->le_imgpath_SAR->clear();
+    this->reset_imgpath_show();
+    this->reset_img_show();
+}
 
-    ui->le_imgpath_opt->clear();
-    ui->le_imgpath_IR->clear();
-    ui->le_imgpath_SAR->clear();
+void Detection::reset_imgpath_show()
+{
+    ui->le_imgpath_opt_SS->clear();
+    ui->le_imgpath_IR_SS->clear();
+    ui->le_imgpath_SAR_SS->clear();
+    ui->le_imgpath_opt_MS->clear();
+    ui->le_imgpath_IR_MS->clear();
+    ui->le_imgpath_SAR_MS->clear();
 
+    ui->widget_opt_SS->hide();
+    ui->widget_IR_SS->hide();
+    ui->widget_SAR_SS->hide();
+    ui->widget_opt_MS->hide();
+    ui->widget_IR_MS->hide();
+    ui->widget_SAR_MS->hide();
+}
+void Detection::reset_img_show()
+{
+    // 设置label的大小
+    int h=512,w=512;
+    ui->labelImage_opt->resize(w,h);
+    ui->labelImage_IR->resize(w,h);
+    ui->labelImage_SAR->resize(w,h);
+//    // 图像自适应label的大小
+//    ui->labelImage->setScaledContents(true);
     ui->labelImage_opt->clear();
     ui->labelImage_IR->clear();
     ui->labelImage_SAR->clear();
-    ui->labelImage_opt_results->clear();
-    ui->labelImage_IR_results->clear();
-    ui->labelImage_SAR_results->clear();
 
+}
+
+void Detection::reset_bu_groups()
+{
+    // 按钮组中不互斥
+    this->bu_group_SS.setExclusive(false);
+    // 遍历按钮，全部设置为未选中状态
+    QList<QAbstractButton*> list;
+    list = this->bu_group_SS.buttons();
+    foreach (QAbstractButton *button, list) button->setChecked(false);
+    // 按钮组互斥
+    bu_group_SS.setExclusive(true);
+
+    // 按钮组不互斥
+    this->bu_group_MS.setExclusive(false);
+    // 遍历按钮，全部设置为未选中状态
+    list = this->bu_group_MS.buttons();
+    foreach (QAbstractButton *button, list) button->setChecked(false);
+
+}
+
+void Detection::reset_config_params()
+{
+    // 初始化算法参数设置
+    ui->line_score->setText(QString::number(0.5));
+    ui->line_iou_thr->setText(QString::number(0.1));
+    ui->line_max_before_nms->setText(QString::number(2000));
+}
+// 初始化界面
+void Detection::init_ui()
+{
+    // 初始化图像路径界面和图像显示界面
+    this->reset_show();
+
+    // 初始化按钮组，全部是未选中的状态
+    this->reset_bu_groups();
+
+    // 初始化算法参数设置
+    this->reset_config_params();
+
+    // 软件日志初始化
+    ui->text_log->clear();
+    ui->text_log->setText("请输入图像路径...");
+
+    // 保存路径
+    ui->le_savepath->clear();
+
+    ui->stackedWidget_detect->setCurrentWidget(ui->page_SS);
 }

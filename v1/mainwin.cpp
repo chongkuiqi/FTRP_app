@@ -30,11 +30,13 @@ void MainWin::show_deduc()
 
 void MainWin::show_detec()
 {
+    detec.init_ui();
     detec.show();
 }
 
 void MainWin::show_proba()
 {
+
     proba.show();
 }
 
