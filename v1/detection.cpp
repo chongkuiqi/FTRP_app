@@ -120,6 +120,7 @@ void Detection::on_bu_group_MS(QAbstractButton *button) {this->get_bu_group_stat
 void Detection::switch_mode(const QString &text)
 {
     this->reset_show();
+    this->reset_bu_groups();
     if (text == QString("单频谱图像目标检测"))
     {
         ui->stackedWidget_detect->setCurrentWidget(ui->page_SS);

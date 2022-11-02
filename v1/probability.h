@@ -55,11 +55,9 @@ public:
     void choose_roi_4(const QString &text);
     void choose_roi_5(const QString &text);
 
-    // 是否显示特征相似度加权权值输入界面
-    void show_CB_weights(const QString &text);
-
     void browse_save();
 
+    void extract_rois();
     void extract_fe();
 
     void extract_fe_deep(cv::Mat &img, std::vector<std::vector<cv::Point>> &contours);
@@ -78,24 +76,32 @@ public:
 
     void save_results();
 
-    void on_bu_group_fe(QAbstractButton *button);
     // 特征提取区域选择
     void on_bu_group_rois(QAbstractButton *button);
-    void on_bu_group_weights(QAbstractButton *button);
-    void on_bu_group_map(QAbstractButton *button);
-
-
-
-    // 显示复位，各个按钮、图像显示全部清零
-    void reset_show();
-
-
     void change_bg_ratio(const QString text);
+    // 显示复位，各个按钮、图像显示全部清零
+    void reset_bu_group_rois();
+    void reset_rois_show();
+    void reset_rois();
 
-
+    // 特征选择
+    void on_bu_group_fe(QAbstractButton *button);
     void reset_bu_group_fe();
+
+
+    // 特征加权
+    void on_bu_group_weights(QAbstractButton *button);
+    void reset_weights_show();
     void reset_bu_group_weights();
+    void reset_weights();
+
+
+    // 识别概率映射
+    void on_bu_group_map(QAbstractButton *button);
     void reset_bu_group_map();
+
+
+    void init_ui();
 
 
 private:

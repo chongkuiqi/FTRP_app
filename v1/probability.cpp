@@ -63,24 +63,28 @@ Probability::Probability(QWidget *parent) :
     connect(ui->bu_exit, &QPushButton::clicked, this, &QMainWindow::close);
     // 读取图像文件路径
     connect(ui->bu_browse_1, &QPushButton::clicked, this, &Probability::browse_img_1);
-    // 读取模型文件路径
+    // 读取标签文件路径
     connect(ui->bu_browse_gt_1, &QPushButton::clicked, this, &Probability::browse_gt_1);
 
-    // 读取图像文件路径
     connect(ui->bu_browse_2, &QPushButton::clicked, this, &Probability::browse_img_2);
-    // 读取模型文件路径
     connect(ui->bu_browse_gt_2, &QPushButton::clicked, this, &Probability::browse_gt_2);
 
-    // 读取图像文件路径
     connect(ui->bu_browse_3, &QPushButton::clicked, this, &Probability::browse_img_3);
-    // 读取模型文件路径
     connect(ui->bu_browse_gt_3, &QPushButton::clicked, this, &Probability::browse_gt_3);
 
-    // 读取图像文件路径
     connect(ui->bu_browse_4, &QPushButton::clicked, this, &Probability::browse_img_4);
-    // 读取模型文件路径
     connect(ui->bu_browse_gt_4, &QPushButton::clicked, this, &Probability::browse_gt_4);
 
+
+    // 特征提取区域选择按钮组
+    bu_group_rois.setParent(this);
+    // 按钮组互斥
+    bu_group_rois.setExclusive(true);
+    bu_group_rois.addButton(ui->RB_fg_bg, 0);
+    bu_group_rois.addButton(ui->RB_fg_fg, 1);
+    bu_group_rois.addButton(ui->RB_fg_fg2, 2);
+    // 按钮组每改变一次状态，都会调用一次
+    connect(&bu_group_rois, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &Probability::on_bu_group_rois);
 
     // 目标选择
     connect(ui->CB_roi_choose_1, &QComboBox::currentTextChanged, this, &Probability::choose_roi_1);
@@ -90,9 +94,10 @@ Probability::Probability(QWidget *parent) :
     connect(ui->CB_roi_choose_5, &QComboBox::currentTextChanged, this, &Probability::choose_roi_5);
 
 
+    // 提取区域
+    connect(ui->bu_extract_rois, &QPushButton::clicked, this, &Probability::extract_rois);
     // 提取特征
-    connect(ui->bu_extract, &QPushButton::clicked, this, &Probability::extract_fe);
-
+    connect(ui->bu_extract_fe, &QPushButton::clicked, this, &Probability::extract_fe);
 
     connect(ui->bu_similarity, &QPushButton::clicked, this, &Probability::cal_similarity);
 
@@ -127,23 +132,11 @@ Probability::Probability(QWidget *parent) :
     bu_group_fe.addButton(ui->bu_deep_fe, 0);
     bu_group_fe.addButton(ui->bu_gray_fe, 1);
     bu_group_fe.addButton(ui->bu_text_fe, 2);
-
     // 按钮组每改变一次状态，都会调用一次
     connect(&bu_group_fe, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &Probability::on_bu_group_fe);
 
-    fe_status = {false, false, false};
 
 
-    // 特征提取区域选择按钮组
-    bu_group_rois.setParent(this);
-    // 按钮组互斥
-    bu_group_rois.setExclusive(true);
-    bu_group_rois.addButton(ui->RB_fg_bg, 0);
-    bu_group_rois.addButton(ui->RB_fg_fg, 1);
-    bu_group_rois.addButton(ui->RB_fg_fg2, 2);
-
-    // 按钮组每改变一次状态，都会调用一次
-    connect(&bu_group_rois, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &Probability::on_bu_group_rois);
 
 
     // 相似度加权方式选择按钮组
@@ -154,16 +147,17 @@ Probability::Probability(QWidget *parent) :
     // 按钮组每改变一次状态，都会调用一次
     connect(&bu_group_weights, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &Probability::on_bu_group_weights);
 
-    // 特征相似度加权权值的手动输入
-    connect(ui->CB_weights, &QComboBox::currentTextChanged, this, &Probability::show_CB_weights);
-
+    // 映射方式选择按钮组
+    bu_group_map.setParent(this);
+    bu_group_map.setExclusive(true);
+    bu_group_map.addButton(ui->RB_map_func, 0);
+    bu_group_map.addButton(ui->RB_map_psychology, 1);
+    // 按钮组每改变一次状态，都会调用一次
+    connect(&bu_group_map, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &Probability::on_bu_group_map);
 
 }
 
-Probability::~Probability()
-{
-    delete ui;
-}
+Probability::~Probability() {delete ui;}
 
 
 void Probability::browse_img(QString type)
@@ -367,41 +361,60 @@ void Probability::browse_gt_4()
 void Probability::choose_roi(const QString &text)
 {
     cv::Mat img_result;
-    if (text.toInt() != -1)
-    {
-        int box_id = text.toInt();
-        std::vector<cv::Point> contour = this->contours_1[box_id];
-        // 存储选中的边界框
-        this->contour_1.clear();
-        this->contour_1.assign(contour.begin(), contour.end());
-
-        // 将选中的框画在图像上
-        std::vector<std::vector<cv::Point>> contour_;
-        contour_.push_back(contour);
-
-        // 画出选中的roi
-        draw_rboxes(this->img_1, img_result, contour_);
-
-    }
-    else
+    if (text.toInt() == -1)
     {
         draw_rboxes_ids(this->img_1, img_result, this->contours_1);
+        //显示图像
+        QImage srcimg = MatToImage(img_result);
+        // 图像缩放到label的大小，并保持长宽比
+        QImage dest = srcimg.scaled(ui->labelImage_1->size(),Qt::KeepAspectRatio);
+        ui->labelImage_1->setPixmap(QPixmap::fromImage(dest));
     }
-    //显示图像
-    QImage srcimg = MatToImage(img_result);
-    // 图像缩放到label的大小，并保持长宽比
-    QImage dest = srcimg.scaled(ui->labelImage_1->size(),Qt::KeepAspectRatio);
-    ui->labelImage_1->setPixmap(QPixmap::fromImage(dest));
+}
+void Probability::choose_roi_1(const QString &text) {this->choose_roi(text);}
+void Probability::choose_roi_2(const QString &text) {this->choose_roi(text);}
+void Probability::choose_roi_3(const QString &text) {this->choose_roi(text);}
+void Probability::choose_roi_4(const QString &text) {this->choose_roi(text);}
+void Probability::choose_roi_5(const QString &text)
+{
+    cv::Mat img_result;
+    if (text.toInt() == -1)
+    {
+        draw_rboxes_ids(this->img_2, img_result, this->contours_2);
+        //显示图像
+        QImage srcimg = MatToImage(img_result);
+        // 图像缩放到label的大小，并保持长宽比
+        QImage dest = srcimg.scaled(ui->labelImage_2->size(),Qt::KeepAspectRatio);
+        ui->labelImage_2->setPixmap(QPixmap::fromImage(dest));
+    }
 
 }
 
-void Probability::choose_roi_1(const QString &text)
-{
-    cv::Mat img_result;
-    if (text.toInt() != -1)
-    {
-        this->choose_roi(text);
 
+void Probability::extract_rois()
+{
+    int box_id_1, box_id_2;
+    cv::Mat img_result_1, img_result_2;
+    cv::Scalar color_1 = cv::Scalar(0,255,0), color_2 = cv::Scalar(255,0,0);
+    std::vector<std::vector<cv::Point>> contour_;
+    if (this->rois_type == QString("目标-背景"))
+    {
+
+        // 确定第一个框
+        box_id_1 = ui->CB_roi_choose_1->currentText().toInt();
+        std::vector<cv::Point> contour = this->contours_1[box_id_1];
+        // 存储选中的边界框
+        this->contour_1.clear();
+        this->contour_1.assign(contour.begin(), contour.end());
+        // 将选中的框画在图像上
+        contour_.clear();
+        contour_.push_back(contour);
+        // 画出选中的roi
+        draw_rboxes(this->img_1, img_result_1, contour_, -1, color_1);
+
+
+
+        // 确定第二个框
         // 选择背景区域
         float bg_ratio = ui->le_bg_ratio->text().toFloat();
         cv::RotatedRect fg_rbox;
@@ -421,110 +434,81 @@ void Probability::choose_roi_1(const QString &text)
 
         this->contour_2.clear();
         rbox2points(this->contour_2, bg_rbox);
-
-
-        // 把前景框和背景框都画上去
-        std::vector<std::vector<cv::Point>> contour_;
-        contour_.push_back(this->contour_1);
-
-        // 画出前景框
-        draw_rboxes(this->img_1, img_result, contour_);
-
         contour_.clear();
         contour_.push_back(this->contour_2);
-        // 画出背景框
-        cv::Scalar color = cv::Scalar(0,255,0);
-        draw_rboxes(img_result.clone(), img_result, contour_, -1, color);
+        draw_rboxes(img_result_1, img_result_1, contour_, -1, color_2);
 
     }
-    else
+
+    else if (this->rois_type == QString("目标-目标"))
     {
-        draw_rboxes_ids(this->img_1, img_result, this->contours_1);
-    }
-    //显示图像
-    QImage srcimg = MatToImage(img_result);
-    // 图像缩放到label的大小，并保持长宽比
-    QImage dest = srcimg.scaled(ui->labelImage_1->size(),Qt::KeepAspectRatio);
-    ui->labelImage_1->setPixmap(QPixmap::fromImage(dest));
-
-
-}
-
-void Probability::choose_roi_2(const QString &text) {this->choose_roi(text);}
-void Probability::choose_roi_3(const QString &text)
-{
-    cv::Mat img_result;
-    if (text.toInt() != -1)
-    {
-        int box_id = text.toInt();
-        std::vector<cv::Point> contour = this->contours_1[box_id];
+        // 确定第一个框
+        box_id_1 = ui->CB_roi_choose_2->currentText().toInt();
+        std::vector<cv::Point> contour = this->contours_1[box_id_1];
         // 存储选中的边界框
-        this->contour_2.clear();
-        this->contour_2.assign(contour.begin(), contour.end());
-
-
-        // 把前景框和背景框都画上去
-        std::vector<std::vector<cv::Point>> contour_;
-        contour_.push_back(this->contour_1);
-
-        // 画出前景框
-        draw_rboxes(this->img_1, img_result, contour_);
-
-        contour_.clear();
-        contour_.push_back(this->contour_2);
-        // 画出背景框
-        cv::Scalar color = cv::Scalar(0,255,0);
-        draw_rboxes(img_result.clone(), img_result, contour_, -1, color);
-
-    }
-    else
-    {
-        draw_rboxes_ids(this->img_1, img_result, this->contours_1);
-    }
-    //显示图像
-    QImage srcimg = MatToImage(img_result);
-    // 图像缩放到label的大小，并保持长宽比
-    QImage dest = srcimg.scaled(ui->labelImage_1->size(),Qt::KeepAspectRatio);
-    ui->labelImage_1->setPixmap(QPixmap::fromImage(dest));
-
-}
-
-void Probability::choose_roi_4(const QString &text) {this->choose_roi(text);}
-void Probability::choose_roi_5(const QString &text)
-{
-    cv::Mat img_result;
-    if (text.toInt() != -1)
-    {
-        int box_id = text.toInt();
-        std::vector<cv::Point> contour = this->contours_2[box_id];
-        // 存储选中的边界框
-        this->contour_2.clear();
-        this->contour_2.assign(contour.begin(), contour.end());
-
+        this->contour_1.clear();
+        this->contour_1.assign(contour.begin(), contour.end());
         // 将选中的框画在图像上
-        std::vector<std::vector<cv::Point>> contour_;
+        contour_.clear();
         contour_.push_back(contour);
-        // 画出背景框
-        cv::Scalar color = cv::Scalar(0,255,0);
         // 画出选中的roi
-        draw_rboxes(this->img_2, img_result, contour_, -1, color);
+        draw_rboxes(this->img_1, img_result_1, contour_, -1, color_1);
+
+        // 确定第二个框
+        box_id_2 = ui->CB_roi_choose_3->currentText().toInt();
+        std::vector<cv::Point> contour2 = this->contours_1[box_id_2];
+        // 存储选中的边界框
+        this->contour_2.clear();
+        this->contour_2.assign(contour2.begin(), contour2.end());
+        // 将选中的框画在图像上
+        contour_.clear();
+        contour_.push_back(contour2);
+        // 画出选中的roi
+        draw_rboxes(img_result_1, img_result_1, contour_, -1, color_2);
 
     }
-    else
+
+    else if (this->rois_type == QString("目标-目标2"))
     {
-        draw_rboxes_ids(this->img_2, img_result, this->contours_2);
-    }
-    //显示图像
-    QImage srcimg = MatToImage(img_result);
-    // 图像缩放到label的大小，并保持长宽比
-    QImage dest = srcimg.scaled(ui->labelImage_2->size(),Qt::KeepAspectRatio);
-    ui->labelImage_2->setPixmap(QPixmap::fromImage(dest));
-}
+        // 确定第一个框
+        box_id_1 = ui->CB_roi_choose_4->currentText().toInt();
+        std::vector<cv::Point> contour = this->contours_1[box_id_1];
+        // 存储选中的边界框
+        this->contour_1.clear();
+        this->contour_1.assign(contour.begin(), contour.end());
+        // 将选中的框画在图像上
+        contour_.clear();
+        contour_.push_back(contour);
+        // 画出选中的roi
+        draw_rboxes(this->img_1, img_result_1, contour_, -1, color_1);
 
-void Probability::show_CB_weights(const QString &text)
-{
-    if (text == QString("自定义法")) ui->GB_weights_inputs->show();
-    else ui->GB_weights_inputs->hide();
+        // 确定第二个框
+        box_id_2 = ui->CB_roi_choose_5->currentText().toInt();
+        std::vector<cv::Point> contour2 = this->contours_2[box_id_2];
+        // 存储选中的边界框
+        this->contour_2.clear();
+        this->contour_2.assign(contour2.begin(), contour2.end());
+        // 将选中的框画在图像上
+        contour_.clear();
+        contour_.push_back(contour2);
+        // 画出选中的roi
+        draw_rboxes(this->img_2, img_result_2, contour_, -1, color_2);
+
+        //显示图像
+        QImage srcimg = MatToImage(img_result_2);
+        // 图像缩放到label的大小，并保持长宽比
+        QImage dest = srcimg.scaled(ui->labelImage_2->size(),Qt::KeepAspectRatio);
+        ui->labelImage_2->setPixmap(QPixmap::fromImage(dest));
+
+
+    }
+
+    //显示图像
+    QImage srcimg = MatToImage(img_result_1);
+    // 图像缩放到label的大小，并保持长宽比
+    QImage dest = srcimg.scaled(ui->labelImage_1->size(),Qt::KeepAspectRatio);
+    ui->labelImage_1->setPixmap(QPixmap::fromImage(dest));
+
 }
 
 
@@ -940,18 +924,11 @@ void Probability::cal_similarity()
     if (this->fe_status.gray) cal_similarity_gray();
     if (this->fe_status.text) cal_similarity_text();
 
-    if (this->weights_type == QString("自定义法"))
-    {
-        this->fe_similarity_weights.deep = ui->le_deep_weight->text().toFloat();
-        this->fe_similarity_weights.gray = ui->le_gray_weight->text().toFloat();
-        this->fe_similarity_weights.text = ui->le_text_weight->text().toFloat();
-    }
-    else if (this->weights_type == QString("熵权法"))
-    {
-        this->fe_similarity_weights.deep = 0.5;
-        this->fe_similarity_weights.gray = 0.3;
-        this->fe_similarity_weights.text = 0.2;
-    }
+    // 读取加权权值
+    this->fe_similarity_weights.deep = ui->le_deep_weight->text().toFloat();
+    this->fe_similarity_weights.gray = ui->le_gray_weight->text().toFloat();
+    this->fe_similarity_weights.text = ui->le_text_weight->text().toFloat();
+
 
     float si = 0;
     if (this->fe_status.deep) si = si + this->fe_similarity.deep * this->fe_similarity_weights.deep;
@@ -1079,7 +1056,6 @@ void Probability::cal_probability()
         this->probability = -1.0;
     }
 
-    ui->label_show_proba->setText(QString::number(this->probability));
     QString log = QString("\n计算得到的识别概率为:") + QString::number(this->probability, 'f', 3);
     ui->text_log->append(log);
 }
@@ -1093,7 +1069,7 @@ void Probability::save_results()
     if (this->rois_type == QString("目标-目标2"))
     {
         img_path = ui->le_imgpath_3->text();
-        QString img_path2 = ui->le_imgpath_3->text();
+        img_path2 = ui->le_imgpath_4->text();
     }
 
     QFileInfo imginfo = QFileInfo(img_path);
@@ -1125,25 +1101,27 @@ void Probability::save_results()
 }
 
 
-void Probability::on_bu_group_fe(QAbstractButton *button)
-{
-
-
-    bool status = button->isChecked() ? true : false;
-    if (button->text() == QString("深度学习特征")) this->fe_status.deep = status;
-    if (button->text() == QString("灰度特征")) this->fe_status.gray = status;
-    if (button->text() == QString("纹理特征")) this->fe_status.text = status;
-}
-
+// 提取特征区域选择
 void Probability::on_bu_group_rois(QAbstractButton *button)
 {
     this->rois_type = button->text();
-    this->reset_show();
+
+    if (this->rois_type == QString("目标-背景")) {ui->SW_choose_rois->setCurrentWidget(ui->page_fg_bg);};
+    if (this->rois_type == QString("目标-目标")) {ui->SW_choose_rois->setCurrentWidget(ui->page_fg_fg);};
+    if (this->rois_type == QString("目标-目标2")) {ui->SW_choose_rois->setCurrentWidget(ui->page_fg_fg2);};
+
+    this->reset_rois_show();
 }
-
-void Probability::on_bu_group_weights(QAbstractButton *button) {this->weights_type = button->text();}
-void Probability::on_bu_group_map(QAbstractButton *button) {this->map_type = button->text();}
-
+void Probability::reset_bu_group_rois()
+{
+    // 按钮组中不互斥
+    this->bu_group_rois.setExclusive(false);
+    // 遍历按钮，全部设置为未选中状态
+    QList<QAbstractButton*> list;
+    list = this->bu_group_rois.buttons();
+    foreach (QAbstractButton *button, list) button->setChecked(false);
+    this->bu_group_rois.setExclusive(true);
+}
 void reset_QCB(QComboBox *CB_box)
 {
     // 如果QComboBox只有一个-1，此时clear会导致text发生变化，从而导致信号触发，因此在clear前先断开信号连接
@@ -1152,7 +1130,7 @@ void reset_QCB(QComboBox *CB_box)
     CB_box->addItem(QString::number(-1));
     CB_box->blockSignals(false);//false取消屏蔽信号
 }
-void Probability::reset_show()
+void Probability::reset_rois_show()
 {
     ui->le_imgpath_1->clear();
     ui->le_imgpath_2->clear();
@@ -1173,7 +1151,26 @@ void Probability::reset_show()
 
     ui->labelImage_1->clear();
     ui->labelImage_2->clear();
+}
 
+void Probability::reset_rois()
+{
+    this->reset_bu_group_rois();
+    // 区域选择置于空白页面
+    ui->SW_choose_rois->setCurrentWidget(ui->page_blank);
+    this->reset_rois_show();
+}
+
+
+
+// 特征选择
+void Probability::on_bu_group_fe(QAbstractButton *button)
+{
+
+    bool status = button->isChecked() ? true : false;
+    if (button->text() == QString("深度学习特征")) this->fe_status.deep = status;
+    if (button->text() == QString("灰度特征")) this->fe_status.gray = status;
+    if (button->text() == QString("纹理特征")) this->fe_status.text = status;
 }
 
 void Probability::reset_bu_group_fe()
@@ -1184,7 +1181,35 @@ void Probability::reset_bu_group_fe()
     QList<QAbstractButton*> list;
     list = this->bu_group_fe.buttons();
     foreach (QAbstractButton *button, list) button->setChecked(false);
+}
 
+
+// 特征加权权值选择
+void Probability::on_bu_group_weights(QAbstractButton *button)
+{
+    this->weights_type = button->text();
+    if (this->weights_type == QString("自定义法"))
+    {
+        // 等待用户输入权值
+        // 将熵权法确定的权值显示在屏幕上
+        ui->le_deep_weight->setText(QString::number(0.0));
+        ui->le_gray_weight->setText(QString::number(0.0));
+        ui->le_text_weight->setText(QString::number(0.0));
+    }
+    else if (this->weights_type == QString("熵权法"))
+    {
+        // 将熵权法确定的权值显示在屏幕上
+        ui->le_deep_weight->setText(QString::number(0.5));
+        ui->le_gray_weight->setText(QString::number(0.3));
+        ui->le_text_weight->setText(QString::number(0.2));
+    }
+}
+
+void Probability::reset_weights_show()
+{
+    ui->le_deep_weight->setText(QString::number(0.0));
+    ui->le_gray_weight->setText(QString::number(0.0));
+    ui->le_text_weight->setText(QString::number(0.0));
 }
 
 void Probability::reset_bu_group_weights()
@@ -1199,6 +1224,17 @@ void Probability::reset_bu_group_weights()
     this->bu_group_weights.setExclusive(true);
 }
 
+void Probability::reset_weights()
+{
+    this->reset_bu_group_weights();
+    this->reset_weights_show();
+}
+
+
+
+// 识别概率映射
+void Probability::on_bu_group_map(QAbstractButton *button) {this->map_type = button->text();}
+
 void Probability::reset_bu_group_map()
 {
     // 按钮组中不互斥
@@ -1209,5 +1245,22 @@ void Probability::reset_bu_group_map()
     foreach (QAbstractButton *button, list) button->setChecked(false);
     // 按钮组互斥
     this->bu_group_map.setExclusive(true);
+
+}
+
+
+
+void Probability::init_ui()
+{
+    this->reset_rois();
+    this->reset_bu_group_fe();
+    this->reset_weights();
+    this->reset_bu_group_map();
+
+    // 软件日志初始化
+    ui->text_log->clear();
+    ui->text_log->setText("请输入图像路径...");
+    // 保存路径
+    ui->le_savepath->clear();
 
 }

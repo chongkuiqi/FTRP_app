@@ -125,258 +125,6 @@
      </item>
     </layout>
    </widget>
-   <widget class="QStackedWidget" name="stackedWidget_detect">
-    <property name="geometry">
-     <rect>
-      <x>70</x>
-      <y>180</y>
-      <width>467</width>
-      <height>221</height>
-     </rect>
-    </property>
-    <property name="currentIndex">
-     <number>0</number>
-    </property>
-    <widget class="QWidget" name="page_SS">
-     <layout class="QGridLayout" name="gridLayout_6">
-      <item row="0" column="0">
-       <widget class="QGroupBox" name="groupBox">
-        <property name="title">
-         <string>单频谱</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <item row="1" column="0">
-          <widget class="QRadioButton" name="RB_IR">
-           <property name="text">
-            <string>红外</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QWidget" name="widget_IR_SS" native="true">
-           <layout class="QGridLayout" name="gridLayout_14">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_imgpath_IR_SS">
-              <property name="text">
-               <string>图像路径</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="le_imgpath_IR_SS"/>
-            </item>
-            <item row="0" column="2">
-             <widget class="QPushButton" name="bu_browse_IR_SS">
-              <property name="text">
-               <string>浏览</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QWidget" name="widget_SAR_SS" native="true">
-           <layout class="QGridLayout" name="gridLayout_15">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_imgpath_SAR_SS">
-              <property name="text">
-               <string>图像路径</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="le_imgpath_SAR_SS"/>
-            </item>
-            <item row="0" column="2">
-             <widget class="QPushButton" name="bu_browse_SAR_SS">
-              <property name="text">
-               <string>浏览</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QRadioButton" name="RB_opt">
-           <property name="text">
-            <string>可见光</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QRadioButton" name="RB_SAR">
-           <property name="text">
-            <string>SAR</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QWidget" name="widget_opt_SS" native="true">
-           <layout class="QGridLayout" name="gridLayout_7">
-            <item row="0" column="2">
-             <widget class="QLineEdit" name="le_imgpath_opt_SS"/>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_imgpath_opt_SS">
-              <property name="text">
-               <string>图像路径</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="3">
-             <widget class="QPushButton" name="bu_browse_opt_SS">
-              <property name="text">
-               <string>浏览</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="page_MS">
-     <layout class="QGridLayout" name="gridLayout_5">
-      <item row="1" column="0">
-       <widget class="QGroupBox" name="groupBox_2">
-        <property name="title">
-         <string>多频谱</string>
-        </property>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="1">
-          <widget class="QWidget" name="widget_opt_MS" native="true">
-           <layout class="QGridLayout" name="gridLayout_13">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_imgpath_opt_MS">
-              <property name="text">
-               <string>图像路径</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="le_imgpath_opt_MS"/>
-            </item>
-            <item row="0" column="2">
-             <widget class="QPushButton" name="bu_browse_opt_MS">
-              <property name="text">
-               <string>浏览</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QCheckBox" name="CB_SAR">
-           <property name="text">
-            <string>SAR</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QCheckBox" name="CB_opt">
-           <property name="text">
-            <string>可见光</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QWidget" name="widget_IR_MS" native="true">
-           <layout class="QGridLayout" name="gridLayout_10">
-            <item row="0" column="3">
-             <widget class="QPushButton" name="bu_browse_IR_MS">
-              <property name="text">
-               <string>浏览</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="le_imgpath_IR_MS"/>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_imgpath_IR_MS">
-              <property name="text">
-               <string>图像路径</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QCheckBox" name="CB_IR">
-           <property name="text">
-            <string>红外</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QWidget" name="widget_SAR_MS" native="true">
-           <layout class="QGridLayout" name="gridLayout_12">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_imgpath_SAR_MS">
-              <property name="text">
-               <string>图像路径</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="le_imgpath_SAR_MS"/>
-            </item>
-            <item row="0" column="2">
-             <widget class="QPushButton" name="bu_browse_SAR_MS">
-              <property name="text">
-               <string>浏览</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>95</x>
-      <y>140</y>
-      <width>108</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>检测模式选择</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="CB_mode">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>140</y>
-      <width>194</width>
-      <height>29</height>
-     </rect>
-    </property>
-    <item>
-     <property name="text">
-      <string>单频谱图像目标检测</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>多频谱图像目标检测</string>
-     </property>
-    </item>
-   </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
@@ -531,6 +279,265 @@
        <property name="text">
         <string>退出</string>
        </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>120</y>
+      <width>489</width>
+      <height>300</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_9">
+     <item row="1" column="0" colspan="3">
+      <widget class="QStackedWidget" name="stackedWidget_detect">
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="page_SS">
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="0">
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>单频谱</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_3">
+            <item row="0" column="0">
+             <widget class="QRadioButton" name="RB_opt">
+              <property name="text">
+               <string>可见光</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QRadioButton" name="RB_IR">
+              <property name="text">
+               <string>红外</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QRadioButton" name="RB_SAR">
+              <property name="text">
+               <string>SAR</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QWidget" name="widget_opt_SS" native="true">
+              <layout class="QGridLayout" name="gridLayout_7">
+               <item row="0" column="2">
+                <widget class="QLineEdit" name="le_imgpath_opt_SS"/>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_imgpath_opt_SS">
+                 <property name="text">
+                  <string>图像路径</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3">
+                <widget class="QPushButton" name="bu_browse_opt_SS">
+                 <property name="text">
+                  <string>浏览</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QWidget" name="widget_IR_SS" native="true">
+              <layout class="QGridLayout" name="gridLayout_14">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_imgpath_IR_SS">
+                 <property name="text">
+                  <string>图像路径</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="le_imgpath_IR_SS"/>
+               </item>
+               <item row="0" column="2">
+                <widget class="QPushButton" name="bu_browse_IR_SS">
+                 <property name="text">
+                  <string>浏览</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QWidget" name="widget_SAR_SS" native="true">
+              <layout class="QGridLayout" name="gridLayout_15">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_imgpath_SAR_SS">
+                 <property name="text">
+                  <string>图像路径</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QPushButton" name="bu_browse_SAR_SS">
+                 <property name="text">
+                  <string>浏览</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="le_imgpath_SAR_SS"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_MS">
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="1" column="0">
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="title">
+            <string>多频谱</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="0" column="1">
+             <widget class="QWidget" name="widget_opt_MS" native="true">
+              <layout class="QGridLayout" name="gridLayout_13">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_imgpath_opt_MS">
+                 <property name="text">
+                  <string>图像路径</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="le_imgpath_opt_MS"/>
+               </item>
+               <item row="0" column="2">
+                <widget class="QPushButton" name="bu_browse_opt_MS">
+                 <property name="text">
+                  <string>浏览</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QCheckBox" name="CB_SAR">
+              <property name="text">
+               <string>SAR</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QCheckBox" name="CB_opt">
+              <property name="text">
+               <string>可见光</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QWidget" name="widget_IR_MS" native="true">
+              <layout class="QGridLayout" name="gridLayout_10">
+               <item row="0" column="3">
+                <widget class="QPushButton" name="bu_browse_IR_MS">
+                 <property name="text">
+                  <string>浏览</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="le_imgpath_IR_MS"/>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_imgpath_IR_MS">
+                 <property name="text">
+                  <string>图像路径</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QCheckBox" name="CB_IR">
+              <property name="text">
+               <string>红外</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QWidget" name="widget_SAR_MS" native="true">
+              <layout class="QGridLayout" name="gridLayout_12">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_imgpath_SAR_MS">
+                 <property name="text">
+                  <string>图像路径</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="le_imgpath_SAR_MS"/>
+               </item>
+               <item row="0" column="2">
+                <widget class="QPushButton" name="bu_browse_SAR_MS">
+                 <property name="text">
+                  <string>浏览</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>检测模式选择</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="CB_mode">
+       <item>
+        <property name="text">
+         <string>单频谱图像目标检测</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>多频谱图像目标检测</string>
+        </property>
+       </item>
       </widget>
      </item>
     </layout>
