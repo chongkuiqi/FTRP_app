@@ -71,25 +71,25 @@
    <widget class="QGroupBox" name="GB_config_params">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>450</y>
-      <width>323</width>
-      <height>153</height>
+      <x>60</x>
+      <y>400</y>
+      <width>391</width>
+      <height>221</height>
      </rect>
     </property>
     <property name="title">
      <string>检测算法参数设置</string>
     </property>
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_score">
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="line_score">
        <property name="text">
-        <string>分数阈值</string>
+        <string>0.1</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="line_score">
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="line_iou_thr">
        <property name="text">
         <string>0.1</string>
        </property>
@@ -99,13 +99,6 @@
       <widget class="QLabel" name="label_iou_thr">
        <property name="text">
         <string>IOU阈值</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="line_iou_thr">
-       <property name="text">
-        <string>0.1</string>
        </property>
       </widget>
      </item>
@@ -120,6 +113,20 @@
       <widget class="QLineEdit" name="line_max_before_nms">
        <property name="text">
         <string>2000</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_score">
+       <property name="text">
+        <string>分数阈值</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QPushButton" name="bu_detect">
+       <property name="text">
+        <string>开始检测</string>
        </property>
       </widget>
      </item>
@@ -224,75 +231,47 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>640</y>
-      <width>327</width>
-      <height>38</height>
+      <x>50</x>
+      <y>100</y>
+      <width>521</width>
+      <height>261</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
-     <item>
-      <widget class="QLabel" name="label_savepath">
-       <property name="text">
-        <string>保存路径</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="le_savepath"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="bu_browse_save">
-       <property name="text">
-        <string>浏览</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>731</y>
-      <width>257</width>
-      <height>38</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_4">
+    <layout class="QGridLayout" name="gridLayout_9">
      <item row="0" column="0">
-      <widget class="QPushButton" name="bu_detect">
+      <widget class="QLabel" name="label">
        <property name="text">
-        <string>开始检测</string>
+        <string>检测模式选择</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QPushButton" name="bu_save">
-       <property name="text">
-        <string>保存</string>
-       </property>
+      <widget class="QComboBox" name="CB_mode">
+       <item>
+        <property name="text">
+         <string>单频谱图像目标检测</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>多频谱图像目标检测</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item row="0" column="2">
-      <widget class="QPushButton" name="bu_exit">
-       <property name="text">
-        <string>退出</string>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
-      </widget>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>120</y>
-      <width>489</width>
-      <height>300</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_9">
      <item row="1" column="0" colspan="3">
       <widget class="QStackedWidget" name="stackedWidget_detect">
        <property name="currentIndex">
@@ -409,66 +388,6 @@
             <string>多频谱</string>
            </property>
            <layout class="QGridLayout" name="gridLayout">
-            <item row="0" column="1">
-             <widget class="QWidget" name="widget_opt_MS" native="true">
-              <layout class="QGridLayout" name="gridLayout_13">
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_imgpath_opt_MS">
-                 <property name="text">
-                  <string>图像路径</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QLineEdit" name="le_imgpath_opt_MS"/>
-               </item>
-               <item row="0" column="2">
-                <widget class="QPushButton" name="bu_browse_opt_MS">
-                 <property name="text">
-                  <string>浏览</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QCheckBox" name="CB_SAR">
-              <property name="text">
-               <string>SAR</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QCheckBox" name="CB_opt">
-              <property name="text">
-               <string>可见光</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QWidget" name="widget_IR_MS" native="true">
-              <layout class="QGridLayout" name="gridLayout_10">
-               <item row="0" column="3">
-                <widget class="QPushButton" name="bu_browse_IR_MS">
-                 <property name="text">
-                  <string>浏览</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QLineEdit" name="le_imgpath_IR_MS"/>
-               </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="label_imgpath_IR_MS">
-                 <property name="text">
-                  <string>图像路径</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
             <item row="1" column="0">
              <widget class="QCheckBox" name="CB_IR">
               <property name="text">
@@ -499,6 +418,66 @@
               </layout>
              </widget>
             </item>
+            <item row="1" column="1">
+             <widget class="QWidget" name="widget_IR_MS" native="true">
+              <layout class="QGridLayout" name="gridLayout_10">
+               <item row="0" column="3">
+                <widget class="QPushButton" name="bu_browse_IR_MS">
+                 <property name="text">
+                  <string>浏览</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="le_imgpath_IR_MS"/>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_imgpath_IR_MS">
+                 <property name="text">
+                  <string>图像路径</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QWidget" name="widget_opt_MS" native="true">
+              <layout class="QGridLayout" name="gridLayout_13">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_imgpath_opt_MS">
+                 <property name="text">
+                  <string>图像路径</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="le_imgpath_opt_MS"/>
+               </item>
+               <item row="0" column="2">
+                <widget class="QPushButton" name="bu_browse_opt_MS">
+                 <property name="text">
+                  <string>浏览</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QCheckBox" name="CB_opt">
+              <property name="text">
+               <string>可见光</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QCheckBox" name="CB_SAR">
+              <property name="text">
+               <string>SAR</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
@@ -506,41 +485,66 @@
        </widget>
       </widget>
      </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>690</y>
+      <width>421</width>
+      <height>70</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_16">
      <item row="0" column="0">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="label_savepath">
        <property name="text">
-        <string>检测模式选择</string>
+        <string>保存路径</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
      <item row="0" column="1">
-      <widget class="QComboBox" name="CB_mode">
-       <item>
-        <property name="text">
-         <string>单频谱图像目标检测</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>多频谱图像目标检测</string>
-        </property>
-       </item>
+      <widget class="QLineEdit" name="le_savepath"/>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="bu_browse_save">
+       <property name="text">
+        <string>浏览</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_savepath_name">
+       <property name="text">
+        <string>文件夹名</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="le_savepath_name"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="bu_save">
+       <property name="text">
+        <string>保存</string>
+       </property>
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QPushButton" name="bu_exit">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>800</y>
+      <width>80</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>退出</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -549,7 +553,7 @@
      <x>0</x>
      <y>0</y>
      <width>1656</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

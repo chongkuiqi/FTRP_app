@@ -16,7 +16,7 @@
   TORCH_CHECK(x.is_contiguous(), #x, " must be contiguous ")
 #define CHECK_INPUT(x) CHECK_CONTIGUOUS(x)
 
-bool roi_align_rotated_forward_cpu(torch::Tensor features, torch::Tensor rois,
+void roi_align_rotated_forward_cpu(torch::Tensor features, torch::Tensor rois,
                            int pooled_height, int pooled_width,
                            float spatial_scale, int sample_num,
                            torch::Tensor output)
@@ -32,7 +32,7 @@ bool roi_align_rotated_forward_cpu(torch::Tensor features, torch::Tensor rois,
   if (size_rois != 6)
   {
     printf("wrong roi size\n");
-    return false;
+    return ;
   }
 
   int num_channels = features.size(1);
@@ -43,10 +43,10 @@ bool roi_align_rotated_forward_cpu(torch::Tensor features, torch::Tensor rois,
                          num_channels, data_height, data_width, num_rois,
                          pooled_height, pooled_width, output);
 
-  return true;
+  return;
 }
 
-int ROIAlignRotatedForwardLaucher(const torch::Tensor features, const torch::Tensor rois,
+void ROIAlignRotatedForwardLaucher(const torch::Tensor features, const torch::Tensor rois,
                                 const float spatial_scale, const int sample_num,
                                 const int channels, const int height,
                                 const int width, const int num_rois,
@@ -67,7 +67,7 @@ int ROIAlignRotatedForwardLaucher(const torch::Tensor features, const torch::Ten
                     pooled_width, top_data);
         }));
     // THCudaCheck(cudaGetLastError());
-    return 1;
+    return;
 }
 
 template <typename scalar_t>
@@ -126,24 +126,26 @@ void ROIAlignRotatedForward(const int nthreads, const scalar_t *bottom_data,
     const scalar_t count = roi_bin_grid_h * roi_bin_grid_w;  // e.g. = 4
 
     scalar_t output_val = 0.;
-    for (int iy = 0; iy < roi_bin_grid_h; iy++) {  // e.g., iy = 0, 1
+    for (int iy = 0; iy < roi_bin_grid_h; iy++)
+    {  // e.g., iy = 0, 1
         const scalar_t yy = roi_start_h + ph * bin_size_h +
             static_cast<scalar_t>(iy + .5f) * bin_size_h /
                 static_cast<scalar_t>(roi_bin_grid_h);  // e.g., 0.5, 1.5
-        for (int ix = 0; ix < roi_bin_grid_w; ix++) {
-        const scalar_t xx = roi_start_w + pw * bin_size_w +
-            static_cast<scalar_t>(ix + .5f) * bin_size_w /
-                static_cast<scalar_t>(roi_bin_grid_w);
+        for (int ix = 0; ix < roi_bin_grid_w; ix++)
+        {
+            const scalar_t xx = roi_start_w + pw * bin_size_w +
+                static_cast<scalar_t>(ix + .5f) * bin_size_w /
+                    static_cast<scalar_t>(roi_bin_grid_w);
 
-        // Rotate by theta around the center and translate
-        // scalar_t x = xx * cosscalar_theta + yy * sinscalar_theta + roi_center_w;
-        // scalar_t y = yy * cosscalar_theta - xx * sinscalar_theta + roi_center_h;
-        scalar_t x = xx * cosscalar_theta - yy * sinscalar_theta + roi_center_w;
-        scalar_t y = xx * sinscalar_theta + yy * cosscalar_theta + roi_center_h;
+            // Rotate by theta around the center and translate
+            // scalar_t x = xx * cosscalar_theta + yy * sinscalar_theta + roi_center_w;
+            // scalar_t y = yy * cosscalar_theta - xx * sinscalar_theta + roi_center_h;
+            scalar_t x = xx * cosscalar_theta - yy * sinscalar_theta + roi_center_w;
+            scalar_t y = xx * sinscalar_theta + yy * cosscalar_theta + roi_center_h;
 
-        scalar_t val = bilinear_interpolate<scalar_t>(
-            offset_bottom_data, height, width, y, x);
-        output_val += val;
+            scalar_t val = bilinear_interpolate<scalar_t>(
+                offset_bottom_data, height, width, y, x);
+            output_val += val;
         }
     }
     output_val /= count;

@@ -209,38 +209,34 @@ void Detection::detect()
 {
 //    torch::Device device(torch::kCUDA, 0);
     torch::Device device(torch::kCPU);
-    std::cout << "cuda is_available:" << torch::cuda::is_available() << std::endl;
+//    std::cout << "cuda is_available:" << torch::cuda::is_available() << std::endl;
 
-    ui->text_log->append("正在获取图像和模型...");
+    ui->text_log->append("正在获取图像...");
 
+    QString img_path;
+    cv::Mat img;
     at::Tensor img_tensor;
     std::vector<c10::IValue> imgs;
     // 以下三个if语句，按顺序分别提取可见光、红外、SAR图像，顺序不能乱，否则输入到网络中的图像顺序也是乱的
     if (this->img_status.opt)
     {
-        QString img_path = this->img_paths.opt;
-        cv::Mat img_opt;
-        LoadImage(img_path.toStdString(), img_opt); // CV_8UC3
-        preprocess(img_opt, img_tensor);
+        img_path = this->img_paths.opt;
+        LoadImage(img_path.toStdString(), img); // CV_8UC3
+        preprocess(img, img_tensor);
         imgs.push_back(img_tensor.clone());
     }
     if (this->img_status.IR)
     {
-        QString img_path = this->img_paths.IR;
-        std::cout << "opt图像名称：" << this->img_paths.opt.toStdString() << std::endl;
-        std::cout << "IR图像名称：" << this->img_paths.IR.toStdString() << std::endl;
-        std::cout << "SAR图像名称：" << this->img_paths.SAR.toStdString() << std::endl;
-        cv::Mat img_IR;
-        LoadImage(img_path.toStdString(), img_IR); // CV_8UC3
-        preprocess(img_IR, img_tensor);
+        img_path = this->img_paths.IR;
+        LoadImage(img_path.toStdString(), img); // CV_8UC3
+        preprocess(img, img_tensor);
         imgs.push_back(img_tensor.clone());
     }
     if (this->img_status.SAR)
     {
-        QString img_path = this->img_paths.SAR;
-        cv::Mat img_SAR;
-        LoadImage(img_path.toStdString(), img_SAR); // CV_8UC3
-        preprocess(img_SAR, img_tensor);
+        img_path = this->img_paths.SAR;
+        LoadImage(img_path.toStdString(), img); // CV_8UC3
+        preprocess(img, img_tensor);
         imgs.push_back(img_tensor.clone());
     }
 
@@ -267,7 +263,6 @@ void Detection::detect()
             model_path = "./model/detection/SAR_exp383.pt";
             break;
 
-
         // 可见光+红外
         case 110:
             model_path = "./model/detection/可见光_红外_exp17.pt";
@@ -292,12 +287,9 @@ void Detection::detect()
     }
 
 
-    ui->text_log->append("开始推理...");
+    ui->text_log->append("开始检测...");
     model = torch::jit::load(model_path, device);
     output = model.forward(imgs).toTuple();
-
-
-
 
     c10::List<at::Tensor> scores_levels = output->elements()[0].toTensorList();
     c10::List<at::Tensor> bboxes_levels = output->elements()[1].toTensorList();
@@ -312,13 +304,19 @@ void Detection::detect()
                   max_before_nms=max_before_nms,
                   score_thr=score_thr, iou_thr=iou_thr);
 
-    std::cout << "结束" << std::endl;
 
     xywhtheta2points(results.boxes, this->contours);
 
-    ui->text_log->append("检测完成！");
+
+    QString text = QString("图像：");
+    if (this->img_status.opt) text += QString("可见光 ");
+    if (this->img_status.IR) text += QString("红外 ");
+    if (this->img_status.SAR) text += QString("SAR ");
+    text += QString("检测完成！！！");
+    ui->text_log->append(text);
 
 
+    // 显示图像
     if (this->img_status.opt) this->show_img_opt_results();
     if (this->img_status.IR) this->show_img_IR_results();
     if (this->img_status.SAR) this->show_img_SAR_results();
@@ -347,6 +345,7 @@ void Detection::show_img_results(QString img_type)
         LoadImage(img_path.toStdString(), img); // CV_8UC3
 
         drawContours(img, this->contours, contoursIds, color, thickness);
+        this->img_results.opt = img.clone();
 
         //显示图像
         QImage srcimg = MatToImage(img);
@@ -362,6 +361,7 @@ void Detection::show_img_results(QString img_type)
         LoadImage(img_path.toStdString(), img); // CV_8UC3
 
         drawContours(img, this->contours, contoursIds, color, thickness);
+        this->img_results.IR = img.clone();
 
         //显示图像
         QImage srcimg = MatToImage(img);
@@ -377,6 +377,7 @@ void Detection::show_img_results(QString img_type)
         LoadImage(img_path.toStdString(), img); // CV_8UC3
 
         drawContours(img, this->contours, contoursIds, color, thickness);
+        this->img_results.SAR = img.clone();
 
         //显示图像
         QImage srcimg = MatToImage(img);
@@ -498,29 +499,78 @@ void Detection::save_img_SAR() {save_img(QString("SAR"));}
 
 void Detection::save_results()
 {
-    // 保存图像
-    if (this->img_status.opt) this->save_img_opt();
-    if (this->img_status.IR) this->save_img_IR();
-    if (this->img_status.SAR) this->save_img_SAR();
-
     // 保存检测结果
     QString path = ui->le_savepath->text();
-    QString img_path;
-    if (this->img_status.opt) img_path = this->img_paths.opt;
-    else if (this->img_status.IR) img_path = this->img_paths.IR;
-    else if (this->img_status.SAR) img_path = this->img_paths.opt;
+    QString pathname = ui->le_savepath_name->text();
 
+    QString save_path = path + "/" + pathname;
+    QDir dir(save_path);
+    if(!dir.exists())
+    {
+        dir.mkdir(save_path);
+    }
+
+
+    QString img_path;
     //获取图像名称和路径
-    QFileInfo imginfo = QFileInfo(img_path);
+    QFileInfo imginfo;
     // 图像名称
-    QString img_name = imginfo.fileName();
+    QString img_name;
     //文件后缀
-    QString fileSuffix = imginfo.suffix();
+    QString fileSuffix;
+    // 保存图像
+    if (this->img_status.opt)
+    {
+        img_path = this->img_paths.opt;
+        //获取图像名称和路径
+        imginfo = QFileInfo(img_path);
+        // 图像名称
+        img_name = imginfo.fileName();
+        //文件后缀
+        fileSuffix = imginfo.suffix();
+
+        // 保存图像
+        QString save_img_name = img_name;
+        save_img_name.replace(QRegExp("."+fileSuffix), QString("_opt."+fileSuffix));
+        QString save_img_pathname = save_path + '/' + save_img_name;
+        cv::imwrite(save_img_pathname.toStdString(), this->img_results.opt);
+    }
+    if (this->img_status.IR)
+    {
+        img_path = this->img_paths.IR;
+        //获取图像名称和路径
+        imginfo = QFileInfo(img_path);
+        // 图像名称
+        img_name = imginfo.fileName();
+        //文件后缀
+        fileSuffix = imginfo.suffix();
+
+        // 保存图像
+        QString save_img_name = img_name;
+        save_img_name.replace(QRegExp("."+fileSuffix), QString("_IR."+fileSuffix));
+        QString save_img_pathname = save_path + '/' + save_img_name;
+        cv::imwrite(save_img_pathname.toStdString(), this->img_results.IR);
+    }
+    if (this->img_status.SAR)
+    {
+        img_path = this->img_paths.SAR;
+        //获取图像名称和路径
+        imginfo = QFileInfo(img_path);
+        // 图像名称
+        img_name = imginfo.fileName();
+        //文件后缀
+        fileSuffix = imginfo.suffix();
+
+        // 保存图像
+        QString save_img_name = img_name;
+        save_img_name.replace(QRegExp("."+fileSuffix), QString("_SAR."+fileSuffix));
+        QString save_img_pathname = save_path + '/' + save_img_name;
+        cv::imwrite(save_img_pathname.toStdString(), this->img_results.SAR);
+    }
 
     // 保存检测结果
-    QString txt_name = img_name;
-    txt_name.replace(QRegExp("."+fileSuffix), QString(".txt"));
-    QString txt_save_path = path +"/"+ txt_name;
+    QString txt_name = "results.txt";
+    QString txt_save_path = save_path +"/"+ txt_name;
 
     std::ofstream fout;
     fout.open(txt_save_path.toStdString());
@@ -545,6 +595,8 @@ void Detection::save_results()
     }
 
     fout.close();
+
+    ui->text_log->append("保存完成！！！");
 
 }
 
@@ -626,7 +678,7 @@ void Detection::init_ui()
 
     // 软件日志初始化
     ui->text_log->clear();
-    ui->text_log->setText("请输入图像路径...");
+    ui->text_log->setText("请选择检测模式，并输入图像路径...");
 
     // 保存路径
     ui->le_savepath->clear();

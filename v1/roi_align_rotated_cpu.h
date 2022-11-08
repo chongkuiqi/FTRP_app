@@ -3,13 +3,13 @@
 #include <ATen/ATen.h>
 #include <torch/torch.h>
 
-bool roi_align_rotated_forward_cpu(torch::Tensor features, torch::Tensor rois,
+void roi_align_rotated_forward_cpu(torch::Tensor features, torch::Tensor rois,
                            int pooled_height, int pooled_width,
                            float spatial_scale, int sample_num,
                            torch::Tensor output);
 
 
-int ROIAlignRotatedForwardLaucher(const torch::Tensor features, const torch::Tensor rois,
+void ROIAlignRotatedForwardLaucher(const torch::Tensor features, const torch::Tensor rois,
                             const float spatial_scale, const int sample_num,
                             const int channels, const int height,
                             const int width, const int num_rois,

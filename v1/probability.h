@@ -14,6 +14,7 @@
 
 #include "util.h"
 
+
 // 泛型编程，存储各个特征的状态、特征相似度
 template <typename T>
 struct struct_fe
@@ -23,6 +24,34 @@ struct struct_fe
     T text;
 };
 
+
+// 图像频谱类型，枚举
+enum SpectrumType { OPT_SPECTRUM=0, IR_SPECTRUM, SAR_SPECTRUM};
+// 单个频谱所具有的数据
+struct SingleSpectrum
+{
+    // 频谱类型
+    enum SpectrumType spectrum_type;
+
+    // 该频谱的图像
+    cv::Mat img_1;
+    cv::Mat img_2;
+
+    // 图像名称
+    std::string img_1_path;
+    std::string img_2_path;
+
+
+    // 该频谱图像提取的各种特征
+    struct_fe<at::Tensor> roi_fe_1;
+    struct_fe<at::Tensor> roi_fe_2;
+
+    //  该频谱图像各个特征的相似度
+    struct_fe<float> fe_similarity = {0.0, 0.0, 0.0};
+
+    // 该频谱的综合特征相似度
+    float sim;
+};
 
 namespace Ui {
 class Probability;
@@ -36,39 +65,67 @@ public:
     explicit Probability(QWidget *parent = nullptr);
     ~Probability();
 
-    void browse_img(QString type);
-    void browse_img_1();
-    void browse_img_2();
-    void browse_img_3();
-    void browse_img_4();
+
+
+    void browse_img(SpectrumType img_type, bool is_img_1);
+    void browse_img_opt();
+    void browse_img_IR();
+    void browse_img_SAR();
+    void browse_img_opt_2();
+    void browse_img_IR_2();
+    void browse_img_SAR_2();
+
+    void on_bu_group_MS(QAbstractButton *button);
+    void reset_bu_group_MS();
+
+    void reset_imgpath_show();
+    void reset_img_show();
+    void reset_show();
+
+
+
+
+    // 特征提取区域选择
+    void on_bu_group_rois(QAbstractButton *button);
+    // 显示复位，各个按钮、图像显示全部清零
+    void reset_bu_group_rois();
+    void reset_rois_show();
+    void reset_rois();
 
     void browse_gt_1();
     void browse_gt_2();
     void browse_gt_3();
     void browse_gt_4();
 
-    // roi区域选择
-    void choose_roi(const QString &text);
-    void choose_roi_1(const QString &text);
-    void choose_roi_2(const QString &text);
-    void choose_roi_3(const QString &text);
-    void choose_roi_4(const QString &text);
-    void choose_roi_5(const QString &text);
-
-    void browse_save();
+    void show_all_objs_img_1(const QString &text);
+    void show_all_objs_img_2(const QString &text);
+    void show_rois_img_1(std::vector<std::vector<cv::Point>> contour_1, std::vector<std::vector<cv::Point>> contour_2);
+    void show_rois_img_2(std::vector<std::vector<cv::Point>> contour);
 
     void extract_rois();
-    void extract_fe();
 
-    void extract_fe_deep(cv::Mat &img, std::vector<std::vector<cv::Point>> &contours);
-    void extract_fe_gray(cv::Mat &img, std::vector<std::vector<cv::Point>> &contours);
-    void extract_fe_texture(cv::Mat &img, std::vector<std::vector<cv::Point>> &contours);
-    void get_hist(cv::Mat & img, cv::Mat & hist);
+
+
+    // 特征选择和提取
+    void on_bu_group_fe(QAbstractButton *button);
+    void reset_bu_group_fe();
+    void extract_fe();
+    void extract_fe_SS(SingleSpectrum &specturm_img);
+
+
+
+
+    // 特征相似度计算和加权
+    void on_bu_group_weights(QAbstractButton *button);
+    void reset_weights_show();
+    void reset_bu_group_weights();
+    void reset_weights();
 
     void cal_similarity();
-    void cal_similarity_deep();
-    void cal_similarity_gray();
-    void cal_similarity_text();
+    void cal_similarity_SS(SingleSpectrum &specturm_img);
+
+
+
 
 
 
@@ -76,24 +133,11 @@ public:
 
     void save_results();
 
-    // 特征提取区域选择
-    void on_bu_group_rois(QAbstractButton *button);
-    void change_bg_ratio(const QString text);
-    // 显示复位，各个按钮、图像显示全部清零
-    void reset_bu_group_rois();
-    void reset_rois_show();
-    void reset_rois();
-
-    // 特征选择
-    void on_bu_group_fe(QAbstractButton *button);
-    void reset_bu_group_fe();
 
 
-    // 特征加权
-    void on_bu_group_weights(QAbstractButton *button);
-    void reset_weights_show();
-    void reset_bu_group_weights();
-    void reset_weights();
+    void browse_save();
+
+
 
 
     // 识别概率映射
@@ -107,11 +151,24 @@ public:
 private:
     Ui::Probability *ui;
 
-    cv::Mat img_1;
-    cv::Mat img_2;
+
 
     float similarity;
     float probability;
+
+    SingleSpectrum opt_spectrum;
+    SingleSpectrum ir_spectrum;
+    SingleSpectrum sar_spectrum;
+
+
+    // 存储各个频谱的状态
+    struct_MS<bool> img_status = {false,false, false};
+
+    // 多频谱选择按钮组
+    QButtonGroup bu_group_MS;
+
+
+
 
     // 待提取特征区域选择按钮组
     QButtonGroup bu_group_rois;
@@ -123,27 +180,26 @@ private:
     std::vector<cv::Point> contour_1;
     std::vector<cv::Point> contour_2;
 
-//    // 两个待提取特征区域的旋转框
-//    cv::RotatedRect rrect_box_1;
-//    cv::RotatedRect rrect_box_2;
+
 
 
     // 特征选择按钮组
     QButtonGroup bu_group_fe;
     // 存储各个特征的状态，即是否提取该特征
     struct_fe<bool> fe_status = {false,false, false};
-    // 前景/背景区域的特征
-    struct_fe<at::Tensor> roi_fe_1;
-    struct_fe<at::Tensor> roi_fe_2;
+
 
 
     // 相似度加权方式选择按钮组
     QButtonGroup bu_group_weights;
     QString weights_type = QString("");
-    // 存储各个特征的相似度
-    struct_fe<float> fe_similarity = {0.0, 0.0, 0.0};
+
+
     // 存储各个特征的相似度加权权值
     struct_fe<float> fe_similarity_weights = {0.0, 0.0, 0.0};
+
+    // 存储各个频谱特征的相似度加权权值
+    struct_MS<float> img_sim_weights = {0.0, 0.0, 0.0};
 
 
     // 映射方法选择按钮组
@@ -151,8 +207,6 @@ private:
     QString map_type = QString("");
 
 
-//    // 旋转后的图像
-//    cv::Mat img_rotate;
 
 };
 

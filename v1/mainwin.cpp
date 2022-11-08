@@ -36,7 +36,7 @@ void MainWin::show_detec()
 
 void MainWin::show_proba()
 {
-
+    proba.init_ui();
     proba.show();
 }
 

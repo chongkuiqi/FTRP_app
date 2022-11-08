@@ -23,59 +23,100 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>670</x>
-      <y>0</y>
+      <x>460</x>
+      <y>10</y>
       <width>361</width>
       <height>51</height>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;目标识别概率计算&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:20pt;&quot;&gt;目标识别概率计算&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QGroupBox" name="GB_choose_rois">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>70</y>
-      <width>721</width>
-      <height>191</height>
+      <x>80</x>
+      <y>280</y>
+      <width>681</width>
+      <height>251</height>
      </rect>
     </property>
     <property name="title">
      <string>区域选择</string>
     </property>
     <layout class="QGridLayout" name="gridLayout_10">
-     <item row="0" column="2">
-      <widget class="QRadioButton" name="RB_fg_fg2">
-       <property name="text">
-        <string>目标-目标2</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0" colspan="3">
       <widget class="QStackedWidget" name="SW_choose_rois">
        <property name="currentIndex">
-        <number>3</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="page_fg_bg">
         <layout class="QGridLayout" name="gridLayout_6">
          <item row="0" column="0">
           <layout class="QGridLayout" name="gridLayout_7">
-           <item row="1" column="1">
+           <item row="0" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QLabel" name="label_gtpath_1">
+               <property name="text">
+                <string>目标标签</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="le_gtpath_1"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="bu_browse_gt_1">
+               <property name="text">
+                <string>浏览</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>13</width>
+                 <height>30</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="0" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QLabel" name="label_roi_choose_1">
+               <property name="text">
+                <string>目标选择</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="CB_roi_choose_1"/>
+             </item>
+            </layout>
+           </item>
+           <item row="1" column="0">
             <spacer name="horizontalSpacer_6">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>40</width>
-               <height>20</height>
+               <width>228</width>
+               <height>18</height>
               </size>
              </property>
             </spacer>
            </item>
-           <item row="1" column="0">
+           <item row="1" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
               <widget class="QLabel" name="label_bg_ratio">
@@ -90,98 +131,6 @@
                 <string>1.0</string>
                </property>
               </widget>
-             </item>
-            </layout>
-           </item>
-           <item row="0" column="0" colspan="2">
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout">
-               <item>
-                <widget class="QLabel" name="label_imgpath_1">
-                 <property name="text">
-                  <string>图像路径</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="le_imgpath_1"/>
-               </item>
-               <item>
-                <widget class="QPushButton" name="bu_browse_1">
-                 <property name="text">
-                  <string>浏览</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>28</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_3">
-               <item>
-                <widget class="QLabel" name="label_gtpath_1">
-                 <property name="text">
-                  <string>目标标签</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="le_gtpath_1"/>
-               </item>
-               <item>
-                <widget class="QPushButton" name="bu_browse_gt_1">
-                 <property name="text">
-                  <string>浏览</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>28</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_4">
-               <item>
-                <widget class="QLabel" name="label_roi_choose_1">
-                 <property name="text">
-                  <string>目标选择</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QComboBox" name="CB_roi_choose_1">
-                 <item>
-                  <property name="text">
-                   <string>-1</string>
-                  </property>
-                 </item>
-                </widget>
-               </item>
-              </layout>
              </item>
             </layout>
            </item>
@@ -202,149 +151,85 @@
        </widget>
        <widget class="QWidget" name="page_fg_fg2">
         <layout class="QGridLayout" name="gridLayout_5">
-         <item row="0" column="0">
-          <layout class="QGridLayout" name="gridLayout_4">
+         <item row="1" column="0">
+          <layout class="QGridLayout" name="gridLayout_23">
            <item row="0" column="0">
-            <widget class="QLabel" name="label_imgpath_3">
-             <property name="text">
-              <string>图像路径</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="le_imgpath_3"/>
-           </item>
-           <item row="0" column="2">
-            <widget class="QPushButton" name="bu_browse_3">
-             <property name="text">
-              <string>浏览</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
-            <spacer name="horizontalSpacer_16">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>13</width>
-               <height>35</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="0" column="4">
-            <widget class="QLabel" name="label_gtpath_6">
-             <property name="text">
-              <string>目标标签</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="5">
-            <widget class="QLineEdit" name="le_gtpath_3"/>
-           </item>
-           <item row="0" column="6">
-            <widget class="QPushButton" name="bu_browse_gt_3">
-             <property name="text">
-              <string>浏览</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="7">
-            <spacer name="horizontalSpacer_17">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>13</width>
-               <height>35</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="0" column="8">
-            <layout class="QHBoxLayout" name="horizontalLayout_14">
-             <item>
-              <widget class="QLabel" name="label_gtpath_7">
-               <property name="text">
-                <string>目标选择</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="CB_roi_choose_4">
-               <item>
+            <widget class="QWidget" name="widget_opt_2" native="true">
+             <layout class="QGridLayout" name="gridLayout_22">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_imgpath_opt_2">
                 <property name="text">
-                 <string>-1</string>
+                 <string>可见光图像路径</string>
                 </property>
-               </item>
-              </widget>
-             </item>
-            </layout>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="le_imgpath_opt_2"/>
+              </item>
+              <item row="0" column="2">
+               <widget class="QPushButton" name="bu_browse_opt_2">
+                <property name="text">
+                 <string>浏览</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="label_imgpath_4">
-             <property name="text">
-              <string>图像路径</string>
-             </property>
+            <widget class="QWidget" name="widget_IR_2" native="true">
+             <layout class="QGridLayout" name="gridLayout_15">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_imgpath_IR_2">
+                <property name="text">
+                 <string>红外图像路径</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="le_imgpath_IR_2"/>
+              </item>
+              <item row="0" column="2">
+               <widget class="QPushButton" name="bu_browse_IR_2">
+                <property name="text">
+                 <string>浏览</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
+           <item row="2" column="0">
+            <widget class="QWidget" name="widget_SAR_2" native="true">
+             <layout class="QGridLayout" name="gridLayout_24">
+              <item row="0" column="1">
+               <widget class="QLineEdit" name="le_imgpath_SAR_2"/>
+              </item>
+              <item row="0" column="2">
+               <widget class="QPushButton" name="bu_browse_SAR_2">
+                <property name="text">
+                 <string>浏览</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_imgpath_SAR_2">
+                <property name="text">
+                 <string>SAR图像路径</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="1">
+          <layout class="QGridLayout" name="gridLayout_4">
            <item row="1" column="1">
-            <widget class="QLineEdit" name="le_imgpath_4"/>
-           </item>
-           <item row="1" column="2">
-            <widget class="QPushButton" name="bu_browse_4">
-             <property name="text">
-              <string>浏览</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="3">
-            <spacer name="horizontalSpacer_18">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>13</width>
-               <height>35</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="1" column="4">
-            <widget class="QLabel" name="label_gtpath_8">
-             <property name="text">
-              <string>目标标签</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="5">
             <widget class="QLineEdit" name="le_gtpath_4"/>
            </item>
-           <item row="1" column="6">
-            <widget class="QPushButton" name="bu_browse_gt_4">
-             <property name="text">
-              <string>浏览</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="7">
-            <spacer name="horizontalSpacer_19">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>13</width>
-               <height>35</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="1" column="8">
+           <item row="1" column="4">
             <layout class="QHBoxLayout" name="horizontalLayout_18">
              <item>
               <widget class="QLabel" name="label_gtpath_9">
@@ -354,13 +239,78 @@
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="CB_roi_choose_5">
-               <item>
-                <property name="text">
-                 <string>-1</string>
-                </property>
-               </item>
+              <widget class="QComboBox" name="CB_roi_choose_5"/>
+             </item>
+            </layout>
+           </item>
+           <item row="0" column="2">
+            <widget class="QPushButton" name="bu_browse_gt_3">
+             <property name="text">
+              <string>浏览</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <spacer name="horizontalSpacer_19">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>13</width>
+               <height>32</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_gtpath_6">
+             <property name="text">
+              <string>目标标签</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QPushButton" name="bu_browse_gt_4">
+             <property name="text">
+              <string>浏览</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <spacer name="horizontalSpacer_17">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>13</width>
+               <height>32</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_gtpath_8">
+             <property name="text">
+              <string>目标标签</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="le_gtpath_3"/>
+           </item>
+           <item row="0" column="4">
+            <layout class="QHBoxLayout" name="horizontalLayout_14">
+             <item>
+              <widget class="QLabel" name="label_gtpath_7">
+               <property name="text">
+                <string>目标选择</string>
+               </property>
               </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="CB_roi_choose_4"/>
              </item>
             </layout>
            </item>
@@ -373,36 +323,6 @@
          <item row="0" column="0">
           <layout class="QGridLayout" name="gridLayout_8">
            <item row="0" column="0">
-            <widget class="QLabel" name="label_imgpath_2">
-             <property name="text">
-              <string>图像路径</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1" colspan="2">
-            <widget class="QLineEdit" name="le_imgpath_2"/>
-           </item>
-           <item row="0" column="3">
-            <widget class="QPushButton" name="bu_browse_2">
-             <property name="text">
-              <string>浏览</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="4">
-            <spacer name="horizontalSpacer_10">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>17</width>
-               <height>17</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="0" column="5">
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
               <widget class="QLabel" name="label_gtpath_3">
@@ -421,22 +341,22 @@
                </property>
               </widget>
              </item>
+             <item>
+              <spacer name="horizontalSpacer_11">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>17</width>
+                 <height>18</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
             </layout>
            </item>
-           <item row="0" column="6">
-            <spacer name="horizontalSpacer_11">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>13</width>
-               <height>13</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="0" column="7">
+           <item row="0" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_9">
              <item>
               <widget class="QLabel" name="label_gtpath_4">
@@ -446,44 +366,36 @@
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="CB_roi_choose_2">
-               <item>
-                <property name="text">
-                 <string>-1</string>
-                </property>
-               </item>
-              </widget>
+              <widget class="QComboBox" name="CB_roi_choose_2"/>
              </item>
             </layout>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="label_gtpath_5">
-             <property name="text">
-              <string>目标选择</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="CB_roi_choose_3">
-             <item>
-              <property name="text">
-               <string>-1</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item row="1" column="2">
             <spacer name="horizontalSpacer_14">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>40</width>
-               <height>20</height>
+               <width>27</width>
+               <height>22</height>
               </size>
              </property>
             </spacer>
+           </item>
+           <item row="1" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QLabel" name="label_gtpath_5">
+               <property name="text">
+                <string>目标选择</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="CB_roi_choose_3"/>
+             </item>
+            </layout>
            </item>
           </layout>
          </item>
@@ -491,17 +403,24 @@
        </widget>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QRadioButton" name="RB_fg_fg">
-       <property name="text">
-        <string>目标-目标</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="0">
       <widget class="QRadioButton" name="RB_fg_bg">
        <property name="text">
         <string>目标-背景</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QRadioButton" name="RB_fg_fg2">
+       <property name="text">
+        <string>目标-目标2</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QRadioButton" name="RB_fg_fg">
+       <property name="text">
+        <string>目标-目标</string>
        </property>
       </widget>
      </item>
@@ -514,263 +433,11 @@
      </item>
     </layout>
    </widget>
-   <widget class="QGroupBox" name="GB_fe_case">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>350</y>
-      <width>221</width>
-      <height>191</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>特征选择</string>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
-      <widget class="QCheckBox" name="bu_deep_fe">
-       <property name="text">
-        <string>深度学习特征</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QCheckBox" name="bu_text_fe">
-       <property name="text">
-        <string>纹理特征</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QCheckBox" name="bu_gray_fe">
-       <property name="text">
-        <string>灰度特征</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QPushButton" name="bu_extract_fe">
-       <property name="text">
-        <string>提取特征</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QGroupBox" name="GB_weights">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>560</y>
-      <width>241</width>
-      <height>267</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>相似度加权权值</string>
-    </property>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="0" colspan="2">
-      <widget class="QGroupBox" name="GB_weights_inputs">
-       <property name="title">
-        <string/>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_deep">
-          <property name="text">
-           <string>深度学习特征</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="le_deep_weight">
-          <property name="text">
-           <string>0.0</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_gray">
-          <property name="text">
-           <string>灰度特征</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="le_gray_weight">
-          <property name="text">
-           <string>0.0</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_text">
-          <property name="text">
-           <string>纹理特征</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="le_text_weight">
-          <property name="text">
-           <string>0.0</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QRadioButton" name="RB_weights_custom">
-       <property name="text">
-        <string>自定义法</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0" colspan="2">
-      <widget class="QPushButton" name="bu_similarity">
-       <property name="text">
-        <string>计算特征相似度</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QRadioButton" name="RB_weights_entropy">
-       <property name="text">
-        <string>熵权法</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QGroupBox" name="GB_map">
-    <property name="geometry">
-     <rect>
-      <x>380</x>
-      <y>350</y>
-      <width>201</width>
-      <height>168</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>识别概率映射方法</string>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_12">
-     <item row="0" column="0">
-      <widget class="QRadioButton" name="RB_map_func">
-       <property name="text">
-        <string>函数映射法</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QRadioButton" name="RB_map_psychology">
-       <property name="text">
-        <string>心理学决策原理法</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QPushButton" name="bu_probability">
-       <property name="text">
-        <string>计算识别概率</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>380</x>
-      <y>800</y>
-      <width>327</width>
-      <height>38</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_20">
-     <item>
-      <widget class="QLabel" name="label_savepath">
-       <property name="text">
-        <string>保存路径</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="le_savepath"/>
-     </item>
-     <item>
-      <widget class="QPushButton" name="bu_browse_save">
-       <property name="text">
-        <string>浏览</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QLabel" name="labelImage_1">
-    <property name="geometry">
-     <rect>
-      <x>870</x>
-      <y>120</y>
-      <width>350</width>
-      <height>350</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>图1</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelImage_2">
-    <property name="geometry">
-     <rect>
-      <x>880</x>
-      <y>500</y>
-      <width>400</width>
-      <height>400</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>图2</string>
-    </property>
-   </widget>
-   <widget class="QGroupBox" name="GB_run_logs">
-    <property name="geometry">
-     <rect>
-      <x>380</x>
-      <y>560</y>
-      <width>351</width>
-      <height>151</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>运行日志</string>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_11">
-     <item row="0" column="0">
-      <widget class="QTextBrowser" name="text_log"/>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QLabel" name="label_show_img">
-    <property name="geometry">
-     <rect>
-      <x>900</x>
-      <y>90</y>
-      <width>72</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;图像显示&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="bu_exit">
     <property name="geometry">
      <rect>
-      <x>619</x>
-      <y>880</y>
+      <x>690</x>
+      <y>820</y>
       <width>80</width>
       <height>36</height>
      </rect>
@@ -779,18 +446,556 @@
      <string>退出</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="bu_save">
+   <widget class="QGroupBox" name="GB_MS">
     <property name="geometry">
      <rect>
-      <x>510</x>
-      <y>881</y>
-      <width>80</width>
-      <height>36</height>
+      <x>40</x>
+      <y>70</y>
+      <width>381</width>
+      <height>201</height>
      </rect>
     </property>
-    <property name="text">
-     <string>保存</string>
+    <property name="title">
+     <string>频谱选择</string>
     </property>
+    <layout class="QGridLayout" name="gridLayout_16">
+     <item row="0" column="1">
+      <widget class="QWidget" name="widget_opt" native="true">
+       <layout class="QGridLayout" name="gridLayout_17">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_imgpath_opt">
+          <property name="text">
+           <string>图像路径</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="le_imgpath_opt"/>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="bu_browse_opt">
+          <property name="text">
+           <string>浏览</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QCheckBox" name="CB_SAR">
+       <property name="text">
+        <string>SAR</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QCheckBox" name="CB_opt">
+       <property name="text">
+        <string>可见光</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QWidget" name="widget_IR" native="true">
+       <layout class="QGridLayout" name="gridLayout_18">
+        <item row="0" column="3">
+         <widget class="QPushButton" name="bu_browse_IR">
+          <property name="text">
+           <string>浏览</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="le_imgpath_IR"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_imgpath_IR">
+          <property name="text">
+           <string>图像路径</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QCheckBox" name="CB_IR">
+       <property name="text">
+        <string>红外</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QWidget" name="widget_SAR" native="true">
+       <layout class="QGridLayout" name="gridLayout_19">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_imgpath_SAR">
+          <property name="text">
+           <string>图像路径</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="le_imgpath_SAR"/>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="bu_browse_SAR">
+          <property name="text">
+           <string>浏览</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>60</y>
+      <width>402</width>
+      <height>838</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_20">
+     <item row="2" column="0" colspan="2">
+      <widget class="QTabWidget" name="tabWidget_show_2">
+       <property name="minimumSize">
+        <size>
+         <width>400</width>
+         <height>400</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>400</width>
+         <height>400</height>
+        </size>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="opt_2">
+        <attribute name="title">
+         <string>可见光</string>
+        </attribute>
+        <widget class="QLabel" name="labelImage_opt_2">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>231</width>
+           <height>201</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="IR_2">
+        <attribute name="title">
+         <string>红外</string>
+        </attribute>
+        <widget class="QLabel" name="labelImage_IR_2">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>261</width>
+           <height>201</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="SAR_2">
+        <attribute name="title">
+         <string>SAR</string>
+        </attribute>
+        <widget class="QLabel" name="labelImage_SAR_2">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>261</width>
+           <height>251</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </widget>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QTabWidget" name="tabWidget_show">
+       <property name="minimumSize">
+        <size>
+         <width>400</width>
+         <height>400</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>400</width>
+         <height>400</height>
+        </size>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="opt">
+        <attribute name="title">
+         <string>可见光</string>
+        </attribute>
+        <widget class="QLabel" name="labelImage_opt">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>231</width>
+           <height>201</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="IR">
+        <attribute name="title">
+         <string>红外</string>
+        </attribute>
+        <widget class="QLabel" name="labelImage_IR">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>261</width>
+           <height>231</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="SAR">
+        <attribute name="title">
+         <string>SAR</string>
+        </attribute>
+        <widget class="QLabel" name="labelImage_SAR">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>291</width>
+           <height>301</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </widget>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>298</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_img_show">
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;图像显示&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>90</y>
+      <width>301</width>
+      <height>181</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_21">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>运行日志</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>208</width>
+         <height>13</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QTextBrowser" name="text_log"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>550</y>
+      <width>661</width>
+      <height>232</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_11">
+     <item row="0" column="0">
+      <widget class="QGroupBox" name="GB_fe_case">
+       <property name="title">
+        <string>特征选择</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="2" column="0">
+         <widget class="QCheckBox" name="bu_gray_fe">
+          <property name="text">
+           <string>灰度特征</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="bu_deep_fe">
+          <property name="text">
+           <string>深度学习特征</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QPushButton" name="bu_extract_fe">
+          <property name="text">
+           <string>提取特征</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QCheckBox" name="bu_text_fe">
+          <property name="text">
+           <string>纹理特征</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QGroupBox" name="GB_weights">
+       <property name="title">
+        <string>相似度加权权值</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="1" column="0" colspan="2">
+         <widget class="QGroupBox" name="GB_weights_inputs">
+          <property name="title">
+           <string/>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_deep">
+             <property name="text">
+              <string>深度学习特征</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="le_deep_weight">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_gray">
+             <property name="text">
+              <string>灰度特征</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="le_gray_weight">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_text">
+             <property name="text">
+              <string>纹理特征</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="le_text_weight">
+             <property name="text">
+              <string>0.0</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QRadioButton" name="RB_weights_custom">
+          <property name="text">
+           <string>自定义法</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QPushButton" name="bu_similarity">
+          <property name="text">
+           <string>计算特征相似度</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QRadioButton" name="RB_weights_entropy">
+          <property name="text">
+           <string>熵权法</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QGroupBox" name="GB_map">
+       <property name="title">
+        <string>识别概率映射方法</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_12">
+        <item row="2" column="0">
+         <widget class="QPushButton" name="bu_probability">
+          <property name="text">
+           <string>计算识别概率</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QRadioButton" name="RB_map_psychology">
+          <property name="text">
+           <string>心理学决策原理法</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QRadioButton" name="RB_map_func">
+          <property name="text">
+           <string>函数映射法</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>820</y>
+      <width>541</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>保存路径</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="le_savepath"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="bu_browse_save">
+         <property name="text">
+          <string>浏览</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>文件名</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="le_savename"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="bu_save">
+         <property name="text">
+          <string>保存</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

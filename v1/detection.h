@@ -6,14 +6,7 @@
 
 #include <QButtonGroup>
 
-// 泛型编程，存储各个特征的状态、特征相似度
-template <typename T>
-struct struct_MS
-{
-    T opt;
-    T IR;
-    T SAR;
-};
+#include "util.h"
 
 
 namespace Ui {
@@ -85,6 +78,10 @@ private:
 
     // 存储各个频谱图像的路径
     struct_MS<QString> img_paths = {QString(""), QString(""), QString("")};
+
+
+    // 存储各个特征的状态，即是否提取该特征
+    struct_MS<cv::Mat> img_results;
 
 };
 

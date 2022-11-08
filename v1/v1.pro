@@ -44,12 +44,14 @@ FORMS += \
     sardeduction.ui
 
 
+#
+MY_Libtorch_PATH = /home/ckq/software/libtorch1.7.1/
 # 添加OpenCV 和 libtorch的路径
 INCLUDEPATH +=  /usr/local/include \
                 /usr/local/include/opencv4 \
                 /usr/local/include/opencv4/opencv2 \
-                /home/ckq/Downloads/libtorch1.7.1/include \
-                /home/ckq/Downloads/libtorch1.7.1/include/torch/csrc/api/include
+                $${MY_Libtorch_PATH}include \
+                $${MY_Libtorch_PATH}include/torch/csrc/api/include
 #                /home/ckq/software/libtorch/include \
 #                /home/ckq/software/libtorch/include/torch/csrc/api/include
 #/home/ckq/Downloads/pre_libtorch/include/ \
@@ -69,7 +71,8 @@ QMAKE_LFLAGS += -INCLUDE:?warp_size@cuda@at@@YAHXZ
 
 
 #QMAKE_LIBDIR += /home/ckq/software/libtorch/lib
-QMAKE_LIBDIR += /home/ckq/Downloads/libtorch1.7.1/lib
+QMAKE_LIBDIR += $${MY_Libtorch_PATH}/lib
+QMAKE_LFLAGS += -Wl,-rpath=$${MY_Libtorch_PATH}/lib/
 
 
 LIBS += /usr/local/lib/libopencv_highgui.so \
@@ -78,16 +81,14 @@ LIBS += /usr/local/lib/libopencv_highgui.so \
         /usr/local/lib/libopencv_imgproc.so \
         /usr/local/lib/libopencv_imgcodecs.so
 
-#QMAKE_LFLAGS += -Wl,-rpath=/home/ckq/software/libtorch/lib/
-QMAKE_LFLAGS += -Wl,-rpath=/home/ckq/Downloads/libtorch1.7.1/lib/
 
 
 INCLUDEPATH +=  /usr/local/cuda/include
 #LIBS += /home/ckq/software/libtorch/lib/libtorch.so \
 #        /home/ckq/software/libtorch/lib/libtorch_cuda.so \
 #        /usr/local/cuda/lib64/libcudnn.so
-LIBS += /home/ckq/Downloads/libtorch1.7.1/lib/libtorch.so \
-        /home/ckq/Downloads/libtorch1.7.1/lib/libtorch_cuda.so \
+LIBS += $${MY_Libtorch_PATH}lib/libtorch.so \
+        $${MY_Libtorch_PATH}lib/libtorch_cuda.so \
         /usr/local/cuda/lib64/libcudnn.so
 
 #LIBS += /home/ckq/software/libtorch/lib/libc10.so \
@@ -97,12 +98,12 @@ LIBS += /home/ckq/Downloads/libtorch1.7.1/lib/libtorch.so \
 #        /usr/local/cuda/lib64/libnvToolsExt.so \
 #        /usr/local/cuda/lib64/libcudart.so \
 #        /home/ckq/software/libtorch/lib/libc10_cuda.so
-LIBS += /home/ckq/Downloads/libtorch1.7.1/lib/libc10.so \
+LIBS += $${MY_Libtorch_PATH}lib/libc10.so \
         /usr/local/cuda/lib64/stubs/libcuda.so \
         /usr/local/cuda/lib64/libnvrtc.so \
         /usr/local/cuda/lib64/libnvToolsExt.so \
         /usr/local/cuda/lib64/libcudart.so \
-        /home/ckq/Downloads/libtorch1.7.1/lib/libc10_cuda.so
+        $${MY_Libtorch_PATH}/lib/libc10_cuda.so
 
 #LIBS += -L"/home/ckq/Downloads/pre_libtorch/lib" \
 #LIBS += -L"/home/ckq/software/libtorch/lib" \
@@ -122,7 +123,7 @@ LIBS += /home/ckq/Downloads/libtorch1.7.1/lib/libc10.so \
 #        -ltorch_global_deps \
 #        -ltorch_python \
 #        -ltorch
-LIBS += -L"/home/ckq/Downloads/libtorch1.7.1/lib" \
+LIBS += -L"$${MY_Libtorch_PATH}lib" \
 #        -lbackend_with_compiler \
         -lc10_cuda \
         -lc10d_cuda_test \
@@ -180,7 +181,7 @@ LIBS += -L"/home/ckq/Downloads/libtorch1.7.1/lib" \
 #        -ltensorpipe \
 ##        -ltensorpipe_cuda \
 #        -ltensorpipe_uv
-LIBS += -L"/home/ckq/Downloads/libtorch1.7.1/lib" \
+LIBS += -L"$${MY_Libtorch_PATH}lib" \
         -lasmjit \
 #        -lkineto \
         -lnnpack \
