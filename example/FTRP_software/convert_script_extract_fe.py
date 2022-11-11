@@ -1,5 +1,6 @@
 import torch
 from models.retinanet3 import RetinaNet_extract as Model
+from utils.general import intersect_dicts
 from models.backbone import load_state_dict
 import cv2
 import numpy as np
@@ -18,9 +19,9 @@ def img_batch_normalize(img):
 
     return img
 
-# device = torch.device("cpu")
-device = torch.device("cuda:0")
-img_path = "./vedai_2.png"
+device = torch.device("cpu")
+# device = torch.device("cuda:0")
+img_path = "./vedai_1.png"
 
 
 img = cv2.imread(img_path)
@@ -41,40 +42,22 @@ img = img.to(device)
 
 
 # print(model)
+# weight_path = 'exp383.pt'
+weight_path = 'exp382.pt'
+pretrained = torch.load(weight_path, map_location=device)['model']
 model = Model().to(device)
-weight_path = 'exp361_no_align.pt'
-model_pretrained = torch.load(weight_path, map_location=device)['model']
-model = load_state_dict(model, model_pretrained.state_dict())
-
+model = load_state_dict(model, pretrained.state_dict())
 model.float()
 model.eval()
 
-# print(model(img).shape)
-# print(model(img)[1,255])
-# exit()
-# print(model(img)[1].max())
+# print(model(img))
 with torch.no_grad():
     # Use torch.jit.trace to generate a torch.jit.ScriptModule via tracing.
     traced_script_module = torch.jit.trace(model, img)
     # traced_script_module = torch.jit.script(model, img)
 
 # save model
-save_name = weight_path.replace(".pt", "_extract_fe_script.pt")
+save_name = weight_path.replace(".pt", "_fe_script.pt")
 traced_script_module.save(save_name)
 
 
-# model_script = torch.load(save_name, map_location=device)
-# print(model_script(img).shape)
-
-# model = Model().to(device)
-# print(model)
-# weight_path = 'LARDet.pt'
-# torch.save(model, weight_path)
-
-# # Use torch.jit.trace to generate a torch.jit.ScriptModule via tracing.
-# traced_script_module = torch.jit.trace(model, img)
-# # traced_script_module = torch.jit.script(model, img)
-
-# # save model
-# save_name = weight_path.replace(".pt", "_script.pt")
-# traced_script_module.save(save_name)

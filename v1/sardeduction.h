@@ -32,8 +32,12 @@ private slots:
 
     void on_save_clicked();
 
+    void on_bu_initialize_clicked();
+
+
 private:
     Ui::SARdeduction *ui;
+    void initialize();
 };
 
 #endif // SARDEDUCTION_H

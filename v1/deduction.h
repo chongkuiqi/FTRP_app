@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <sardeduction.h>
 #include <optdeduction.h>
+
+
 namespace Ui {
 class Deduction;
 }

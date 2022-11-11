@@ -53,6 +53,18 @@ struct SingleSpectrum
     float sim;
 };
 
+
+// 待提取特征区域类型，枚举
+// 包括3种，“目标-背景”，“目标-目标（单张图像）”，“目标-目标（两张图像）”
+enum RoisType {FG_BG=0, FG_FG, FG_FG2};
+
+// 相似度加权方法，包括特征加权和频谱加权，有自定义法和熵权法两种
+enum SimType {CUSTOM=0, ENTROPY};
+
+// 识别概率映射方法。有函数拟合法和心理学决策原理法两种
+enum MapType {FUN_FIT=0, PSYCHOLOGY};
+
+
 namespace Ui {
 class Probability;
 }
@@ -76,19 +88,16 @@ public:
     void browse_img_SAR_2();
 
     void on_bu_group_MS(QAbstractButton *button);
-    void reset_bu_group_MS();
 
     void reset_imgpath_show();
     void reset_img_show();
-    void reset_show();
-
+    void reset_MS();
 
 
 
     // 特征提取区域选择
     void on_bu_group_rois(QAbstractButton *button);
     // 显示复位，各个按钮、图像显示全部清零
-    void reset_bu_group_rois();
     void reset_rois_show();
     void reset_rois();
 
@@ -97,8 +106,13 @@ public:
     void browse_gt_3();
     void browse_gt_4();
 
-    void show_all_objs_img_1(const QString &text);
-    void show_all_objs_img_2(const QString &text);
+    void deal_roi_choose_1(const QString &text);
+    void deal_roi_choose_2(const QString &text);
+    void deal_roi_choose_3(const QString &text);
+    void deal_roi_choose_4(const QString &text);
+    void deal_roi_choose_5(const QString &text);
+    void show_all_objs_img_1(std::vector<std::vector<cv::Point>> contour_1, std::vector<std::vector<cv::Point>> contour_2);
+    void show_all_objs_img_2(std::vector<std::vector<cv::Point>> contour);
     void show_rois_img_1(std::vector<std::vector<cv::Point>> contour_1, std::vector<std::vector<cv::Point>> contour_2);
     void show_rois_img_2(std::vector<std::vector<cv::Point>> contour);
 
@@ -108,7 +122,7 @@ public:
 
     // 特征选择和提取
     void on_bu_group_fe(QAbstractButton *button);
-    void reset_bu_group_fe();
+    void reset_fe();
     void extract_fe();
     void extract_fe_SS(SingleSpectrum &specturm_img);
 
@@ -116,34 +130,24 @@ public:
 
 
     // 特征相似度计算和加权
-    void on_bu_group_weights(QAbstractButton *button);
-    void reset_weights_show();
-    void reset_bu_group_weights();
-    void reset_weights();
+    void on_bu_group_fe_weights(QAbstractButton *button);
+    void reset_weights_fe_show();
+    void on_bu_group_sp_weights(QAbstractButton *button);
+    void reset_weights_sp_show();
+    void reset_sim_weights();
 
     void cal_similarity();
     void cal_similarity_SS(SingleSpectrum &specturm_img);
 
 
-
-
-
-
+    // 识别概率计算
+    void on_bu_group_map(QAbstractButton *button);
+    void reset_map();
     void cal_probability();
 
+
     void save_results();
-
-
-
     void browse_save();
-
-
-
-
-    // 识别概率映射
-    void on_bu_group_map(QAbstractButton *button);
-    void reset_bu_group_map();
-
 
     void init_ui();
 
@@ -173,7 +177,7 @@ private:
     // 待提取特征区域选择按钮组
     QButtonGroup bu_group_rois;
     // 待提取特征区域类型，包括3种，“目标-背景”，“目标-目标”，“目标-目标2”
-    QString rois_type = QString("");
+    enum RoisType rois_type;
     // 两个contours
     std::vector<std::vector<cv::Point>> contours_1;
     std::vector<std::vector<cv::Point>> contours_2;
@@ -191,20 +195,23 @@ private:
 
 
     // 相似度加权方式选择按钮组
-    QButtonGroup bu_group_weights;
-    QString weights_type = QString("");
-
-
+    // 特征加权
+    QButtonGroup bu_group_fe_weights;
+    enum SimType weights_type_fe;
     // 存储各个特征的相似度加权权值
-    struct_fe<float> fe_similarity_weights = {0.0, 0.0, 0.0};
-
+    struct_fe<float> fe_sim_weights = {0.0, 0.0, 0.0};
+    // 频谱加权
+    QButtonGroup bu_group_sp_weights;
+    enum SimType weights_type_sp;
     // 存储各个频谱特征的相似度加权权值
-    struct_MS<float> img_sim_weights = {0.0, 0.0, 0.0};
+    struct_MS<float> spectrum_sim_weights = {0.0, 0.0, 0.0};
+
+
 
 
     // 映射方法选择按钮组
     QButtonGroup bu_group_map;
-    QString map_type = QString("");
+    enum MapType map_type;
 
 
 

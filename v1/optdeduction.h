@@ -40,17 +40,23 @@ private slots:
 
 
 
+    void on_initialize_clicked();
+
 private:
-    void gen_input_txt(QString solar_zenith_angle,QString solar_azimuth,QString satellite_zenith_angle,QString satellite_aximuth,QString month\
-                       ,QString date,int atmospheric_model,int type_o_aerosol\
+    void gen_input_txt(QString solar_zenith_angle,QString solar_azimuth,QString satellite_zenith_angle,QString satellite_aximuth\
+                       ,int atmospheric_model,int type_o_aerosol\
                        ,QString altitude_of_target,int spectral_conditions);
-    float select_appar(int label);
+    int select_DN(int label);
     void label2rgb(int label);
+    void initialize();
+    void get_DN(float gain,float bais);
 
     QStringList phase;
     QStringList ref;
     QStringList appar;
     QStringList bgr;
+    int DN[7];
+    int DN_norm[7];
 
     Ui::optdeduction *ui;
 

@@ -3,6 +3,11 @@
 
 #include <QMainWindow>
 #include<deduction.h>
+#include <sardeduction.h>
+#include <optdeduction.h>
+#include <infdeduction.h>
+#include <hyperspectral.h>
+
 #include<detection.h>
 #include<probability.h>
 
@@ -22,15 +27,35 @@ public:
     void show_detec();
     void show_proba();
 
+    void reset_detec();
+    void reset_proba();
+
 private slots:
-    void dealdeduc();
+    void on_sar_deduc_clicked();
+
+    void on_opt_deduc_clicked();
+    void dealsar();
+    void dealopt();
+    void dealinf();
+    void dealhyp();
+
+    void on_inf_deduc_clicked();
+
+    void on_hyp_deduc_clicked();
 
 private:
     Ui::MainWin *ui;
 
-    Deduction deduc;
+
     Detection detec;
     Probability proba;
+
+    // Deduction deduc;
+    SARdeduction sardeduction;
+    optdeduction Optdeduction;
+    infdeduction Infdeduction;
+    hyperspectral Hyperspectral;
+    int cnt=0;
 
 };
 #endif // MAINWIN_H

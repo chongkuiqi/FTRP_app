@@ -14,6 +14,8 @@
 #include <QStringList>
 #include <QProcess>
 #include <QFile>
+#include <algorithm>
+#include <QDateTime>
 
 //#include <dlfcn.h>
 //#include <stdio.h>
@@ -22,7 +24,7 @@
 using namespace cv;
 using namespace std;
 using std::string;
-float normalize_mean[3] = {0.485, 0.456, 0.406};
+float normalize_mean[3] = {0.485,0.456,0.406};
 float normalize_std[3] = {0.229, 0.224, 0.225};
 optdeduction::optdeduction(QWidget *parent) :
     QMainWindow(parent),
@@ -37,7 +39,8 @@ optdeduction::optdeduction(QWidget *parent) :
     ui->label_forrest->setStyleSheet("QLabel{background-color:rgb(0,255,0);}");
     ui->label_snow->setStyleSheet("QLabel{background-color:rgb(255,255,255);}");
     ui->label_sand->setStyleSheet("QLabel{background-color:rgb(159,129,183);}");
-    ui->label_water->setStyleSheet("QLabel{background-color:rgb(0,0,255);}");
+//    ui->label_water->setStyleSheet("QLabel{background-color:rgb(0,0,255);}");
+    ui->label_water->setStyleSheet("QLabel{background-color:rgb(135,206,255);}");
 
 
 }
@@ -49,6 +52,7 @@ optdeduction::~optdeduction()
 
 void optdeduction::on_exit_clicked()
 {
+    initialize();
     emit optexit();
 }
 
@@ -65,33 +69,40 @@ void optdeduction::on_browse_clicked()
 }
 
 
-float optdeduction::select_appar(int label)
+int optdeduction::select_DN(int label)
 {
     int id;
     switch(label)
     {
         case 0:
             id = phase.indexOf("sand");//背景->荒地
-            return appar.at(id).toFloat();
+//            return appar.at(id).toFloat();c
+            return DN_norm[id];
         case 1:
             id = phase.indexOf("sand");//建筑->荒地
-            return appar.at(id).toFloat();
+//            return appar.at(id).toFloat();
+            return DN_norm[id];
         case 2:
             id = phase.indexOf("road");//公路
-            return appar.at(id).toFloat();
+//            return appar.at(id).toFloat();
+            return DN_norm[id];
         case 3:
             id = phase.indexOf("water");//水
-            return appar.at(id).toFloat();
+//            return appar.at(id).toFloat();
+            return DN_norm[id];
         case 4:
             id = phase.indexOf("sand");//荒地
-            return appar.at(id).toFloat();
+//            return appar.at(id).toFloat();
+            return DN_norm[id];
         case 5:
             id = phase.indexOf("forrest");//森林
-            return appar.at(id).toFloat();
+//            return appar.at(id).toFloat();
+            return DN_norm[id];
 
         case 6:
             id = phase.indexOf("grass");//草地
-            return appar.at(id).toFloat();
+//            return appar.at(id).toFloat();
+            return DN_norm[id];
 
 
     }
@@ -112,7 +123,8 @@ void optdeduction::label2rgb(int label)
         case 2:
             bgr <<"255"<<"255"<<"0";//公路
         case 3:
-            bgr <<"0"<<"0"<<"255";//水
+//            bgr <<"0"<<"0"<<"255";//水
+            bgr <<"130"<<"206"<<"255";//水
         case 4:
             bgr <<"159"<<"129"<<"183";//荒地
         case 5:
@@ -124,17 +136,44 @@ void optdeduction::label2rgb(int label)
 
 }
 
-
-int get_DN(float L,float Gain,float Bias)
+void optdeduction::get_DN(float Gain,float Bias)
 {
 //    int Bias = 1;
-    int DN = (L-Bias)/Gain;
-    return DN;
+//    int DN = (L-Bias)/Gain;
+    for (int i=0;i<6 ;++i ) {
+        DN[i] = (appar.at(i).toFloat()-Bias)/Gain;
+    }
+    qDebug()<<DN[0]<<" "<<DN[1]<<" "<<DN[2]<<" "<<DN[3]<<" "<<DN[4]<<" "<<DN[5];
+    int DN_max;
+    int DN_min;
+    DN_max= *max_element(DN,DN+6);
+    DN_min= *min_element(DN,DN+6);
+    qDebug()<<DN_max;
+//    //归一到0～255
+    int d_max = DN_max-230;
+    int d_min = DN_min-10;
+    if (d_max>0){
+        for (int i=0;i<6 ;++i ) {
+            DN_norm[i] = DN[i]-d_max;
+            if (DN_norm[i]<0){
+                DN_norm[i] = DN[i]-d_min;
+            }
+        }
+    }else{
+        for (int i=0;i<6 ;++i ) {
+            DN_norm[i] = DN[i];
+
+        }
+    }
+
+
+
+
 }
 
 
-void optdeduction::gen_input_txt(QString solar_zenith_angle,QString solar_azimuth,QString satellite_zenith_angle,QString satellite_aximuth,QString month\
-                   ,QString date,int atmospheric_model,int type_o_aerosol\
+void optdeduction::gen_input_txt(QString solar_zenith_angle,QString solar_azimuth,QString satellite_zenith_angle,QString satellite_aximuth\
+                   ,int atmospheric_model,int type_o_aerosol\
                    ,QString altitude_of_target,int spectral_conditions){
     QFile sh("./6s.sh");
     sh.open(QFile::WriteOnly|QFile::Truncate);
@@ -156,7 +195,7 @@ void optdeduction::gen_input_txt(QString solar_zenith_angle,QString solar_azimut
         //1 几何参数——用户自己选择观测几何参数
         out<<"0\n";
         //太阳天顶角，太阳方位角，卫星天顶角，卫星方位角，月，日
-        out<<solar_zenith_angle<<" "<<solar_azimuth<<" "<<satellite_zenith_angle<<" "<<satellite_aximuth<<" "<<month<<" "<<date<<"\n";
+        out<<solar_zenith_angle<<" "<<solar_azimuth<<" "<<satellite_zenith_angle<<" "<<satellite_aximuth<<" "<<"1"<<" "<<"1"<<"\n";
         //2 大气模式
         out<<QString::number(atmospheric_model+1,10)<<"\n";
         //3 气溶胶类型
@@ -164,7 +203,7 @@ void optdeduction::gen_input_txt(QString solar_zenith_angle,QString solar_azimut
         //4 气溶胶含量
         out<<"0\n"<<"1.95"<<"\n";
         //5 目标高度
-        if (altitude_of_target=="目标在海平面高度"){
+        if (altitude_of_target=="0"){
             out<<"0\n";
         }else{
             out<<"-"+altitude_of_target<<"\n";
@@ -189,17 +228,24 @@ void optdeduction::gen_input_txt(QString solar_zenith_angle,QString solar_azimut
 
 void optdeduction::on_classify_clicked()
 {
+//    ui->srcimg->clear();
+    ui->tempimg->clear();
+    ui->outputimg->clear();
+    //数组初始化
+    appar.clear();
+    auto seed = QDateTime::currentDateTime().toMSecsSinceEpoch();
+    qsrand(seed);
+
+
     //参数读取
     //观测辐亮度计算参数
-    QString solar_zenith_angle = ui->solar_zenith_angle->currentText();//太阳天顶角
-    QString solar_azimuth = ui->solar_azimuth->currentText();//太阳方位角
-    QString satellite_zenith_angle = ui->satellite_zenith_angle->currentText();//卫星天顶角
-    QString satellite_aximuth = ui->satellite_aximuth->currentText();//卫星方位角
-    QString month = ui->month->currentText();//月
-    QString date = ui->date->currentText();//日
+    QString solar_zenith_angle = ui->solar_zenith_angle->text();//太阳天顶角
+    QString solar_azimuth = ui->solar_azimuth->text();//太阳方位角
+    QString satellite_zenith_angle = ui->satellite_zenith_angle->text();//卫星天顶角
+    QString satellite_aximuth = ui->satellite_aximuth->text();//卫星方位角
     int atmospheric_model = ui->atmospheric_model->currentIndex();//大气模式
     int type_o_aerosol = ui->type_o_aerosol->currentIndex();//气溶胶模式
-    QString altitude_target = ui->altitude_target->currentText();//目标高度
+    QString altitude_target = ui->altitude_target->text();//目标高度
     int spectral_conditions = ui->spectral_conditions->currentIndex();//光谱参数
     //反射率
     QString road = ui->road->text();
@@ -211,32 +257,32 @@ void optdeduction::on_classify_clicked()
     ref<<road<<forrest<<grass<<snow<<water<<sand;
 
     //辐射定标计算参数
-    QString Gain = ui->gain->currentText();
-    QString Bias = ui->bias->currentText();
+    QString Gain = ui->gain->text();
+    QString Bias = ui->bias->text();
     float Gain_ = Gain.toFloat();
     float Bias_ = Bias.toFloat();
     //分辨率转换参数
-    QString airres = ui->airres->currentText();
-    QString spaceres = ui->spaceres->currentText();
+    QString airres = ui->airres->text();
+    QString spaceres = ui->spaceres->text();
     float airres_ = airres.toFloat();
     float spaceres_ = spaceres.toFloat();
     ui->log->clear();
     ui->log->append("参数读取完毕");
+
     QApplication::processEvents();
     qDebug()<<"参数读取完毕";
 
     //生成input.txt
-    gen_input_txt(solar_zenith_angle,solar_azimuth,satellite_zenith_angle,satellite_aximuth,month\
-                  ,date,atmospheric_model,type_o_aerosol\
+    gen_input_txt(solar_zenith_angle,solar_azimuth,satellite_zenith_angle,satellite_aximuth\
+                  ,atmospheric_model,type_o_aerosol\
                   ,altitude_target,spectral_conditions);
-    ui->log->append("6s计算模型输入文件生成完毕");
-    QApplication::processEvents();
+
     //调用6S.exe
-    qDebug()<<"调用6S";
+//    qDebug()<<"调用6S";
     QProcess myProcess;
     myProcess.execute("./6s.sh");
-    qDebug()<<myProcess.error();
-    qDebug()<<"表观辐亮度计算完毕";
+//    qDebug()<<myProcess.error();
+//    qDebug()<<"表观辐亮度计算完毕";
     ui->log->append("表观辐亮度计算完毕");
     QApplication::processEvents();
     //读取各表观辐亮度
@@ -251,15 +297,18 @@ void optdeduction::on_classify_clicked()
         QString str(line);
         QStringList list = str.split("  ");
         appar.append(list[8]);
-        ui->log->append(phase.at(pha)+":"+list[8]);
-        QApplication::processEvents();
+        qDebug()<<phase.at(pha)+":"+list[8];
+
     }
+    get_DN(Gain_,Bias_);
 
     //输入图像路径
     QString path = ui->fileline->text();
     //获取图像名称
     QFileInfo fileinfo = QFileInfo(path);
     QString file_name = fileinfo.fileName();
+    QString file_suffix = fileinfo.suffix();
+
     //读取图像
     Mat src_image = cv::imread(path.toStdString());
     ui->log->append("读取输入图像");
@@ -296,12 +345,13 @@ void optdeduction::on_classify_clicked()
 
     output = torch::squeeze(output);
     output = torch::argmax(output,0);
-    ui->log->append("聚类模型推理完成");
+    ui->log->append("语义分割完成");
     QApplication::processEvents();
 
     //将聚类后的结果显示出来
     Mat output_seg = Mat::zeros(src_image.size(),CV_8UC3);
-    Mat output_deduc = Mat::zeros(src_image.size(),CV_8UC1);
+//    qDebug()<<src_image.size;
+    Mat output_deduc = Mat::zeros(Size(width,height),CV_8UC1);
 
 
     for (int i = 0;i<src_image.rows;i++)
@@ -316,11 +366,14 @@ void optdeduction::on_classify_clicked()
                 output_seg.at<Vec3b>(i,j)[1]=bgr.at(1).toInt();
                 output_seg.at<Vec3b>(i,j)[2]=bgr.at(0).toInt();
                 //表观反射率赋值
-                float L = select_appar(label);
+                int current_DN = select_DN(label);
                 //计算灰度值
-                int DN = get_DN(L,Gain_,Bias_);
+//                int DN = get_DN(L,Gain_,Bias_);
+//                get_DN(Gain_,Bias_);
                 //星载图像
-                output_deduc.at<uchar>(i,j)=DN;
+
+                output_deduc.at<uchar>(i,j)=current_DN+qrand()%20;
+//                output_deduc.at<unsigned short>(i,j)=(unsigned short)current_DN;
 
             }
         }
@@ -336,16 +389,26 @@ void optdeduction::on_classify_clicked()
         //resize分辨率转换
         int new_width = width*airres_/spaceres_;
         int new_height = height*airres_/spaceres_;
-        ui->log->append("分辨率转换完成");
-        QApplication::processEvents();
-        ui->log->append("可见光图像推演完成");
-        QApplication::processEvents();
+
 
         Size dsize = Size(new_width,new_height);
         Mat final;
-        cv::resize(output_deduc,final,dsize,0,0,INTER_LINEAR);
-        string finalpath = save_path+"/"+file_name.toStdString();
+        cv::resize(output_deduc,final,dsize,0,10,INTER_LINEAR);
+        ui->log->append("分辨率转换完成");
+        QApplication::processEvents();
+
+        QString save_name = ui->save_name->text();
+        std::string finalpath;
+        if (save_name.toStdString()==""){
+            finalpath = save_path+"/"+file_name.toStdString();
+        }else{
+            finalpath = save_path+"/"+save_name.toStdString()+"."+file_suffix.toStdString();
+        }
         imwrite(finalpath,final);
+//        imwrite(finalpath,output_deduc);
+        ui->log->append("可见光图像推演完成，图像保存至：");
+        ui->log->append(QString::fromStdString(finalpath));
+        QApplication::processEvents();
         QImage* out = new QImage;
         out -> load(QString::fromStdString(finalpath));
         ui->outputimg->setPixmap(QPixmap::fromImage(*out).scaled(250,250));
@@ -360,9 +423,41 @@ void optdeduction::on_save_clicked()
     ui->save_path_line->setText(path);
 }
 
+void optdeduction::initialize(){
+    ui->fileline->clear();
+    ui->solar_zenith_angle->setText("60");
+    ui->solar_azimuth->setText("180");
+    ui->satellite_zenith_angle->setText("60");
+    ui->satellite_aximuth->setText("0");
+    ui->atmospheric_model->setCurrentIndex(0);
+    ui->type_o_aerosol->setCurrentIndex(0);
+    ui->altitude_target->setText("0");
+    ui->spectral_conditions->setCurrentIndex(0);
+    ui->gain->setText("0.1887");
+    ui->bias->setText("0");
+    ui->road->setText("0.09");
+    ui->forrest->setText("0.32");
+    ui->grass->setText("0.25");
+    ui->snow->setText("0.83");
+    ui->water->setText("0.05");
+    ui->sand->setText("0.21");
+    ui->save_path_line->clear();
+    ui->save_name->clear();
+    ui->srcimg->clear();
+    ui->tempimg->clear();
+    ui->outputimg->clear();
+    ui->log->clear();
+
+}
 
 
 
 
 
+
+
+void optdeduction::on_initialize_clicked()
+{
+    initialize();
+}
 

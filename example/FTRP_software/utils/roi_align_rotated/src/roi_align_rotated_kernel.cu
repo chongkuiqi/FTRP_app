@@ -1,8 +1,8 @@
 #include <ATen/ATen.h>
 #include <THC/THCAtomics.cuh>
 
-#include <THC/THCGeneral.h>
-
+// #include <THC/THCGeneral.h>
+#include <iostream>
 #define CUDA_1D_KERNEL_LOOP(i, n)                            \
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; \
        i += blockDim.x * gridDim.x)
@@ -78,7 +78,11 @@ __global__ void ROIAlignRotatedForward(const int nthreads, const scalar_t *botto
     int n = index / pooled_width / pooled_height / channels;
 
     const scalar_t* offset_bottom_rois = bottom_rois + n * 6;
+    // printf("offset_bottom_data:%d\n", offset_bottom_rois);
     int roi_batch_ind = offset_bottom_rois[0];
+
+
+    
 
     // Do not using rounding; this implementation detail is critical
     scalar_t roi_center_w = offset_bottom_rois[1] * spatial_scale;
@@ -88,15 +92,20 @@ __global__ void ROIAlignRotatedForward(const int nthreads, const scalar_t *botto
     // scalar_t theta = offset_bottom_rois[5] * M_PI / 180.0;
     scalar_t theta = offset_bottom_rois[5];
 
+    // printf("(roi_width, spatial_scale):%f,%f\n", roi_width, spatial_scale);
+
     // Force malformed ROIs to be 1x1
     roi_width = max(roi_width, (scalar_t)1.);
     roi_height = max(roi_height, (scalar_t)1.);
     scalar_t bin_size_h = static_cast<scalar_t>(roi_height) / static_cast<scalar_t>(pooled_height);
     scalar_t bin_size_w = static_cast<scalar_t>(roi_width) / static_cast<scalar_t>(pooled_width);
 
+    // printf("(roi_width, spatial_scale):%f,%f\n", roi_width, spatial_scale);
+
     const scalar_t* offset_bottom_data =
         bottom_data + (roi_batch_ind * channels + c) * height * width;
-
+    
+    
     // We use roi_bin_grid to sample the grid and mimic integral
     int roi_bin_grid_h = (sample_num > 0)
         ? sample_num
@@ -114,6 +123,8 @@ __global__ void ROIAlignRotatedForward(const int nthreads, const scalar_t *botto
     // We do average (integral) pooling inside a bin
     const scalar_t count = roi_bin_grid_h * roi_bin_grid_w;  // e.g. = 4
 
+    // printf("(roi_start_w, bin_size_w, roi_bin_grid_w):%f,%f,%d\n", roi_start_w, bin_size_w, roi_bin_grid_w);
+
     scalar_t output_val = 0.;
     for (int iy = 0; iy < roi_bin_grid_h; iy++) {  // e.g., iy = 0, 1
         const scalar_t yy = roi_start_h + ph * bin_size_h +
@@ -130,6 +141,7 @@ __global__ void ROIAlignRotatedForward(const int nthreads, const scalar_t *botto
         scalar_t x = xx * cosscalar_theta - yy * sinscalar_theta + roi_center_w;
         scalar_t y = xx * sinscalar_theta + yy * cosscalar_theta + roi_center_h;
 
+        // printf("(x,y):%f,%f\n", x,y);
         scalar_t val = bilinear_interpolate<scalar_t>(
             offset_bottom_data, height, width, y, x);
         output_val += val;
@@ -160,7 +172,7 @@ int ROIAlignRotatedForwardLaucher(const at::Tensor features, const at::Tensor ro
                     sample_num, channels, height, width, pooled_height,
                     pooled_width, top_data);
         }));
-    THCudaCheck(cudaGetLastError());
+    // THCudaCheck(cudaGetLastError());
     return 1;
 }
 

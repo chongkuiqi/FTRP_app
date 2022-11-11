@@ -15,8 +15,9 @@
 
 #include <fstream>
 
-#include "nms_rotated.h"
-#include "nms.h"
+#include "nms_rotated_cpu.h"
+
+
 Detection::Detection(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Detection)
@@ -301,8 +302,8 @@ void Detection::detect()
 
     det_results results;
     results = NMS(scores_levels, bboxes_levels,
-                  max_before_nms=max_before_nms,
-                  score_thr=score_thr, iou_thr=iou_thr);
+                  max_before_nms,
+                  score_thr, iou_thr, max_before_nms);
 
 
     xywhtheta2points(results.boxes, this->contours);
@@ -626,7 +627,7 @@ void Detection::reset_imgpath_show()
 void Detection::reset_img_show()
 {
     // 设置label的大小
-    int h=512,w=512;
+    int h=500,w=500;
     ui->labelImage_opt->resize(w,h);
     ui->labelImage_IR->resize(w,h);
     ui->labelImage_SAR->resize(w,h);

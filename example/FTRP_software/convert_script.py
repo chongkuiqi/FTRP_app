@@ -1,5 +1,7 @@
 import torch
-from models.retinanet3 import RetinaNet as Model
+# from models.retinanet3 import RetinaNet as Model
+from models.retinanet3 import RetinaNet_extract as Model
+
 import cv2
 import numpy as np
 
@@ -17,8 +19,8 @@ def img_batch_normalize(img):
 
     return img
 
-device = torch.device("cpu")
-# device = torch.device("cuda:0")
+# device = torch.device("cpu")
+device = torch.device("cuda:0")
 img_path = "./vedai_1.png"
 
 
@@ -40,8 +42,8 @@ img = img.to(device)
 
 
 # print(model)
-weight_path = 'exp383.pt'
-# weight_path = 'exp361_no_align.pt'
+# weight_path = 'exp383.pt'
+weight_path = 'exp361_no_align.pt'
 model = torch.load(weight_path, map_location=device)['model']
 # model = Model()
 model.float()
@@ -54,7 +56,7 @@ with torch.no_grad():
     # traced_script_module = torch.jit.script(model, img)
 
 # save model
-save_name = weight_path.replace(".pt", "_script.pt")
+save_name = weight_path.replace(".pt", "_cuda_script.pt")
 traced_script_module.save(save_name)
 
 

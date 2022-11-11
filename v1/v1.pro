@@ -4,6 +4,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++14
 
+# 软件发布后可以双击运行
+QMAKE_LFLAGS += -no-pie
+
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
@@ -12,9 +15,10 @@ CONFIG += c++14
 SOURCES += \
     deduction.cpp \
     detection.cpp \
+    hyperspectral.cpp \
+    infdeduction.cpp \
     main.cpp \
     mainwin.cpp \
-    nms.cpp \
     nms_rotated_cpu.cpp \
     optdeduction.cpp \
     probability.cpp \
@@ -26,9 +30,10 @@ HEADERS += \
     box_iou_rotated_utils.h \
     deduction.h \
     detection.h \
+    hyperspectral.h \
+    infdeduction.h \
     mainwin.h \
-    nms.h \
-    nms_rotated.h \
+    nms_rotated_cpu.h \
     optdeduction.h \
     probability.h \
     roi_align_rotated_cpu.h \
@@ -38,6 +43,8 @@ HEADERS += \
 FORMS += \
     deduction.ui \
     detection.ui \
+    hyperspectral.ui \
+    infdeduction.ui \
     mainwin.ui \
     optdeduction.ui \
     probability.ui \
