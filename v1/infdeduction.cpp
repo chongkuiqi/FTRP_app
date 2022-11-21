@@ -9,6 +9,7 @@
 #include <opencv4/opencv2/core/core.hpp>
 #include <QStringList>
 #include <QLabel>
+#include <QMessageBox>
 float transmittance[3] = {0.8, 0.7, 0.8};
 infdeduction::infdeduction(QWidget *parent) :
     QMainWindow(parent),
@@ -77,25 +78,23 @@ void infdeduction::on_run_clicked()
     ui->log->append("分辨率转换完成");
     QApplication::processEvents();
     cv::Size dsize = cv::Size(new_width,new_height);
-    cv::Mat final;
+//    cv::Mat final;
     cv::resize(image_output,final,dsize,0,10,cv::INTER_LINEAR);
-    std::string finalpath;
-    std::string save_path = save_dir.toStdString();
-    qDebug()<<save_name;
-    if (save_name==""){
-        finalpath = save_path+"/"+file_name.toStdString();
-        qDebug()<<QString::fromStdString(finalpath);
-    }else{
-        finalpath = save_path+"/"+save_name.toStdString()+"."+file_suffix.toStdString();
-        qDebug()<<QString::fromStdString(finalpath);
-    }
-    cv::imwrite(finalpath,final);
+
+
+
     //显示输出图像
-    QImage* outimg = new QImage;
-    outimg -> load(QString::fromStdString(finalpath));
-    ui->out_img->setPixmap(QPixmap::fromImage(*outimg).scaled(300,300));
-    ui->log->append("红外图像推演完成，图像保存至：");
-    ui->log->append(QString::fromStdString(finalpath));
+    QImage img;
+//    cv::normalize(first_image,normalize_mat,0,(int)255*select_transmitance(current_spec),cv::NORM_MINMAX,-1);
+    image_output.convertTo(image_output,CV_8U);
+    const uchar *pSrc = (const uchar*)image_output.data;
+    img=QImage(pSrc,image_output.cols,image_output.rows,image_output.step,QImage::Format_Grayscale8);
+//    QImage* outimg = new QImage;
+//    outimg -> load(QString::fromStdString(finalpath));
+    ui->out_img->setPixmap(QPixmap::fromImage(img).scaled(300,300));
+    ui->log->append("红外图像推演完成");
+    ui->save->setEnabled(true);
+//    ui->log->append(QString::fromStdString(finalpath));
 
 
 
@@ -110,6 +109,7 @@ void infdeduction::initialize(){
     ui->save_path_line->clear();
     ui->src_img->clear();
     ui->out_img->clear();
+    ui->save->setEnabled(false);
 }
 void infdeduction::on_initialize_clicked()
 {
@@ -121,5 +121,38 @@ void infdeduction::on_exit_clicked()
 {
     initialize();
     emit infexit();
+}
+
+
+void infdeduction::on_save_clicked()
+{
+    QString path = ui->fileline->text();
+    QString save_dir = ui->save_path_line->text();
+    QString save_name = ui->save_name->text();
+    QFileInfo fileinfo = QFileInfo(path);
+    QString file_name = fileinfo.fileName();
+    QString file_suffix = fileinfo.suffix();
+    std::string finalpath;
+    std::string save_path = save_dir.toStdString();
+    qDebug()<<save_name;
+    if (save_dir==""){
+        QMessageBox::warning(this,tr("错误提示"),
+                             tr("请选择保存路径"),
+                             QMessageBox::Ok,
+                             QMessageBox::Ok
+                             );
+        ui->log->append("请选择保存路径");
+        return ;
+    }
+    if (save_name==""){
+        finalpath = save_path+"/"+file_name.toStdString();
+        qDebug()<<QString::fromStdString(finalpath);
+    }else{
+        finalpath = save_path+"/"+save_name.toStdString()+"."+file_suffix.toStdString();
+        qDebug()<<QString::fromStdString(finalpath);
+    }
+    cv::imwrite(finalpath,final);
+    ui->log->append("图像保存至：");
+    ui->log->append(QString::fromStdString(finalpath));
 }
 

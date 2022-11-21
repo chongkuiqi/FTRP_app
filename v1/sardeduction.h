@@ -35,8 +35,11 @@ private slots:
     void on_bu_initialize_clicked();
 
 
+    void on_save_2_clicked();
+
 private:
     Ui::SARdeduction *ui;
+    cv::Mat image_output;
     void initialize();
 };
 

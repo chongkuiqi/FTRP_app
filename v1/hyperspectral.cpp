@@ -10,6 +10,7 @@
 #include <opencv4/opencv2/highgui/highgui.hpp>
 #include <opencv4/opencv2/imgproc/imgproc.hpp>
 #include <opencv4/opencv2/core/core.hpp>
+#include <QMessageBox>
 using namespace std;
 float transmitance[12]={0.7,0.95,0.8,0.6,0.95,0.9,0.8,0.65,0.8,0.4,0.6,1};//大气窗口
 //0.3~0.4 0.7
@@ -106,9 +107,13 @@ void hyperspectral::on_preview_clicked()
    //2Dto3D
 //   vector<cv::Mat> image_vec;
    image_vec.clear();
-   int height=ui->height->text().toInt();
-   int width =ui->width->text().toInt();
    int num_spec = ui->num_spec->text().toInt();
+   int height = hyper_matrix.size();
+   int width = hyper_matrix[0].size()/num_spec;
+   cout<<height<<width<<endl;
+//   int height=ui->height->text().toInt();
+//   int width =ui->width->text().toInt();
+
 //   cout<<hyper_matrix[0][0]<<endl;
    for (int ch=0; ch<num_spec;ch++ ) {
        cv::Mat image=cv::Mat(cv::Size(width,height),CV_32FC1);
@@ -199,21 +204,24 @@ void hyperspectral::on_run_clicked()
     out_image_vec.clear();
     float min = ui->min->text().toFloat();
     float max = ui->max->text().toFloat();
-    int num_spec = ui->num_spec->text().toFloat();
+    num_spec = ui->num_spec->text().toFloat();
     float step = (max-min)/num_spec;
     float current_spec = min;
     float res = ui->res->text().toFloat();
     float space_res = ui->space_res->text().toFloat();
-    int width = ui->width->text().toInt();
-    int height = ui->height->text().toInt();
-    int new_width = width*res/space_res;
-    int new_height = height*res/space_res;
 
-    QFileInfo fileinfo = QFileInfo(ui->fileline->text());
-    QString file_name = fileinfo.fileName();
-    QString file_suffix = fileinfo.suffix();
-    string save_dir = ui->save_path_line->text().toStdString();
-    string save_name = ui->save_name->text().toStdString();
+//    int width = ui->width->text().toInt();
+//    int height = ui->height->text().toInt();
+    int height = hyper_matrix.size();
+    int width = hyper_matrix[0].size()/num_spec;
+    new_width = width*res/space_res;
+    new_height = height*res/space_res;
+
+//    QFileInfo fileinfo = QFileInfo(ui->fileline->text());
+//    QString file_name = fileinfo.fileName();
+//    QString file_suffix = fileinfo.suffix();
+//    string save_dir = ui->save_path_line->text().toStdString();
+//    string save_name = ui->save_name->text().toStdString();
 
     ui->log->append("参数读取完毕");
     QApplication::processEvents();
@@ -246,7 +254,114 @@ void hyperspectral::on_run_clicked()
     ui->outimg->setPixmap(QPixmap::fromImage(img).scaled(300,300));
     ui->log->append("高光谱图像推演完成，请拖动滑钮进行预览");
     QApplication::processEvents();
+    ui->save->setEnabled(true);
     //保存
+//    string final_path;
+//    if (save_name==""){
+//        final_path=save_dir+"/"+file_name.toStdString();
+
+//    }else{
+//        final_path=save_dir+"/"+save_name+"."+file_suffix.toStdString();
+//    }
+//    ofstream outFile(final_path,ios::out);
+//    if(!outFile){
+//        cout<<"打开文件失败"<<endl;
+//    }
+//    cout<<new_height<<new_width<<endl;
+//    for (int r =0 ;r<new_height ;r++ ) {
+//        for(int ch = 0;ch<num_spec;ch++){
+//            for(int c = 0;c<new_width;c++){
+//                outFile<<out_image_vec[ch].at<float>(r,c)<<",";
+//            }
+//        }
+//        outFile<<endl;
+//    }
+//    cout<<"写入完成"<<endl;
+//    ui->log->append("图像数据保存至：");
+//    ui->log->append(QString::fromStdString(final_path));
+//    QApplication::processEvents();
+
+}
+
+
+
+
+
+void hyperspectral::on_browser_2_clicked()
+{
+    QString path = QFileDialog::getExistingDirectory(this,"open","../");
+    ui->save_path_line->setText(path);
+}
+
+void hyperspectral::initialize(){
+    ui->log->clear();
+    ui->fileline->clear();
+//    ui->width->setText("340");
+//    ui->height->setText("610");
+    ui->min->setText("0.4");
+    ui->max->setText("0.86");
+    ui->num_spec->setText("103");
+    ui->res->setText("1.3");
+    ui->space_res->setText("2");
+    ui->save_path_line->clear();
+    ui->save_name->clear();
+    ui->srcSlider->setValue(1);
+    ui->srcSlider->setEnabled(false);
+    ui->srcimg->clear();
+    ui->outimg->clear();
+    ui->current->setText("当前波段序号");
+    ui->total->setText("总波段数");
+    out_image_vec.clear();
+    image_vec.clear();
+    hyper_matrix.clear();
+    ui->run->setEnabled(false);
+    ui->save->setEnabled(false);
+}
+
+
+void hyperspectral::on_initialize_clicked()
+{
+    initialize();
+}
+
+
+void hyperspectral::on_exit_clicked()
+{
+    initialize();
+    emit hypexit();
+}
+
+
+void hyperspectral::on_fileline_textChanged(const QString &arg1)
+{
+    ui->run->setEnabled(false);
+    ui->save->setEnabled(false);
+}
+
+
+void hyperspectral::on_num_spec_textChanged(const QString &arg1)
+{
+    ui->run->setEnabled(false);
+    ui->save->setEnabled(false);
+}
+
+
+void hyperspectral::on_save_clicked()
+{
+    QFileInfo fileinfo = QFileInfo(ui->fileline->text());
+    QString file_name = fileinfo.fileName();
+    QString file_suffix = fileinfo.suffix();
+    string save_dir = ui->save_path_line->text().toStdString();
+    string save_name = ui->save_name->text().toStdString();
+    if (save_dir==""){
+        QMessageBox::warning(this,tr("错误提示"),
+                             tr("请选择保存路径"),
+                             QMessageBox::Ok,
+                             QMessageBox::Ok
+                             );
+        ui->log->append("请选择保存路径");
+        return ;
+    }
     string final_path;
     if (save_name==""){
         final_path=save_dir+"/"+file_name.toStdString();
@@ -271,77 +386,5 @@ void hyperspectral::on_run_clicked()
     ui->log->append("图像数据保存至：");
     ui->log->append(QString::fromStdString(final_path));
     QApplication::processEvents();
-
-}
-
-
-
-
-
-void hyperspectral::on_browser_2_clicked()
-{
-    QString path = QFileDialog::getExistingDirectory(this,"open","../");
-    ui->save_path_line->setText(path);
-}
-
-void hyperspectral::initialize(){
-    ui->log->clear();
-    ui->fileline->clear();
-    ui->width->setText("340");
-    ui->height->setText("610");
-    ui->min->setText("0.4");
-    ui->max->setText("0.86");
-    ui->num_spec->setText("103");
-    ui->res->setText("1.3");
-    ui->space_res->setText("2");
-    ui->save_path_line->clear();
-    ui->save_name->clear();
-    ui->srcSlider->setValue(1);
-    ui->srcSlider->setEnabled(false);
-    ui->srcimg->clear();
-    ui->outimg->clear();
-    ui->current->setText("当前波段");
-    ui->total->setText("总波段数");
-    out_image_vec.clear();
-    image_vec.clear();
-    hyper_matrix.clear();
-    ui->run->setEnabled(false);
-}
-
-
-void hyperspectral::on_initialize_clicked()
-{
-    initialize();
-}
-
-
-void hyperspectral::on_exit_clicked()
-{
-    initialize();
-    emit hypexit();
-}
-
-
-void hyperspectral::on_fileline_textChanged(const QString &arg1)
-{
-    ui->run->setEnabled(false);
-}
-
-
-void hyperspectral::on_width_textChanged(const QString &arg1)
-{
-    ui->run->setEnabled(false);
-}
-
-
-void hyperspectral::on_height_textChanged(const QString &arg1)
-{
-    ui->run->setEnabled(false);
-}
-
-
-void hyperspectral::on_num_spec_textChanged(const QString &arg1)
-{
-    ui->run->setEnabled(false);
 }
 

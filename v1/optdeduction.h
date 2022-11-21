@@ -4,13 +4,14 @@
 #include <QMainWindow>
 #include <QFileDialog>
 
-//#include <opencv2/highgui/highgui.hpp>
-//#include <opencv2/imgproc/imgproc.hpp>
-//#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/opencv.hpp>
 #include <iostream>
 #include <cmath>
 #include <QString>
-#define IMG_SIZE 1024
+#define IMG_WIDTH 1024
+#define IMG_HEIGHT 1024
 #define IMG_CHN 3
 namespace Ui {
 class optdeduction;
@@ -42,6 +43,16 @@ private slots:
 
     void on_initialize_clicked();
 
+    void on_solar_zenith_angle_textChanged(const QString &arg1);
+
+    void on_solar_azimuth_textChanged(const QString &arg1);
+
+    void on_satellite_zenith_angle_textChanged(const QString &arg1);
+
+    void on_satellite_aximuth_textChanged(const QString &arg1);
+
+    void on_save_2_clicked();
+
 private:
     void gen_input_txt(QString solar_zenith_angle,QString solar_azimuth,QString satellite_zenith_angle,QString satellite_aximuth\
                        ,int atmospheric_model,int type_o_aerosol\
@@ -54,9 +65,11 @@ private:
     QStringList phase;
     QStringList ref;
     QStringList appar;
-    QStringList bgr;
+    QStringList rgb;
     int DN[7];
     int DN_norm[7];
+    cv::Mat final;
+    cv::Mat output_seg;
 
     Ui::optdeduction *ui;
 

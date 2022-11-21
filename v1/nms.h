@@ -1,5 +1,5 @@
-#ifndef NMS_ROTATED_CPU_H
-#define NMS_ROTATED_CPU_H
+#ifndef NMS_H
+#define NMS_H
 
 #pragma once
 //#include <torch/extension.h>

@@ -33,8 +33,11 @@ private slots:
 
     void on_exit_clicked();
 
+    void on_save_clicked();
+
 private:
     Ui::infdeduction *ui;
+    cv::Mat final;
 };
 
 #endif // INFDEDUCTION_H

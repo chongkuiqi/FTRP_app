@@ -10,7 +10,7 @@
 #include <QStringList>
 #include <QLabel>
 #include <vector>
-
+#include <QMessageBox>
 //#include <string>
 //using namespace cv;
 //using std::string;
@@ -21,10 +21,6 @@ SARdeduction::SARdeduction(QWidget *parent) :
 {
     ui->setupUi(this);
     srand((int)time(0));
-
-
-
-
 }
 
 SARdeduction::~SARdeduction()
@@ -144,11 +140,6 @@ void SARdeduction::on_run_clicked()
     double Bd = ui->Bd->text().toDouble();
     //获取图像名称
     QString path = ui->fileline->text();
-    QFileInfo fileinfo = QFileInfo(path);
-    QString file_name = fileinfo.fileName();
-    QString file_suffix = fileinfo.suffix();
-    QString save_folder = ui->save_path_line->text();
-    QString save_name = ui->save_name_line->text();
     ui->log->clear();
     ui->log->append("参数读取完毕");
 
@@ -157,8 +148,6 @@ void SARdeduction::on_run_clicked()
     cv::Mat image = cv::imread(path.toStdString());
     cv::Mat image_gray;
     cvtColor(image,image_gray,cv::COLOR_BGR2GRAY);
-//    cv::imshow("image_gray",image_gray);
-//    float b = (spe_azimuth*spe_range)/(azimuth*range);
     float BA = Azimuth/spe_Azimuth;
     float BR = Range/spe_Range;
     //B:原机载SAR发射线性调频信号的带宽
@@ -254,29 +243,19 @@ void SARdeduction::on_run_clicked()
     result=result(cv::Rect(0,0,image_gray.cols,image_gray.rows)).clone();
     ui->log->append("空间分辨率转换完成");
     //添加噪声
-    cv::Mat image_output;
+//    cv::Mat image_output;
     Add_RayleighNoise(result,image_output,0,30,1);
     ui->log->append("噪声特性处理完成");
-//    Add_RayleighNoise(image_tran,image_output,0,10,1);
-    //保存
-    std::string finalpath;
-    std::string save_path = save_folder.toStdString();
-    qDebug()<<save_name;
-    if (save_name==""){
-        finalpath = save_path+"/"+file_name.toStdString();
-        qDebug()<<QString::fromStdString(finalpath);
-    }else{
-        finalpath = save_path+"/"+save_name.toStdString()+"."+file_suffix.toStdString();
-        qDebug()<<QString::fromStdString(finalpath);
-    }
-    cv::imwrite(finalpath,image_output);
-//    cv::imwrite(finalpath,image_tran);
+    ui->log->append("SAR图像推演完成");
     //显示输出图像
-    QImage* outimg = new QImage;
-    outimg -> load(QString::fromStdString(finalpath));
-    ui->output_img->setPixmap(QPixmap::fromImage(*outimg).scaled(300,300));
-    ui->log->append("SAR图像推演完成，图像保存至：");
-    ui->log->append(QString::fromStdString(finalpath));
+    QImage img;
+//    cv::normalize(first_image,normalize_mat,0,(int)255*select_transmitance(current_spec),cv::NORM_MINMAX,-1);
+    image_output.convertTo(image_output,CV_8U);
+    const uchar *pSrc = (const uchar*)image_output.data;
+    img=QImage(pSrc,image_output.cols,image_output.rows,image_output.step,QImage::Format_Grayscale8);
+    ui->output_img->setPixmap(QPixmap::fromImage(img).scaled(300,300));
+    ui->save_2->setEnabled(true);
+
 
 }
 
@@ -299,9 +278,43 @@ void SARdeduction::initialize(){
     ui->log->clear();
     ui->src_image->clear();
     ui->output_img->clear();
+    ui->save_2->setEnabled(false);
 }
 void SARdeduction::on_bu_initialize_clicked()
 {
     initialize();
+}
+
+
+void SARdeduction::on_save_2_clicked()
+{
+    QString path = ui->fileline->text();
+    QFileInfo fileinfo = QFileInfo(path);
+    QString file_name = fileinfo.fileName();
+    QString file_suffix = fileinfo.suffix();
+    QString save_folder = ui->save_path_line->text();
+    QString save_name = ui->save_name_line->text();
+    std::string finalpath;
+    std::string save_path = save_folder.toStdString();
+    qDebug()<<save_name;
+    if (save_folder==""){
+        QMessageBox::warning(this,tr("错误提示"),
+                             tr("请选择保存路径"),
+                             QMessageBox::Ok,
+                             QMessageBox::Ok
+                             );
+        ui->log->append("请选择保存路径");
+        return ;
+    }
+    if (save_name==""){
+        finalpath = save_path+"/"+file_name.toStdString();
+        qDebug()<<QString::fromStdString(finalpath);
+    }else{
+        finalpath = save_path+"/"+save_name.toStdString()+"."+file_suffix.toStdString();
+        qDebug()<<QString::fromStdString(finalpath);
+    }
+        cv::imwrite(finalpath,image_output);
+        ui->log->append("图像保存至：");
+        ui->log->append(QString::fromStdString(finalpath));
 }
 

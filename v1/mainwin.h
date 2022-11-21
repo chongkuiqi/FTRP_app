@@ -29,6 +29,8 @@ public:
 
     void reset_detec();
     void reset_proba();
+    void deducshow();
+    void deduchide();
 
 private slots:
     void on_sar_deduc_clicked();

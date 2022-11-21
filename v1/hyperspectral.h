@@ -43,11 +43,11 @@ private slots:
 
     void on_fileline_textChanged(const QString &arg1);
 
-    void on_width_textChanged(const QString &arg1);
 
-    void on_height_textChanged(const QString &arg1);
 
     void on_num_spec_textChanged(const QString &arg1);
+
+    void on_save_clicked();
 
 private:
     Ui::hyperspectral *ui;
@@ -55,6 +55,9 @@ private:
     vector<vector<double>> hyper_matrix;
     vector<cv::Mat> image_vec;
     vector<cv::Mat> out_image_vec;
+    int new_width ;
+    int new_height ;
+    int num_spec;
     void initialize();
 };
 

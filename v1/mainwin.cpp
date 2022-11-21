@@ -7,7 +7,7 @@ MainWin::MainWin(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->frame->hide();
+    deduchide();
     this->setWindowTitle("被识别概率计算软件");
 
     connect(ui->bu_exit, &QPushButton::clicked, this, &QMainWindow::close);
@@ -46,17 +46,26 @@ void MainWin::reset_proba()
 }
 
 
-
+void MainWin::deducshow(){
+    ui->sar_deduc->show();
+    ui->opt_deduc->show();
+    ui->inf_deduc->show();
+    ui->hyp_deduc->show();
+}
+void MainWin::deduchide(){
+    ui->sar_deduc->hide();
+    ui->opt_deduc->hide();
+    ui->inf_deduc->hide();
+    ui->hyp_deduc->hide();
+}
 
 void MainWin::show_deduc()
 {
     cnt=cnt+1;
     if (cnt%2==0){
-        ui->frame->hide();
-        ui->verticalSpacer_3->changeSize(20,30,QSizePolicy::Fixed,QSizePolicy::Fixed);
+        deduchide();
     }else{
-        ui->frame->show();
-        ui->verticalSpacer_3->changeSize(0,0,QSizePolicy::Fixed,QSizePolicy::Fixed);
+        deducshow();
     }
 
 
@@ -114,32 +123,28 @@ void MainWin::dealsar()
 {
     sardeduction.hide();
 //    show();
-    ui->frame->hide();
-    ui->verticalSpacer_3->changeSize(20,30,QSizePolicy::Fixed,QSizePolicy::Fixed);
+    deduchide();
     cnt=0;
 }
 void MainWin::dealopt()
 {
     Optdeduction.hide();
 //    show();
-    ui->frame->hide();
-    ui->verticalSpacer_3->changeSize(20,30,QSizePolicy::Fixed,QSizePolicy::Fixed);
+    deduchide();
     cnt=0;
 }
 void MainWin::dealinf()
 {
     Infdeduction.hide();
 //    show();
-    ui->frame->hide();
-    ui->verticalSpacer_3->changeSize(20,30,QSizePolicy::Fixed,QSizePolicy::Fixed);
+    deduchide();
     cnt=0;
 }
 void MainWin::dealhyp()
 {
     Hyperspectral.hide();
 //    show();
-    ui->frame->hide();
-    ui->verticalSpacer_3->changeSize(20,30,QSizePolicy::Fixed,QSizePolicy::Fixed);
+    deduchide();
     cnt=0;
 }
 

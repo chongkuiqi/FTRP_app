@@ -60,6 +60,12 @@ public:
     void reset_bu_groups();
     void reset_config_params();
 
+    //路径显示与隐藏
+    void widget_ss_show(std::string phase);
+    void widget_ss_hide(std::string phase);
+    void widget_ms_show(std::string phase);
+    void widget_ms_hide(std::string phase);
+
 
 private:
     Ui::Detection *ui;

@@ -1,6 +1,6 @@
 // Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 #include "box_iou_rotated_utils.h"
-#include "nms_rotated_cpu.h"
+#include "nms.h"
 
 
 template <typename scalar_t>

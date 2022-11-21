@@ -61,9 +61,6 @@ enum RoisType {FG_BG=0, FG_FG, FG_FG2};
 // 相似度加权方法，包括特征加权和频谱加权，有自定义法和熵权法两种
 enum SimType {CUSTOM=0, ENTROPY};
 
-// 识别概率映射方法。有函数拟合法和心理学决策原理法两种
-enum MapType {FUN_FIT=0, PSYCHOLOGY};
-
 
 namespace Ui {
 class Probability;
@@ -77,7 +74,13 @@ public:
     explicit Probability(QWidget *parent = nullptr);
     ~Probability();
 
-
+    //路径框的显示与隐藏
+    void widget_opt_hide();
+    void widget_opt_show();
+    void widget_IR_hide();
+    void widget_IR_show();
+    void widget_SAR_hide();
+    void widget_SAR_show();
 
     void browse_img(SpectrumType img_type, bool is_img_1);
     void browse_img_opt();
@@ -131,9 +134,9 @@ public:
 
     // 特征相似度计算和加权
     void on_bu_group_fe_weights(QAbstractButton *button);
-    void reset_weights_fe_show();
+    void reset_weights_fe();
     void on_bu_group_sp_weights(QAbstractButton *button);
-    void reset_weights_sp_show();
+    void reset_weights_sp();
     void reset_sim_weights();
 
     void cal_similarity();
@@ -141,8 +144,6 @@ public:
 
 
     // 识别概率计算
-    void on_bu_group_map(QAbstractButton *button);
-    void reset_map();
     void cal_probability();
 
 
@@ -183,6 +184,8 @@ private:
     std::vector<std::vector<cv::Point>> contours_2;
     std::vector<cv::Point> contour_1;
     std::vector<cv::Point> contour_2;
+    RBox rbox_1;
+    RBox rbox_2;
 
 
 
@@ -211,8 +214,6 @@ private:
 
     // 映射方法选择按钮组
     QButtonGroup bu_group_map;
-    enum MapType map_type;
-
 
 
 };

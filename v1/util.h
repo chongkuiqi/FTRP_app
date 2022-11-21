@@ -50,10 +50,13 @@ bool LoadImage(std::string file_name, cv::Mat &img);
 
 void points2rbox(const std::vector<cv::Point> & contour, RBox &rbox);
 void rbox2points(std::vector<cv::Point> & contour, const RBox &rbox);
+void rbox2xywhtheta(const RBox &rbox, at::Tensor &rbox_tensor);
+
 
 //void points2rbox(const std::vector<cv::Point> & contour, cv::RotatedRect &rbox);
 //void rbox2points(std::vector<cv::Point> & contour, const cv::RotatedRect &rbox);
 void points2xywhtheta(const std::vector<cv::Point> & contour, at::Tensor &rbox);
+
 void xywhtheta2points(std::vector<cv::Point> & contour, const at::Tensor &rbox);
 void xywhtheta2points(const at::Tensor &boxes, std::vector<std::vector<cv::Point>> &contours);
 
@@ -66,6 +69,14 @@ QImage MatToImage(const cv::Mat &m);  //Mat转Image
 QPixmap MatToPixmap(const cv::Mat &m);
 cv::Mat ImageToMat(const QImage &img,bool inCloneImageData);  //Image转Mat
 
+
+void draw_rboxes(const cv::Mat &img, cv::Mat &img_result, const std::vector<std::vector<cv::Point>> &contours,
+                 int contoursIds=-1, cv::Scalar color = cv::Scalar(0,0,255), int thickness=3);
+
+int get_best_point_for_print(const std::vector<cv::Point> &contour);
+
+void draw_rboxes_ids(const cv::Mat &img, cv::Mat &img_result, const std::vector<std::vector<cv::Point>> &contours,
+                     cv::Scalar color = cv::Scalar(0,0,255), int thickness=3);
 
 
 #endif // UTIL_H

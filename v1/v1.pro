@@ -19,7 +19,7 @@ SOURCES += \
     infdeduction.cpp \
     main.cpp \
     mainwin.cpp \
-    nms_rotated_cpu.cpp \
+    nms.cpp \
     optdeduction.cpp \
     probability.cpp \
     roi_align_rotated_cpu.cpp \
@@ -33,7 +33,7 @@ HEADERS += \
     hyperspectral.h \
     infdeduction.h \
     mainwin.h \
-    nms_rotated_cpu.h \
+    nms.h \
     optdeduction.h \
     probability.h \
     roi_align_rotated_cpu.h \

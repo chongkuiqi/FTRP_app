@@ -201,6 +201,23 @@ void rbox2points(std::vector<cv::Point> & contour, const RBox &rbox)
 
 }
 
+void rbox2xywhtheta(const RBox &rbox, at::Tensor &rbox_tensor)
+{
+    cv::Point2f center = rbox.center;
+    float x = center.x;
+    float y = center.y;
+    float w = rbox.size.width;
+    float h = rbox.size.height;
+
+    // 单位是角度
+    float angle = rbox.angle;
+    // 转化为弧度
+    float theta = angle * M_PI / 180;
+
+    rbox_tensor = torch::tensor({x,y,w,h,theta});
+
+}
+
 void points2xywhtheta(const std::vector<cv::Point> & contour, at::Tensor &rbox)
 {
     RBox rrbox;
@@ -220,6 +237,7 @@ void points2xywhtheta(const std::vector<cv::Point> & contour, at::Tensor &rbox)
     rbox = torch::tensor({x,y,w,h,theta});
 
 }
+
 
 void xywhtheta2points(std::vector<cv::Point> & contour, const at::Tensor &rbox)
 {
@@ -520,4 +538,68 @@ cv::Mat ImageToMat(const QImage &img,bool inCloneImageData)  //Image转Mat
 //    }
 
 //}
+
+//void draw_rboxes(const cv::Mat &img, cv::Mat &img_result, const std::vector<std::vector<cv::Point>> &contours,
+//                 int contoursIds=-1, cv::Scalar color = cv::Scalar(0,0,255), int thickness=3)
+void draw_rboxes(const cv::Mat &img, cv::Mat &img_result, const std::vector<std::vector<cv::Point>> &contours,
+                 int contoursIds, cv::Scalar color, int thickness)
+{
+    img_result = img.clone();
+    // 画前景区域的框
+    cv::drawContours(img_result, contours, contoursIds, color, thickness);
+}
+
+int get_best_point_for_print(const std::vector<cv::Point> &contour)
+{
+    float x[4], y[4];
+    float y_min=contour[0].y;
+    int id = 0;
+    for (int i=0; i<4; i++)
+    {
+        x[i] = contour[i].x;
+        y[i] = contour[i].y;
+
+        if (y[i] < y_min)
+        {
+            y_min = y[i];
+            id = i;
+        }
+    }
+
+    return id;
+
+}
+//void draw_rboxes_ids(const cv::Mat &img, cv::Mat &img_result, const std::vector<std::vector<cv::Point>> &contours,
+//                     cv::Scalar color = cv::Scalar(0,0,255), int thickness=3)
+void draw_rboxes_ids(const cv::Mat &img, cv::Mat &img_result, const std::vector<std::vector<cv::Point>> &contours,
+                     cv::Scalar color, int thickness)
+{
+
+    img_result = img.clone();
+
+    int num_boxes = contours.size();
+    for (int id=0; id < num_boxes; id++)
+    {
+        // 画一个框
+        color = cv::Scalar(0,0,255); // 编号为红色
+        cv::drawContours(img_result, contours, id, color, thickness);
+
+
+//        putText( InputOutputArray img, const String& text, Point org,
+//                                 int fontFace, double fontScale, Scalar color,
+//                                 int thickness = 1, int lineType = LINE_8,
+//                                 bool bottomLeftOrigin = false )
+        // 画出boxes的编号
+        std::string box_id = std::to_string(id);
+
+        // 找出四个角点中位置最合适的。这里选择右上角点
+        int point_id = get_best_point_for_print(contours[id]);
+        cv::Point point = contours[id][point_id];
+        int fontFace = cv::FONT_HERSHEY_COMPLEX;        // 字体类型
+        double fontScale=2.0;    // 字体大小
+        color = cv::Scalar(0,255,255); // 编号为绿色
+        cv::putText(img_result, box_id, point, fontFace, fontScale, color, thickness);
+    }
+
+}
 

@@ -16,6 +16,7 @@
 #include <QFile>
 #include <algorithm>
 #include <QDateTime>
+#include <QMessageBox>
 
 //#include <dlfcn.h>
 //#include <stdio.h>
@@ -41,6 +42,7 @@ optdeduction::optdeduction(QWidget *parent) :
     ui->label_sand->setStyleSheet("QLabel{background-color:rgb(159,129,183);}");
 //    ui->label_water->setStyleSheet("QLabel{background-color:rgb(0,0,255);}");
     ui->label_water->setStyleSheet("QLabel{background-color:rgb(135,206,255);}");
+
 
 
 }
@@ -88,6 +90,7 @@ int optdeduction::select_DN(int label)
             return DN_norm[id];
         case 3:
             id = phase.indexOf("water");//水
+//            id = phase.indexOf("grass");//草地
 //            return appar.at(id).toFloat();
             return DN_norm[id];
         case 4:
@@ -101,6 +104,7 @@ int optdeduction::select_DN(int label)
 
         case 6:
             id = phase.indexOf("grass");//草地
+//            id = phase.indexOf("water");//水
 //            return appar.at(id).toFloat();
             return DN_norm[id];
 
@@ -111,26 +115,29 @@ int optdeduction::select_DN(int label)
 
 void optdeduction::label2rgb(int label)
 {
-    bgr.clear();
+    rgb.clear();
     switch(label)
     {
         case 0:
 //            rgb <<"255"<<"255"<<"255";
-            bgr <<"159"<<"129"<<"183";//背景->荒地
+            rgb <<"159"<<"129"<<"183";//背景->荒地
         case 1:
 //            rgb <<"255"<<"0"<<"0";//
-            bgr <<"159"<<"129"<<"183";//建筑->荒地
+            rgb <<"159"<<"129"<<"183";//建筑->荒地
         case 2:
-            bgr <<"255"<<"255"<<"0";//公路
+            rgb <<"255"<<"255"<<"0";//公路
         case 3:
 //            bgr <<"0"<<"0"<<"255";//水
-            bgr <<"130"<<"206"<<"255";//水
+            rgb <<"130"<<"206"<<"255";//水
+//            rgb <<"255"<<"206"<<"130";//水
+
         case 4:
-            bgr <<"159"<<"129"<<"183";//荒地
+            rgb <<"159"<<"129"<<"183";//荒地
         case 5:
-            bgr <<"0"<<"255"<<"0";//森林
+            rgb <<"0"<<"255"<<"0";//森林
         case 6:
-            bgr <<"255"<<"195"<<"128";//草地
+            rgb <<"255"<<"195"<<"128";//草地
+//            rgb <<"128"<<"195"<<"255";//草地
 
     }
 
@@ -278,11 +285,9 @@ void optdeduction::on_classify_clicked()
                   ,altitude_target,spectral_conditions);
 
     //调用6S.exe
-//    qDebug()<<"调用6S";
+
     QProcess myProcess;
     myProcess.execute("./6s.sh");
-//    qDebug()<<myProcess.error();
-//    qDebug()<<"表观辐亮度计算完毕";
     ui->log->append("表观辐亮度计算完毕");
     QApplication::processEvents();
     //读取各表观辐亮度
@@ -315,6 +320,9 @@ void optdeduction::on_classify_clicked()
     QApplication::processEvents();
     int width = src_image.cols;
     int height = src_image.rows;
+    //图像缩放至1024*1024
+    cv::resize(src_image,src_image,Size(IMG_WIDTH,IMG_HEIGHT));
+
 
 
 //    语义分割
@@ -328,7 +336,7 @@ void optdeduction::on_classify_clicked()
     src_image.convertTo(src_image, CV_32FC3);
 
     input_tensor = torch::from_blob(
-      src_image.data, {1, IMG_SIZE, IMG_SIZE, IMG_CHN}).toType(torch::kFloat32);
+      src_image.data, {1, IMG_WIDTH, IMG_HEIGHT, IMG_CHN}).toType(torch::kFloat32);
     input_tensor = input_tensor.permute({0, 3, 1, 2});
 
     input_tensor[0][0] = input_tensor[0][0].div(255).sub_(normalize_mean[0]).div_(normalize_std[0]);
@@ -349,42 +357,38 @@ void optdeduction::on_classify_clicked()
     QApplication::processEvents();
 
     //将聚类后的结果显示出来
-    Mat output_seg = Mat::zeros(src_image.size(),CV_8UC3);
+//    output_seg = Mat::zeros(src_image.size(),CV_8UC3);
+    output_seg = Mat::zeros(Size(IMG_WIDTH,IMG_HEIGHT),CV_8UC3);
 //    qDebug()<<src_image.size;
-    Mat output_deduc = Mat::zeros(Size(width,height),CV_8UC1);
+//    Mat output_deduc = Mat::zeros(Size(width,height),CV_8UC1);
+    Mat output_deduc = Mat::zeros(Size(IMG_WIDTH,IMG_HEIGHT),CV_8UC1);
 
 
-    for (int i = 0;i<src_image.rows;i++)
+    for (int i = 0;i<IMG_HEIGHT;i++)
         {
-            for (int j=0;j<src_image.cols;j++)
+            for (int j=0;j<IMG_WIDTH;j++)
 
             {
                 int label = output[i][j].item<int>();//每一个像素属于哪个标签
                 //聚类图像
                 label2rgb(label);
-                output_seg.at<Vec3b>(i,j)[0]=bgr.at(2).toInt();
-                output_seg.at<Vec3b>(i,j)[1]=bgr.at(1).toInt();
-                output_seg.at<Vec3b>(i,j)[2]=bgr.at(0).toInt();
-                //表观反射率赋值
+                output_seg.at<Vec3b>(i,j)[0]=rgb.at(0).toInt();
+                output_seg.at<Vec3b>(i,j)[1]=rgb.at(1).toInt();
+                output_seg.at<Vec3b>(i,j)[2]=rgb.at(2).toInt();
+                //选择DN值
                 int current_DN = select_DN(label);
-                //计算灰度值
-//                int DN = get_DN(L,Gain_,Bias_);
-//                get_DN(Gain_,Bias_);
                 //星载图像
-
                 output_deduc.at<uchar>(i,j)=current_DN+qrand()%20;
 //                output_deduc.at<unsigned short>(i,j)=(unsigned short)current_DN;
 
             }
         }
-
-        QString save_folder = ui->save_path_line->text();
-        string save_path = save_folder.toStdString();
-        string seg_finalpath = save_path+"/"+"seg_"+file_name.toStdString();
-        imwrite(seg_finalpath,output_seg);
-        QImage* temp = new QImage;
-        temp -> load(QString::fromStdString(seg_finalpath));
-        ui->tempimg->setPixmap(QPixmap::fromImage(*temp).scaled(250,250));
+        //显示语义分割图像
+        QImage temp_seg;
+        output_seg.convertTo(output_seg,CV_8UC3);
+        const uchar *pSrc = (const uchar*)output_seg.data;
+        temp_seg=QImage(pSrc,output_seg.cols,output_seg.rows,output_seg.step,QImage::Format_RGB888);
+        ui->tempimg->setPixmap(QPixmap::fromImage(temp_seg).scaled(250,250));
 
         //resize分辨率转换
         int new_width = width*airres_/spaceres_;
@@ -392,27 +396,18 @@ void optdeduction::on_classify_clicked()
 
 
         Size dsize = Size(new_width,new_height);
-        Mat final;
+//        Mat final;
         cv::resize(output_deduc,final,dsize,0,10,INTER_LINEAR);
         ui->log->append("分辨率转换完成");
         QApplication::processEvents();
-
-        QString save_name = ui->save_name->text();
-        std::string finalpath;
-        if (save_name.toStdString()==""){
-            finalpath = save_path+"/"+file_name.toStdString();
-        }else{
-            finalpath = save_path+"/"+save_name.toStdString()+"."+file_suffix.toStdString();
-        }
-        imwrite(finalpath,final);
-//        imwrite(finalpath,output_deduc);
-        ui->log->append("可见光图像推演完成，图像保存至：");
-        ui->log->append(QString::fromStdString(finalpath));
-        QApplication::processEvents();
-        QImage* out = new QImage;
-        out -> load(QString::fromStdString(finalpath));
-        ui->outputimg->setPixmap(QPixmap::fromImage(*out).scaled(250,250));
-
+        //显示输出图像
+        QImage temp_final;
+        final.convertTo(final,CV_8U);
+        const uchar *pSrc2 = (const uchar*)final.data;
+        temp_final=QImage(pSrc2,final.cols,final.rows,final.step,QImage::Format_Grayscale8);
+        ui->outputimg->setPixmap(QPixmap::fromImage(temp_final).scaled(250,250));
+        ui->log->append("可见光图像推演完成");
+        ui->save_2->setEnabled(true);
 
 }
 
@@ -447,6 +442,8 @@ void optdeduction::initialize(){
     ui->tempimg->clear();
     ui->outputimg->clear();
     ui->log->clear();
+    ui->save_2->setEnabled(false);
+
 
 }
 
@@ -459,5 +456,93 @@ void optdeduction::initialize(){
 void optdeduction::on_initialize_clicked()
 {
     initialize();
+}
+
+
+void optdeduction::on_solar_zenith_angle_textChanged(const QString &arg1)
+{
+    float angle = arg1.toFloat();
+    if (angle>360||angle<0){
+        QMessageBox::question(this,tr("错误提示"),
+                             tr("角度范围不可超过0~360°"),
+                             QMessageBox::Ok,
+                             QMessageBox::Ok
+                             );
+    }
+}
+
+
+void optdeduction::on_solar_azimuth_textChanged(const QString &arg1)
+{
+    float angle = arg1.toFloat();
+    if (angle>360||angle<0){
+        QMessageBox::question(this,tr("错误提示"),
+                             tr("角度范围不可超过0~360°"),
+                             QMessageBox::Ok,
+                             QMessageBox::Ok
+                             );
+    }
+}
+
+
+void optdeduction::on_satellite_zenith_angle_textChanged(const QString &arg1)
+{
+    float angle = arg1.toFloat();
+    if (angle>360||angle<0){
+        QMessageBox::question(this,tr("错误提示"),
+                             tr("角度范围不可超过0~360°"),
+                             QMessageBox::Ok,
+                             QMessageBox::Ok
+                             );
+    }
+}
+
+
+void optdeduction::on_satellite_aximuth_textChanged(const QString &arg1)
+{
+    float angle = arg1.toFloat();
+    if (angle>360||angle<0){
+        QMessageBox::question(this,tr("错误提示"),
+                             tr("角度范围不可超过0~360°"),
+                             QMessageBox::Ok,
+                             QMessageBox::Ok
+                             );
+    }
+}
+
+
+void optdeduction::on_save_2_clicked()
+{
+    QString path = ui->fileline->text();
+    //获取图像名称
+    QFileInfo fileinfo = QFileInfo(path);
+    QString file_name = fileinfo.fileName();
+    QString file_suffix = fileinfo.suffix();
+    QString save_folder = ui->save_path_line->text();
+    string save_path = save_folder.toStdString();
+    string seg_finalpath = save_path+"/"+"seg_"+file_name.toStdString();
+    imwrite(seg_finalpath,output_seg);
+    QString save_name = ui->save_name->text();
+    std::string finalpath;
+    if (save_folder==""){
+        QMessageBox::warning(this,tr("错误提示"),
+                             tr("请选择保存路径"),
+                             QMessageBox::Ok,
+                             QMessageBox::Ok
+                             );
+        ui->log->append("请选择保存路径");
+        return ;
+    }
+    if (save_name.toStdString()==""){
+        finalpath = save_path+"/"+file_name.toStdString();
+    }else{
+        finalpath = save_path+"/"+save_name.toStdString()+"."+file_suffix.toStdString();
+    }
+    imwrite(finalpath,final);
+//        imwrite(finalpath,output_deduc);
+    ui->log->append("图像保存至：");
+    ui->log->append(QString::fromStdString(finalpath));
+    QApplication::processEvents();
+
 }
 

@@ -15,7 +15,7 @@
 
 #include <fstream>
 
-#include "nms_rotated_cpu.h"
+#include "nms.h"
 
 
 Detection::Detection(QWidget *parent) :
@@ -102,18 +102,77 @@ void Detection::get_bu_group_status(QButtonGroup *bu_group, bool is_SS)
     this->reset_imgpath_show();
     if (is_SS)
     {
-        if (this->img_status.opt) ui->widget_opt_SS->show();
-        if (this->img_status.IR)  ui->widget_IR_SS->show();
-        if (this->img_status.SAR) ui->widget_SAR_SS->show();
+        if (this->img_status.opt) widget_ss_show("opt");//ui->widget_opt_SS->show();
+        if (this->img_status.IR)  widget_ss_show("IR");//ui->widget_IR_SS->show();
+        if (this->img_status.SAR) widget_ss_show("SAR");//ui->widget_SAR_SS->show();
     }
     else
     {
-        if (this->img_status.opt) ui->widget_opt_MS->show();
-        if (this->img_status.IR)  ui->widget_IR_MS->show();
-        if (this->img_status.SAR) ui->widget_SAR_MS->show();
+        if (this->img_status.opt) widget_ms_show("opt");//ui->widget_opt_MS->show();
+        if (this->img_status.IR)  widget_ms_show("IR");//ui->widget_IR_MS->show();
+        if (this->img_status.SAR) widget_ms_show("SAR");//ui->widget_SAR_MS->show();
     }
 }
-
+void Detection::widget_ss_show(std::string phase ){
+    if(phase=="opt"){
+        ui->bu_browse_opt_SS->show();
+        ui->label_imgpath_opt_SS->show();
+        ui->le_imgpath_opt_SS->show();
+    }else if(phase=="IR"){
+        ui->bu_browse_IR_SS->show();
+        ui->label_imgpath_IR_SS->show();
+        ui->le_imgpath_IR_SS->show();
+    }else if(phase=="SAR"){
+        ui->bu_browse_SAR_SS->show();
+        ui->label_imgpath_SAR_SS->show();
+        ui->le_imgpath_SAR_SS->show();
+    }
+}
+void Detection::widget_ss_hide(std::string phase ){
+    if(phase=="opt"){
+        ui->bu_browse_opt_SS->hide();
+        ui->label_imgpath_opt_SS->hide();
+        ui->le_imgpath_opt_SS->hide();
+    }else if(phase=="IR"){
+        ui->bu_browse_IR_SS->hide();
+        ui->label_imgpath_IR_SS->hide();
+        ui->le_imgpath_IR_SS->hide();
+    }else if(phase=="SAR"){
+        ui->bu_browse_SAR_SS->hide();
+        ui->label_imgpath_SAR_SS->hide();
+        ui->le_imgpath_SAR_SS->hide();
+    }
+}
+void Detection::widget_ms_show(std::string phase ){
+    if(phase=="opt"){
+        ui->bu_browse_opt_MS->show();
+        ui->label_imgpath_opt_MS->show();
+        ui->le_imgpath_opt_MS->show();
+    }else if(phase=="IR"){
+        ui->bu_browse_IR_MS->show();
+        ui->label_imgpath_IR_MS->show();
+        ui->le_imgpath_IR_MS->show();
+    }else if(phase=="SAR"){
+        ui->bu_browse_SAR_MS->show();
+        ui->label_imgpath_SAR_MS->show();
+        ui->le_imgpath_SAR_MS->show();
+    }
+}
+void Detection::widget_ms_hide(std::string phase ){
+    if(phase=="opt"){
+        ui->bu_browse_opt_MS->hide();
+        ui->label_imgpath_opt_MS->hide();
+        ui->le_imgpath_opt_MS->hide();
+    }else if(phase=="IR"){
+        ui->bu_browse_IR_MS->hide();
+        ui->label_imgpath_IR_MS->hide();
+        ui->le_imgpath_IR_MS->hide();
+    }else if(phase=="SAR"){
+        ui->bu_browse_SAR_MS->hide();
+        ui->label_imgpath_SAR_MS->hide();
+        ui->le_imgpath_SAR_MS->hide();
+    }
+}
 void Detection::on_bu_group_SS(QAbstractButton *button) {this->get_bu_group_status(&bu_group_SS, true);}
 
 void Detection::on_bu_group_MS(QAbstractButton *button) {this->get_bu_group_status(&bu_group_MS, false);}
@@ -617,12 +676,18 @@ void Detection::reset_imgpath_show()
     ui->le_imgpath_IR_MS->clear();
     ui->le_imgpath_SAR_MS->clear();
 
-    ui->widget_opt_SS->hide();
-    ui->widget_IR_SS->hide();
-    ui->widget_SAR_SS->hide();
-    ui->widget_opt_MS->hide();
-    ui->widget_IR_MS->hide();
-    ui->widget_SAR_MS->hide();
+//    ui->widget_opt_SS->hide();
+//    ui->widget_IR_SS->hide();
+//    ui->widget_SAR_SS->hide();
+    widget_ss_hide("opt");
+    widget_ss_hide("IR");
+    widget_ss_hide("SAR");
+    widget_ms_hide("opt");
+    widget_ms_hide("IR");
+    widget_ms_hide("SAR");
+//    ui->widget_opt_MS->hide();
+//    ui->widget_IR_MS->hide();
+//    ui->widget_SAR_MS->hide();
 }
 void Detection::reset_img_show()
 {
@@ -636,6 +701,8 @@ void Detection::reset_img_show()
     ui->labelImage_opt->clear();
     ui->labelImage_IR->clear();
     ui->labelImage_SAR->clear();
+
+    ui->tabWidget_show->setCurrentWidget(ui->opt);
 
 }
 
@@ -661,13 +728,14 @@ void Detection::reset_bu_groups()
 void Detection::reset_config_params()
 {
     // 初始化算法参数设置
-    ui->line_score->setText(QString::number(0.5));
+    ui->line_score->setText(QString::number(0.2));
     ui->line_iou_thr->setText(QString::number(0.1));
     ui->line_max_before_nms->setText(QString::number(2000));
 }
 // 初始化界面
 void Detection::init_ui()
 {
+    ui->CB_mode->setCurrentIndex(0);
     // 初始化图像路径界面和图像显示界面
     this->reset_show();
 
