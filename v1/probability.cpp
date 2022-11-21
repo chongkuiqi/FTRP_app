@@ -1338,7 +1338,7 @@ void get_fe_text(cv::Mat &img, const RBox &rbox, cv::Mat &roi_fe_text)
 
 
     // Gabor滤波器参数初始化
-    int kernel_size = 3;
+    int kernel_size;
     double sigma = 1.0, lambd = CV_PI/8, gamma = 0.5, psi = 0;
     // theta 法线方向
     double theta[8];
@@ -1347,17 +1347,25 @@ void get_fe_text(cv::Mat &img, const RBox &rbox, cv::Mat &roi_fe_text)
     {
         theta[i] = (CV_PI/num_theta) * i;
     }
+
+    int num_scale = 8;
+    int kernel_size_ls[8] = {3,5,7,9,11,13,15,17};
     // gabor 纹理检测器，可以更多，
     std::vector<cv::Mat> imgs_filtered;
-    for(int i = 0; i<num_theta; i++)
+    for (int j=0; j<num_scale; j++)
     {
-        cv::Mat kernel1;
-        cv::Mat dest;
-        kernel1 = cv::getGaborKernel(cv::Size(kernel_size, kernel_size), sigma, theta[i], lambd, gamma, psi, CV_32F);
-        filter2D(img_rotate, dest, CV_32F, kernel1);
-        imgs_filtered.push_back(dest);
+        kernel_size = kernel_size_ls[j];
+        for(int i = 0; i<num_theta; i++)
+        {
+            cv::Mat kernel1;
+            cv::Mat dest;
+            kernel1 = cv::getGaborKernel(cv::Size(kernel_size, kernel_size), sigma, theta[i], lambd, gamma, psi, CV_32F);
+            filter2D(img_rotate, dest, CV_32F, kernel1);
+            imgs_filtered.push_back(dest);
 
+        }
     }
+
     // 合并为一个多通道图像
     cv::Mat mc_img;
     cv::merge(imgs_filtered, mc_img);
@@ -1487,7 +1495,7 @@ void Probability::on_bu_group_fe_weights(QAbstractButton *button)
         ui->SW_weight_fe->setCurrentWidget(ui->fe_entropy);
 
         // 将熵权法确定的权值显示在屏幕上
-        float fe_sim_weights_opt[3] = {0.38618679, 0.38472063, 0.22909258};
+        float fe_sim_weights_opt[3] = {0.34179946, 0.34120829, 0.31699225};
         float used_weights[3] = {0.0, 0.0, 0.0};
 
         if (this->fe_status.deep) used_weights[0] = fe_sim_weights_opt[0];
@@ -1812,8 +1820,7 @@ float sim_map_pro_psychology(float similarity)
     float temp = -k * (similarity-p);
     probability= 1 - exp(temp);
 
-    probability = (probability > 1.0) ? 1.0 : probability;
-    probability = (probability < 0.0) ? 0.0 : probability;
+    if (probability >1.0 || probability <0.0) probability = 1-similarity;
 
     return probability;
 }
