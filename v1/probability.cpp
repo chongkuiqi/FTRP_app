@@ -1135,6 +1135,7 @@ void extract_fe_deep(SingleSpectrum &specturm_img, const RBox &rbox_1, const RBo
     // shape [N, 6(batch_id, x(像素单位), y, w, h, theta(弧度))]
     rois_1 = rois_1.unsqueeze(0);
 
+
 //    at::Tensor roi
 //      rois = at::Tensor(
 //                {

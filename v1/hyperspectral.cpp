@@ -377,7 +377,11 @@ void hyperspectral::on_save_clicked()
     for (int r =0 ;r<new_height ;r++ ) {
         for(int ch = 0;ch<num_spec;ch++){
             for(int c = 0;c<new_width;c++){
+                if(c==new_width-1 && ch==num_spec-1){
+                    outFile<<out_image_vec[ch].at<float>(r,c);
+                }else{
                 outFile<<out_image_vec[ch].at<float>(r,c)<<",";
+                }
             }
         }
         outFile<<endl;

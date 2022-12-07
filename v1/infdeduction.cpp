@@ -86,9 +86,9 @@ void infdeduction::on_run_clicked()
     //显示输出图像
     QImage img;
 //    cv::normalize(first_image,normalize_mat,0,(int)255*select_transmitance(current_spec),cv::NORM_MINMAX,-1);
-    image_output.convertTo(image_output,CV_8U);
-    const uchar *pSrc = (const uchar*)image_output.data;
-    img=QImage(pSrc,image_output.cols,image_output.rows,image_output.step,QImage::Format_Grayscale8);
+    final.convertTo(final,CV_8U);
+    const uchar *pSrc = (const uchar*)final.data;
+    img=QImage(pSrc,final.cols,final.rows,final.step,QImage::Format_Grayscale8);
 //    QImage* outimg = new QImage;
 //    outimg -> load(QString::fromStdString(finalpath));
     ui->out_img->setPixmap(QPixmap::fromImage(img).scaled(300,300));

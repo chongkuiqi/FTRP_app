@@ -520,8 +520,8 @@ void optdeduction::on_save_2_clicked()
     QString file_suffix = fileinfo.suffix();
     QString save_folder = ui->save_path_line->text();
     string save_path = save_folder.toStdString();
-    string seg_finalpath = save_path+"/"+"seg_"+file_name.toStdString();
-    imwrite(seg_finalpath,output_seg);
+//    string seg_finalpath = save_path+"/"+"seg_"+file_name.toStdString();
+//    imwrite(seg_finalpath,output_seg);
     QString save_name = ui->save_name->text();
     std::string finalpath;
     if (save_folder==""){

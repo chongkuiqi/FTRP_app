@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1229</width>
-    <height>865</height>
+    <height>894</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -817,7 +817,7 @@
           <item>
            <widget class="QLineEdit" name="airres">
             <property name="text">
-             <string>0.26</string>
+             <string>0.3</string>
             </property>
            </widget>
           </item>
