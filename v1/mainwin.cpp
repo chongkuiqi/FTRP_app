@@ -9,6 +9,8 @@ MainWin::MainWin(QWidget *parent)
 
     deduchide();
     this->setWindowTitle("被识别概率计算软件");
+    this->setStyleSheet("#MainWin{background-image: url(:/new/prefix1/bg5.jpg);}");
+//    this->setStyleSheet("background-image: url(:/new/prefix1/Missile.jpeg);");
 
     connect(ui->bu_exit, &QPushButton::clicked, this, &QMainWindow::close);
 
