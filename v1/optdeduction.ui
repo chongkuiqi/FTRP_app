@@ -29,7 +29,7 @@
              </font>
             </property>
             <property name="text">
-             <string>机载光学图像：</string>
+             <string>机载可见光图像：</string>
             </property>
            </widget>
           </item>
@@ -810,7 +810,7 @@
              </font>
             </property>
             <property name="text">
-             <string>机载光学图像空间分辨率（m）：</string>
+             <string>机载可见光图像空间分辨率（m）：</string>
             </property>
            </widget>
           </item>
@@ -846,7 +846,7 @@
              </font>
             </property>
             <property name="text">
-             <string>星载光学图像空间分辨率（m）：</string>
+             <string>星载可见光图像空间分辨率（m）：</string>
             </property>
            </widget>
           </item>
@@ -937,7 +937,7 @@
            </font>
           </property>
           <property name="text">
-           <string>机载光学图像需要提前放入项目文件夹中</string>
+           <string>机载可见光图像需要提前放入项目文件夹中</string>
           </property>
          </widget>
         </item>
@@ -1012,7 +1012,7 @@
         <item>
          <widget class="QLabel" name="label_17">
           <property name="text">
-           <string>机载光学图像（预览）</string>
+           <string>机载可见光图像（预览）</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -1204,7 +1204,7 @@
         <item>
          <widget class="QLabel" name="label_19">
           <property name="text">
-           <string>星载光学图像（预览）</string>
+           <string>星载可见光图像（预览）</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>

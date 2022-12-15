@@ -43,7 +43,7 @@ img = img.to(device)
 
 # print(model)
 # weight_path = 'exp383.pt'
-weight_path = 'exp382.pt'
+weight_path = 'exp386.pt'
 pretrained = torch.load(weight_path, map_location=device)['model']
 model = Model().to(device)
 model = load_state_dict(model, pretrained.state_dict())
