@@ -59,5 +59,3 @@ with torch.no_grad():
 # save model
 save_name = weight_path.replace(".pt", "_fe_script.pt")
 traced_script_module.save(save_name)
-
-

@@ -1067,13 +1067,13 @@ void get_fe_deep(cv::Mat &img, const at::Tensor &rbox, at::Tensor &roi_fe_deep, 
     switch(spectrum_type)
     {
         case OPT_SPECTRUM:
-            model_path = "./model/extract_fe/可见光_exp361_fe_script.pt";
+            model_path = "./model/extract_fe/opt_exp384_fe_script.pt";
             break;
         case IR_SPECTRUM:
-            model_path = "./model/extract_fe/红外_exp382_fe_script.pt";
+            model_path = "./model/extract_fe/IR_exp385_fe_script.pt";
             break;
         case SAR_SPECTRUM:
-            model_path = "./model/extract_fe/SAR_exp383_fe_script.pt";
+            model_path = "./model/extract_fe/SAR_exp386_fe_script.pt";
             break;
         default:
             std::cout << "没有选择合适的模型" << std::endl;
@@ -1811,11 +1811,11 @@ void Probability::cal_similarity_SS(SingleSpectrum &specturm_img)
 // 特征相似度到识别概率的映射
 
 // 心理学决策原理法
-float sim_map_pro_psychology(float similarity)
+float sim_map_pro_psychology_fg_bg(float similarity)
 {
 
-    float k = -5.271814351796055;
-    float p = 0.73261630357357;
+    float k = -4.290018580259924;
+    float p = 0.7416156711588913;
 
     float probability;
     float temp = -k * (similarity-p);
@@ -1825,14 +1825,26 @@ float sim_map_pro_psychology(float similarity)
 
     return probability;
 }
+float sim_map_pro_psychology_fg_fg(float similarity)
+{
 
+    float k = -0.9135134583025529;
+    float p = 0.9450706058862101;
+
+    float probability;
+    float temp = -k * (similarity-p);
+    probability= 1 - exp(temp);
+
+    if (probability >1.0 || probability <0.0) probability = 1-similarity;
+
+    return probability;
+}
 void Probability::cal_probability()
 {
 
     // 由综合特征相似度计算识别概率，有函数映射法和心理学决策原理法，共2种方法
-
-    this->probability = sim_map_pro_psychology(this->similarity);
-
+    if (this->rois_type==0) this->probability = sim_map_pro_psychology_fg_bg(this->similarity);
+    else this->probability = sim_map_pro_psychology_fg_fg(this->similarity);
     QString log = QString("\n计算得到的识别概率为:") + QString::number(this->probability, 'f', 3);
     ui->text_log->append(log);
 }

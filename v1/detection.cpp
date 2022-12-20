@@ -312,33 +312,33 @@ void Detection::detect()
     {
         // 可见光
         case 100:
-            model_path = "./model/detection/可见光_exp361.pt";
+            model_path = "./model/detection/opt_exp384.pt";
             break;
         // 红外
         case 10:
-            model_path = "./model/detection/红外_exp382.pt";
+            model_path = "./model/detection/IR_exp385.pt";
             break;
         // SAR
         case 1:
-            model_path = "./model/detection/SAR_exp383.pt";
+            model_path = "./model/detection/SAR_exp386.pt";
             break;
 
         // 可见光+红外
         case 110:
-            model_path = "./model/detection/可见光_红外_exp17.pt";
+            model_path = "./model/detection/opt_IR_exp21.pt";
             break;
         // 可见光+SAR
         case 101:
-            model_path = "./model/detection/可见光_SAR_exp18.pt";
+            model_path = "./model/detection/opt_SAR_exp22.pt";
             break;
         // 红外+SAR
         case 11:
-            model_path = "./model/detection/红外_SAR_exp19.pt";
+            model_path = "./model/detection/IR_SAR_exp23.pt";
             break;
 
         // 可见光+红外+SAR
         case 111:
-            model_path = "./model/detection/可见光_红外_SAR_exp16.pt";
+            model_path = "./model/detection/opt_IR_SAR_exp20.pt";
             break;
 
         default:
