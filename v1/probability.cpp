@@ -1084,10 +1084,20 @@ void get_fe_deep(cv::Mat &img, const at::Tensor &rbox, at::Tensor &roi_fe_deep, 
     torch::Device device(torch::kCPU);
 
     // 提取第一个区域的特征
+    float ratio=1.0;
+    int padding_top, padding_left=0;
     at::Tensor input_tensor;
-    preprocess(img, input_tensor);
+//    preprocess(img, input_tensor);
+    preprocess(img, input_tensor, ratio, padding_top, padding_left);
     input_tensor = input_tensor.to(device);
 //     cout << "input img size:" << input_tensor.sizes() << endl;
+
+    // 标签也需要进行相应的缩放
+    rbox[0][0] = rbox[0][0].mul_(ratio).add_(padding_left);
+    rbox[0][1] = rbox[0][1].mul_(ratio).add_(padding_top);
+    rbox[0][2] = rbox[0][2].mul_(ratio);
+    rbox[0][3] = rbox[0][3].mul_(ratio);
+
 
     torch::NoGradGuard no_grad;
     torch::jit::script::Module model;

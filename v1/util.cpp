@@ -21,26 +21,73 @@ bool LoadImage(std::string file_name, cv::Mat &img)
   return true;
 }
 
-//
-void preprocess(cv::Mat &img, at::Tensor &input_tensor)
+void preprocess(cv::Mat& img, at::Tensor& input_tensor, float &ratio, int & padding_top, int & padding_left)
 {
-    cv::cvtColor(img, img, cv::COLOR_BGR2RGB);
-    // // scale image to fit
-    // cv::Size scale(IMG_SIZE, IMG_SIZE);
-    // cv::resize(img2, img2, scale);
-    // convert [unsigned int] to [float]
-    img.convertTo(img, CV_32FC3);
+     // scale image to fit
+    int img_h = img.rows;
+    int img_w = img.cols;
 
-    input_tensor = torch::from_blob(
-      img.data, {1, IMG_SIZE, IMG_SIZE, IMG_CHN});
-    input_tensor = input_tensor.permute({0, 3, 1, 2});
+    float ratio_h = float(IMG_SIZE_H) / float(img_h);
+    float ratio_w = float(IMG_SIZE_W) / float(img_w);
+    // 根据长度和宽度，选择小缩放比例
+    ratio = (ratio_h < ratio_w) ? ratio_h : ratio_w;
+    int new_img_h = int(round(img_h * ratio));
+    int new_img_w = int(round(img_w * ratio));
+    // 等比例缩放
+    cv::Size scale(new_img_w, new_img_h);
+    cv::Mat img_temp;
+    cv::resize(img, img_temp, scale);
 
+    // 计算填充的像素个数
+    int dh = IMG_SIZE_H - new_img_h;
+    int dw = IMG_SIZE_W - new_img_w;
+    dh /= 2;
+    dw /= 2;
+    // padding
+    padding_top = int(round(dh - 0.1));
+    int padding_bottom = int(round(dh + 0.1));
+    padding_left = int(round(dw - 0.1));
+    int padding_right = int(round(dw + 0.1));
+
+    cv::copyMakeBorder(img_temp, img_temp, padding_top, padding_bottom, padding_left, padding_right, cv::BORDER_CONSTANT, cv::Scalar(114, 114, 114));
+
+
+
+
+    cv::cvtColor(img_temp, img_temp, cv::COLOR_BGR2RGB);
+    // convert [unsigned int] to [float], normalization 1/255
+    img_temp.convertTo(img_temp, CV_32FC3);
+
+
+    input_tensor = torch::from_blob(img_temp.data, { 1, img_temp.rows, img_temp.cols, img_temp.channels() });
+    input_tensor = input_tensor.permute({ 0, 3, 1, 2 });
     input_tensor[0][0] = input_tensor[0][0].sub_(img_normalize_mean[0]).div_(img_normalize_std[0]);
     input_tensor[0][1] = input_tensor[0][1].sub_(img_normalize_mean[1]).div_(img_normalize_std[1]);
     input_tensor[0][2] = input_tensor[0][2].sub_(img_normalize_mean[2]).div_(img_normalize_std[2]);
 
     input_tensor = input_tensor.contiguous();
 }
+
+//
+//void preprocess(cv::Mat &img, at::Tensor &input_tensor)
+//{
+//    cv::cvtColor(img, img, cv::COLOR_BGR2RGB);
+//    // // scale image to fit
+//    // cv::Size scale(IMG_SIZE, IMG_SIZE);
+//    // cv::resize(img2, img2, scale);
+//    // convert [unsigned int] to [float]
+//    img.convertTo(img, CV_32FC3);
+
+//    input_tensor = torch::from_blob(
+//      img.data, {1, IMG_SIZE_H, IMG_SIZE_H, IMG_CHN});
+//    input_tensor = input_tensor.permute({0, 3, 1, 2});
+
+//    input_tensor[0][0] = input_tensor[0][0].sub_(img_normalize_mean[0]).div_(img_normalize_std[0]);
+//    input_tensor[0][1] = input_tensor[0][1].sub_(img_normalize_mean[1]).div_(img_normalize_std[1]);
+//    input_tensor[0][2] = input_tensor[0][2].sub_(img_normalize_mean[2]).div_(img_normalize_std[2]);
+
+//    input_tensor = input_tensor.contiguous();
+//}
 
 float norm_angle(float theta)
 {

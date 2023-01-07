@@ -39,12 +39,13 @@ struct RBox
 
 
 
-#define IMG_SIZE 1024
+#define IMG_SIZE_H 1024
+#define IMG_SIZE_W 1024
 #define IMG_CHN 3
 
 
-
-void preprocess(cv::Mat &img, at::Tensor &input_tensor);
+void preprocess(cv::Mat& img, at::Tensor& input_tensor, float &ratio, int & padding_top, int & padding_left);
+//void preprocess(cv::Mat &img, at::Tensor &input_tensor);
 
 bool LoadImage(std::string file_name, cv::Mat &img);
 

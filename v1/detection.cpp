@@ -277,26 +277,32 @@ void Detection::detect()
     cv::Mat img;
     at::Tensor img_tensor;
     std::vector<c10::IValue> imgs;
+    float ratio=1.0;
+    int padding_top, padding_left=0;
+
     // 以下三个if语句，按顺序分别提取可见光、红外、SAR图像，顺序不能乱，否则输入到网络中的图像顺序也是乱的
     if (this->img_status.opt)
     {
         img_path = this->img_paths.opt;
         LoadImage(img_path.toStdString(), img); // CV_8UC3
-        preprocess(img, img_tensor);
+//        preprocess(img, img_tensor);
+        preprocess(img, img_tensor, ratio, padding_top, padding_left);
         imgs.push_back(img_tensor.clone());
     }
     if (this->img_status.IR)
     {
         img_path = this->img_paths.IR;
         LoadImage(img_path.toStdString(), img); // CV_8UC3
-        preprocess(img, img_tensor);
+//        preprocess(img, img_tensor);
+        preprocess(img, img_tensor, ratio, padding_top, padding_left);
         imgs.push_back(img_tensor.clone());
     }
     if (this->img_status.SAR)
     {
         img_path = this->img_paths.SAR;
         LoadImage(img_path.toStdString(), img); // CV_8UC3
-        preprocess(img, img_tensor);
+//        preprocess(img, img_tensor);
+        preprocess(img, img_tensor, ratio, padding_top, padding_left);
         imgs.push_back(img_tensor.clone());
     }
 
@@ -354,6 +360,7 @@ void Detection::detect()
     c10::List<at::Tensor> scores_levels = output->elements()[0].toTensorList();
     c10::List<at::Tensor> bboxes_levels = output->elements()[1].toTensorList();
 
+
     // 获取模型配置参数
     float score_thr = (ui->line_score->text()).toFloat();
     float iou_thr = (ui->line_iou_thr->text()).toFloat();
@@ -364,7 +371,11 @@ void Detection::detect()
                   max_before_nms,
                   score_thr, iou_thr, max_before_nms);
 
-
+    // 边界框转化为原始的图像尺寸
+    results.boxes.select(1, 0) = results.boxes.select(1, 0).sub_(padding_left).div_(ratio);
+    results.boxes.select(1, 1) = results.boxes.select(1, 1).sub_(padding_top).div_(ratio);
+    results.boxes.select(1, 2) = results.boxes.select(1, 2).div_(ratio);
+    results.boxes.select(1, 3) = results.boxes.select(1, 3).div_(ratio);
     xywhtheta2points(results.boxes, this->contours);
 
 
